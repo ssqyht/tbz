@@ -2,15 +2,12 @@
 namespace api\controllers;
 
 use yii\web\Controller;
-use yii\filters\VerbFilter;
-use yii\filters\AccessControl;
 
 /**
  * Site controller
  */
 class SiteController extends Controller
 {
-
     /**
      * Displays homepage.
      *
@@ -20,4 +17,6 @@ class SiteController extends Controller
     {
         echo 'You must visit a module  "/v1"';exit;
     }
+
+
 }

@@ -48,7 +48,8 @@ return [
             'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
-                '' => 'site/index'
+                '' => 'site/index',
+                '<wechat>/server' => 'wechat/server',
             ],
         ],
     ],

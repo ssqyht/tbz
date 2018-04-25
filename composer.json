@@ -7,10 +7,12 @@
     "license": "BSD-3-Clause",
     "minimum-stability": "stable",
     "require": {
-        "php": ">=5.6.0",
+        "php": ">=7.0",
         "yiisoft/yii2": "*",
         "yiisoft/yii2-bootstrap": "*",
-        "yiisoft/yii2-swiftmailer": "*"
+        "yiisoft/yii2-swiftmailer": "*",
+        "thanatosxia/yii2-wechat": "dev-master"
+
     },
     "require-dev": {
         "yiisoft/yii2-debug": "*",
@@ -27,8 +29,13 @@
     },
     "repositories": [
         {
+            "type": "vcs",
+            "url": "git@github.com:thanatos915/yii2-wechat.git"
+        },
+        {
             "type": "composer",
             "url": "https://asset-packagist.org"
         }
+
     ]
 }
