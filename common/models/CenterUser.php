@@ -2,7 +2,7 @@
 
 namespace common\models;
 
-use common\traits\TimestampTrait;
+use common\components\traits\TimestampTrait;
 use yii\db\ActiveRecord;
 
 /**
@@ -29,7 +29,7 @@ class CenterUser extends ActiveRecord
     /** @var int 未知 */
     const SEX_UNKNOWN = 0;
     /** @var int max sex */
-    const MAX_SEX = 2;
+    const SEX_MAX = self::SEX_WOMAN;
 
     /** @var int 用户正常状态 */
     const STATUS_NORMAL = 10;

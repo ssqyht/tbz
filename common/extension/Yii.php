@@ -19,7 +19,8 @@ class Yii extends \yii\BaseYii
 /**
  * Class BaseApplication
  * Used for properties that are identical for both WebApplication and ConsoleApplication
- *
+ * @property \thanatos\wechat\Wechat $wechat 微信类
+ * @property \thanatos\oss\Oss $oss Oss
  */
 abstract class BaseApplication extends yii\base\Application
 {
@@ -28,7 +29,6 @@ abstract class BaseApplication extends yii\base\Application
 /**
  * Class WebApplication
  * Include only Web application related components here
- * @property \thanatos\wechat\Wechat $wechat 微信类
  */
 abstract class WebApplication extends  yii\web\Application
 {

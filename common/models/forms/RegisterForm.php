@@ -6,6 +6,9 @@
 namespace common\models\forms;
 
 
+use common\components\traits\funcTraits;
+use common\extension\Code;
+use common\models\FileCommon;
 use common\models\Member;
 use Yii;
 use common\models\CenterUser;
@@ -13,6 +16,7 @@ use common\models\CenterUserOauth;
 use yii\base\Model;
 use yii\db\Exception;
 use yii\helpers\ArrayHelper;
+use yii\imagine\Image;
 
 class RegisterForm extends Model
 {
@@ -30,7 +34,7 @@ class RegisterForm extends Model
             [['username', 'sex', 'oauth_name', 'oauth_key'], 'required'],
             [['headimgurl'], 'string'],
             [['username'], 'string', 'max' => 30],
-            [['sex'], 'integer', 'max' => CenterUser::MAX_SEX, 'min' => 0],
+            [['sex'], 'integer', 'max' => CenterUser::SEX_MAX, 'min' => 0],
             [['oauth_name'], 'integer', 'max' => CenterUserOauth::MAX_OAUTH_NAME, 'min' => 1],
             ['oauth_key', 'string', 'max' => 50],
             ['oauth_key', 'validateOauthKey'],
@@ -90,9 +94,9 @@ class RegisterForm extends Model
             $member = new Member();
             $member->sex = $centerUser->sex;
             $member->center_id= $centerUser->id;
-            // TODO 生成头像
-            if ($this->headimgurl) {
-
+            // 生成头像
+            if ($this->headimgurl && $result = FileUpload::upload($this->headimgul)) {
+                $member->headimg_id = $result->file_id ?? 0;
             }
             if (!$member->save()) {
                 throw new Exception('member save failed');
@@ -106,6 +110,5 @@ class RegisterForm extends Model
         }
 
     }
-
 
 }

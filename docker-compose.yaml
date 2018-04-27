@@ -10,8 +10,10 @@ services:
       - ./../server-tubangzhu:/var/www/html/server
       - ./../client-tubangzhu:/var/www/html/client
       - ./.docker/php/conf.d/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./.docker/php/php.ini:/usr/local/etc/php/php.ini
     environment:
       XDEBUG_CONFIG: remote_host=10.254.254.254
+    command: /bin/sh -c "cd server && composer install && php-fpm"
     depends_on:
 #       - mysql
       - redis

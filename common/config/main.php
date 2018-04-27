@@ -17,6 +17,10 @@ return [
         // 微信配置
         'wechat' => [
             'class' => 'thanatos\wechat\Wechat',
-        ]
+        ],
+        // OSS配置
+        'oss' => [
+            'class' => 'thanatos\oss\Oss',
+        ],
     ],
 ];

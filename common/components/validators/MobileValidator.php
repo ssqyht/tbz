@@ -3,7 +3,7 @@
  * @user: thanatos
  */
 
-namespace common\validators;
+namespace common\components\validators;
 
 
 use yii\validators\Validator;

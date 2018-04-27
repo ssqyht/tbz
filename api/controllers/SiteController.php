@@ -1,6 +1,9 @@
 <?php
 namespace api\controllers;
 
+use common\components\traits\funcTraits;
+use common\models\forms\FileUpload;
+use Yii;
 use yii\web\Controller;
 
 /**

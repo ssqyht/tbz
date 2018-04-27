@@ -3,7 +3,7 @@
  * @user: thanatos
  */
 
-namespace common\traits;
+namespace common\components\traits;
 
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;

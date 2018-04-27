@@ -23,7 +23,7 @@ class CenterUserOauth extends \yii\db\ActiveRecord
     /** @var int QQ */
     const OAUTH_QQ = 2;
     /** @var int max oauth_name */
-    const MAX_OAUTH_NAME = 2;
+    const MAX_OAUTH_NAME = self::OAUTH_QQ;
 
     /**
      * @inheritdoc
