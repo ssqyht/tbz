@@ -43,9 +43,6 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
     /** @var int 用户正常状态 */
     const STATUS_NORMAL = 10;
 
-    /** @var MemberAccessToken */
-    private $_accessToken;
-
     /**
      * @inheritdoc
      */
@@ -98,11 +95,7 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
     public function fields()
     {
         return [
-            'id', 'mobile', 'sex', 'headimg_id', 'coin',
-            'access_token' => function ($model) {
-                /** @var static $model */
-                return $model->accessToken->access_token;
-            }
+            'id', 'username','mobile', 'sex', 'headimg_url', 'coin'
         ];
     }
 
@@ -126,18 +119,12 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
     public function validateAuthKey($authKey)
     {}
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getAccessToken()
     {
-        if ($this->_accessToken === null) {
-            return $this->hasOne(MemberAccessToken::class, ['user_id' => 'id']);
-        } else {
-            return $this->_accessToken;
-        }
-    }
-
-    public function setAccessToken($value)
-    {
-        $this->_accessToken = $value;
+        return $this->hasOne(MemberAccessToken::class, ['user_id' => 'id']);
     }
 
     /**
