@@ -91,6 +91,7 @@ class RegisterForm extends Model
             // 生成头像
             if ($this->headimgurl && $result = FileUpload::upload($this->headimgurl)) {
                 $member->headimg_id = $result->file_id ?? 0;
+                $member->headimg_url = $result->path ?? '';
             }
             // 保存
             if (!$member->save()) {

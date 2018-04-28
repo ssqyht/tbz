@@ -25,6 +25,7 @@ class BaseMessageHandle extends MessageHandler
     public function beforeHandle()
     {
         // 自动登录
+        Yii::$app->user->logout();
         if (Yii::$app->user->isGuest) {
             $model = new LoginForm(['scenario' => LoginForm::SCENARIO_OAUTH]);
             $model->load([

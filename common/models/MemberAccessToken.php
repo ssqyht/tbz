@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\traits\TimestampTrait;
 use Yii;
 
 /**
@@ -17,6 +18,17 @@ use Yii;
  */
 class MemberAccessToken extends \yii\db\ActiveRecord
 {
+    use TimestampTrait;
+
+    /** @var int web 网页端登录 */
+    const TOKEN_TYPE_WEB = 1;
+    /** @var int 移动端 */
+    const TOKEN_TYPE_MOBILE = 2;
+    /** @var int 小程序端 */
+    const TOKEN_TYPE_MINI_PROGRAM = 3;
+    /** @var int 设备号最大值 */
+    const MAX_TOKEN_TYPE = self::TOKEN_TYPE_MINI_PROGRAM;
+
     /**
      * @inheritdoc
      */
@@ -31,10 +43,12 @@ class MemberAccessToken extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            ['token_type', 'default', 'value' => 0],
             [['user_id', 'expired_at'], 'integer'],
-            [['access_token', 'token_unique', 'created_at'], 'required'],
+            [['access_token', 'token_unique', 'user_id'], 'required'],
             [['access_token', 'token_unique'], 'string', 'max' => 32],
-            [['token_type'], 'string', 'max' => 1],
+            [['token_type'], 'integer', 'max' => static::MAX_TOKEN_TYPE],
+            ['expired_at', 'default', 'value' => time() + Member::LOGIN_DURATION]
         ];
     }
 
@@ -53,4 +67,44 @@ class MemberAccessToken extends \yii\db\ActiveRecord
             'created_at' => 'Created At',
         ];
     }
+
+    /**
+     * 生成access_token
+     * @param $tokenType
+     * @return bool|MemberAccessToken
+     */
+    public static function createAccessToken($tokenType = 0)
+    {
+        $accessToken = '';
+        try {
+            $accessToken = Yii::$app->security->generateRandomString();
+        } catch (\Exception $exception) {}
+
+        $tokenUnique = md5(Yii::$app->request->userAgent);
+
+        $model = new static();
+        $model->load([
+            'user_id' => Yii::$app->user->id,
+            'token_type' => $tokenType,
+            'access_token' => $accessToken,
+            'token_unique' => $tokenUnique,
+        ], '');
+        if (!$model->validate()) {
+            return false;
+        }
+        // 删除当前设备的登录记录
+        try {
+            static::getDb()->createCommand()->delete(static::tableName(), [
+                'user_id' => $model->user_id,
+                'token_type' => $tokenType,
+                'token_unique' => $tokenUnique,
+            ])->execute();
+        } catch (\Exception $e) {
+            var_dump($e);exit;
+        }
+
+        return $model->save() ? $model : false;
+    }
+
+
 }

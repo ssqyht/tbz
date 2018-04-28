@@ -15,6 +15,7 @@ use common\extension\Code;
 use common\models\forms\LoginForm;
 use common\models\MemberOauth;
 use Yii;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\rest\Controller;
 use yii\web\BadRequestHttpException;
@@ -76,12 +77,12 @@ class WechatController extends Controller
 
     /**
      * 检查登录状态，完成微信登录
-     * @return \common\models\Member|null|\yii\web\IdentityInterface
+     * @return array
      * @throws UnauthorizedHttpException
      */
     public function actionSession()
     {
-        if (Yii::$app->request->isAjax) {
+//        if (Yii::$app->request->isAjax) {
             $ticket = Yii::$app->session->get(self::LOGIN_QRCODE_KEY);
             $cacheKey = [
                 $ticket
@@ -93,12 +94,12 @@ class WechatController extends Controller
                 'oauth_name' => MemberOauth::OAUTH_WECHAT,
                 'oauth_key' => $unionid
             ], '');
-            if ($model->submit()) {
-                return Yii::$app->user->identity;
+            if ($result = $model->submit()) {
+                return ArrayHelper::merge(Yii::$app->user->identity->toArray(), ['access_token' => $result->access_token]);
             } else {
                 throw new UnauthorizedHttpException('验证失败', Code::SERVER_UNAUTHORIZED);
             }
-        }
+//        }
     }
 
 }

@@ -14,7 +14,8 @@ use yii\web\IdentityInterface;
  * @property string $username 用户名
  * @property string $mobile 用户手机号
  * @property int $sex 姓别
- * @property int $headimg_id 头像
+ * @property int $headimg_id 头像id
+ * @property string $headimg_url 头像url
  * @property int $coin 图币
  * @property int $last_login_time 最后登录时间
  * @property string $password_hash 密码hash
@@ -22,6 +23,7 @@ use yii\web\IdentityInterface;
  * @property string $status 用户状态
  * @property int $created_at 创建时间
  * @property int $updated_at 修改时间
+ * @property MemberAccessToken $accessToken
  */
 class Member extends \yii\db\ActiveRecord implements IdentityInterface
 {
@@ -41,6 +43,9 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
     /** @var int 用户正常状态 */
     const STATUS_NORMAL = 10;
 
+    /** @var MemberAccessToken */
+    private $_accessToken;
+
     /**
      * @inheritdoc
      */
@@ -57,6 +62,8 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
         return [
             [['headimg_id', 'coin', 'last_login_time'], 'integer'],
             [['username'], 'string', 'max' => 30],
+            [['headimg_url'], 'string', 'max' => 255],
+            ['headimg_url', 'default', 'value' => ''],
             [['mobile'], 'string', 'max' => 11],
             ['mobile', MobileValidator::class],
             [['sex', 'status'], 'integer', 'max' => 255],
@@ -77,6 +84,7 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
             'mobile' => 'Mobile',
             'sex' => 'Sex',
             'headimg_id' => 'Headimg ID',
+            'headimg_url' => 'Headimg Url',
             'coin' => 'Coin',
             'last_login_time' => 'Last Login Time',
             'status' => 'Status',
@@ -84,6 +92,17 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
             'salt' => 'Salt',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+        ];
+    }
+
+    public function fields()
+    {
+        return [
+            'id', 'mobile', 'sex', 'headimg_id', 'coin',
+            'access_token' => function ($model) {
+                /** @var static $model */
+                return $model->accessToken->access_token;
+            }
         ];
     }
 
@@ -106,6 +125,20 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
 
     public function validateAuthKey($authKey)
     {}
+
+    public function getAccessToken()
+    {
+        if ($this->_accessToken === null) {
+            return $this->hasOne(MemberAccessToken::class, ['user_id' => 'id']);
+        } else {
+            return $this->_accessToken;
+        }
+    }
+
+    public function setAccessToken($value)
+    {
+        $this->_accessToken = $value;
+    }
 
     /**
      * 返回登录保持时间
