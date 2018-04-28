@@ -13,6 +13,8 @@ use Yii;
  * @property int $oauth_name 第三方名称
  * @property string $oauth_key 第三方key值
  * @property int $created_at 创建时间
+ * @property Member $member
+ *
  */
 class MemberOauth extends \yii\db\ActiveRecord
 {
@@ -61,6 +63,7 @@ class MemberOauth extends \yii\db\ActiveRecord
         ];
     }
 
+
     /**
      * 根据第三方名和唯一值查询
      * @param string $oauthName
@@ -70,6 +73,26 @@ class MemberOauth extends \yii\db\ActiveRecord
     public static function findByNameAndKey($oauthName, $oauthKey)
     {
         return static::findOne(['oauth_name' => $oauthName, 'oauth_key' => $oauthKey]);
+    }
+
+    /**
+     * 根据第三方名和唯一值查询 返回member信息
+     * @param string $oauthName
+     * @param string $oauthKey
+     * @return array|null|static
+     */
+    public static function findMemberByNameAndKey($oauthName, $oauthKey)
+    {
+        return static::find()->with('member')->where(['oauth_name' => $oauthName, 'oauth_key' => $oauthKey])->one();
+    }
+
+    /**
+     * 一对一关联Member表
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMember()
+    {
+        return $this->hasOne(Member::class, ['id' => 'user_id']);
     }
 
 }

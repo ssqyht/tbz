@@ -8,31 +8,45 @@
 
 namespace api\common\models\wechat;
 
+use common\models\forms\LoginForm;
 use common\models\MemberOauth;
-use common\models\forms\RegisterForm;
-use common\models\Member;
 use Yii;
 use thanatos\wechat\MessageHandler;
 
+/**
+ * Class BaseMessageHandle
+ * @property string $unionid 用户唯一标识
+ * @package api\common\models\wechat
+ * @author thanatos <thanatos915@163.com>
+ */
 class BaseMessageHandle extends MessageHandler
 {
 
     public function beforeHandle()
     {
-        // 同步用户信息
+        // 自动登录
+        if (Yii::$app->user->isGuest) {
+            $model = new LoginForm(['scenario' => LoginForm::SCENARIO_OAUTH]);
+            $model->load([
+                'oauth_name' => MemberOauth::OAUTH_WECHAT,
+                'oauth_key' => $this->unionid,
+            ], '');
+            if (!$model->submit()) {
+                $message = $model->getErrors();
+            }
+        }
         return parent::beforeHandle();
     }
 
     public function handleDefault()
     {
-
+        $string = 123 . Yii::$app->user->id;
+        return $string;
     }
 
-    public function autoLogin()
+    public function getUnionid()
     {
-//        if (Yii::$app->user->isGuest) {
-//            $member = Member::find()->where();
-//        }
+        return $this->wechatInfo->unionid;
     }
 
 }

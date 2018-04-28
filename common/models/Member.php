@@ -3,7 +3,9 @@
 namespace common\models;
 
 use common\components\traits\TimestampTrait;
+use common\components\validators\MobileValidator;
 use Yii;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "{{%member}}".
@@ -21,9 +23,11 @@ use Yii;
  * @property int $created_at 创建时间
  * @property int $updated_at 修改时间
  */
-class Member extends \yii\db\ActiveRecord
+class Member extends \yii\db\ActiveRecord implements IdentityInterface
 {
     use TimestampTrait;
+
+    const LOGIN_DURATION = 3600*24*15;
 
     /** @var int 男 */
     const SEX_MALE = 1;
@@ -54,6 +58,7 @@ class Member extends \yii\db\ActiveRecord
             [['headimg_id', 'coin', 'last_login_time'], 'integer'],
             [['username'], 'string', 'max' => 30],
             [['mobile'], 'string', 'max' => 11],
+            ['mobile', MobileValidator::class],
             [['sex', 'status'], 'integer', 'max' => 255],
             ['status', 'default', 'value' => 10],
             [['password_hash'], 'string', 'max' => 60],
@@ -81,4 +86,34 @@ class Member extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
         ];
     }
+
+    public static function findIdentity($id)
+    {
+        return static::findOne(['id' => $id]);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getAuthKey()
+    {}
+
+    public function validateAuthKey($authKey)
+    {}
+
+    /**
+     * 返回登录保持时间
+     * @return float|int
+     */
+    public function getDuration()
+    {
+        return static::LOGIN_DURATION;
+    }
+
 }

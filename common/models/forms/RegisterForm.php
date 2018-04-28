@@ -41,13 +41,18 @@ class RegisterForm extends Model
             [['username', 'sex', 'oauth_name', 'oauth_key'], 'required'],
             [['headimgurl'], 'string'],
             [['username'], 'string', 'max' => 30],
-            [['sex'], 'integer', 'max' => CenterUser::SEX_MAX, 'min' => 0],
+            [['sex'], 'integer', 'max' => Member::SEX_MAX, 'min' => 0],
             [['oauth_name'], 'integer', 'max' => MemberOauth::MAX_OAUTH_NAME, 'min' => 1],
             ['oauth_key', 'string', 'max' => 50],
             ['oauth_key', 'validateOauthKey'],
         ];
     }
 
+    /**
+     * 验证是否已经注册
+     * @param $attribute
+     * @param $params
+     */
     public function validateOauthKey($attribute, $params)
     {
         if (MemberOauth::findByNameAndKey($this->oauth_name, $this->oauth_key)) {

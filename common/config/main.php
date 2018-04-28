@@ -11,14 +11,14 @@ return [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'class' => 'yii\web\User',
+            'class' => 'common\extension\User',
             'identityClass' => 'common\models\Member',
         ],
         // 微信配置
         'wechat' => [
             'class' => 'thanatos\wechat\Wechat',
             'log' => [
-                'level' => 'error',
+                'level' => 'debug',
                 'permission' => '0777',
                 'file' => '@runtime/logs/wechat.log'
             ]

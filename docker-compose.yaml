@@ -13,7 +13,7 @@ services:
       - ./.docker/php/php.ini:/usr/local/etc/php/php.ini
     environment:
       XDEBUG_CONFIG: remote_host=192.168.1.143
-    command: /bin/sh -c "cd server && composer install && php-fpm"
+#    command: /bin/sh -c "cd server && composer install && php-fpm"
     depends_on:
 #       - mysql
       - redis

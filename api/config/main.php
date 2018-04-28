@@ -20,14 +20,18 @@ return [
         'request' => [
             'csrfParam' => '_csrf-frontend',
         ],
+        'response' => [
+            'class' => 'common\extension\Response',
+
+        ],
         'user' => [
-            'identityClass' => 'common\models\User',
-            'enableAutoLogin' => true,
-            'identityCookie' => ['name' => '_identity-frontend', 'httpOnly' => true],
+            'identityClass' => 'common\models\Member',
+            'enableAutoLogin' => false,
+            'identityCookie' => ['name' => '_identity-tubangzhu',],
         ],
         'session' => [
             // this is the name of the session cookie used for login on the frontend
-            'name' => 'advanced-frontend',
+            'name' => 'tubangzhu-frontend',
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -52,6 +56,7 @@ return [
                 '' => 'site/index',
                 '<wechat>/server' => 'wechat/server',
                 '<wechat>/qrcode' => 'wechat/qrcode',
+                '<wechat>/session' => 'wechat/session',
             ],
         ],
     ],
