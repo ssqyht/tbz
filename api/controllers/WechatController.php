@@ -13,6 +13,7 @@ use api\common\models\wechat\EventMessageHandle;
 use common\components\traits\FuncTraits;
 use common\extension\Code;
 use common\models\forms\LoginForm;
+use common\models\MemberAccessToken;
 use common\models\MemberOauth;
 use Yii;
 use yii\helpers\ArrayHelper;
@@ -92,7 +93,9 @@ class WechatController extends Controller
             $model = new LoginForm(['scenario' => LoginForm::SCENARIO_OAUTH]);
             $model->load([
                 'oauth_name' => MemberOauth::OAUTH_WECHAT,
-                'oauth_key' => $unionid
+                'oauth_key' => $unionid,
+                // 电脑端登录
+                'token_type' => MemberAccessToken::TOKEN_TYPE_WEB,
             ], '');
             if ($result = $model->submit()) {
                 return ArrayHelper::merge(Yii::$app->user->identity->toArray(), ['access_token' => $result->access_token]);

@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\traits\TimestampTrait;
 use Yii;
 
 /**
@@ -18,6 +19,14 @@ use Yii;
  */
 class MemberLoginHistory extends \yii\db\ActiveRecord
 {
+    use TimestampTrait;
+
+    /** @var int 微信扫码登录 */
+    const LOGIN_METHOD_WECHAT = 1;
+    /** @var int 手机号登录 */
+    const LOGIN_METHOD_MOBILE = 2;
+    const MAC_LOGIN_METHOD = self::LOGIN_METHOD_MOBILE;
+
     /**
      * @inheritdoc
      */
@@ -34,7 +43,7 @@ class MemberLoginHistory extends \yii\db\ActiveRecord
         return [
             [['user_id', 'method', 'ip'], 'required'],
             [['user_id', 'created_at'], 'integer'],
-            [['method'], 'string', 'max' => 1],
+            [['method'], 'integer', 'max' => static::LOGIN_METHOD_MOBILE],
             [['ip'], 'string', 'max' => 64],
             [['http_user_agent', 'http_referer', 'login_url'], 'string', 'max' => 255],
         ];
@@ -56,4 +65,29 @@ class MemberLoginHistory extends \yii\db\ActiveRecord
             'created_at' => 'Created At',
         ];
     }
+
+    /**
+     * 登录登录日志
+     * @param $method
+     * @return bool
+     */
+    public static function createLoginHistory($method)
+    {
+        $request = Yii::$app->request;
+        $model = new static();
+        $model->load([
+            'user_id' => Yii::$app->user->id,
+            'method' => $method,
+            'ip' => $request->getUserIP(),
+            'http_user_agent' => $request->userAgent,
+            'http_referer' => $request->getReferrer(),
+            'login_url' => $request->getAbsoluteUrl(),
+        ], '');
+        if (!$model->validate() || !$model->save()) {
+            Yii::error('login_history', $model->getErrors());
+            return false;
+        }
+        return true;
+    }
+
 }

@@ -7,6 +7,7 @@ namespace common\models\forms;
 
 use common\models\Member;
 use common\models\MemberAccessToken;
+use common\models\MemberLoginHistory;
 use Yii;
 use common\components\validators\MobileValidator;
 use common\extension\Code;
@@ -37,7 +38,7 @@ class LoginForm extends Model
     public function rules()
     {
         return [
-            ['token_type', 'default', 'value' => 0],
+            ['token_type', 'default', 'value' => MemberAccessToken::TOKEN_TYPE_WEB],
             [['oauth_name', 'oauth_key', 'mobile', 'password'], 'required'],
             [['oauth_name'], 'integer', 'max' => MemberOauth::MAX_OAUTH_NAME, 'min' => 1],
             [['oauth_key'], 'string', 'max' => 50],
@@ -95,11 +96,18 @@ class LoginForm extends Model
             return false;
         }
 
-        // 生成access_token
-        if (!$accessModel = $this->createAccessToken()) {
-            return false;
+        // 系统自动登录不生成access_token和登录日志
+        if ($this->scenario != static::SCENARIO_SYSTEM) {
+            // 添加登录日志
+            MemberLoginHistory::createLoginHistory(MemberLoginHistory::LOGIN_METHOD_WECHAT);
+
+            // 生成access_token
+            if (!$accessModel = MemberAccessToken::createAccessToken($this->token_type)) {
+                return false;
+            }
+            return true;
         }
-        return $accessModel;
+        return true;
     }
 
     /**
@@ -109,21 +117,5 @@ class LoginForm extends Model
     {
 
     }
-
-    /**
-     * 生成access_token
-     * @return bool|MemberAccessToken
-     */
-    protected function createAccessToken()
-    {
-        if ($this->scenario != static::SCENARIO_SYSTEM) {
-            if (!$model = MemberAccessToken::createAccessToken($this->token_type)) {
-                $this->addErrors($model->getErrors());
-                return false;
-            }
-            return $model;
-        }
-    }
-
 
 }

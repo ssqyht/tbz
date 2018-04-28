@@ -73,7 +73,7 @@ class MemberAccessToken extends \yii\db\ActiveRecord
      * @param $tokenType
      * @return bool|MemberAccessToken
      */
-    public static function createAccessToken($tokenType = 0)
+    public static function createAccessToken($tokenType)
     {
         $accessToken = '';
         try {

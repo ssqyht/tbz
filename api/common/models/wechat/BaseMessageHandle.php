@@ -25,16 +25,13 @@ class BaseMessageHandle extends MessageHandler
     public function beforeHandle()
     {
         // 自动登录
-        Yii::$app->user->logout();
         if (Yii::$app->user->isGuest) {
-            $model = new LoginForm(['scenario' => LoginForm::SCENARIO_OAUTH]);
+            $model = new LoginForm(['scenario' => LoginForm::SCENARIO_SYSTEM]);
             $model->load([
                 'oauth_name' => MemberOauth::OAUTH_WECHAT,
                 'oauth_key' => $this->unionid,
             ], '');
-            if (!$model->submit()) {
-                $message = $model->getErrors();
-            }
+            $model->submit();
         }
         return parent::beforeHandle();
     }
