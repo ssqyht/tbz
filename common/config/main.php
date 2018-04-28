@@ -17,6 +17,11 @@ return [
         // 微信配置
         'wechat' => [
             'class' => 'thanatos\wechat\Wechat',
+            'log' => [
+                'level' => 'error',
+                'permission' => '0777',
+                'file' => '@runtime/logs/wechat.log'
+            ]
         ],
         // OSS配置
         'oss' => [

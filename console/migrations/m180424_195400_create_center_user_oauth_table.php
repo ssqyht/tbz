@@ -7,7 +7,7 @@ use yii\db\Migration;
  */
 class m180424_195400_create_center_user_oauth_table extends Migration
 {
-    public $tableName = '{{%center_user_oauth}}';
+    public $tableName = '{{%member_oauth}}';
 
     /**
      * {@inheritdoc}
@@ -16,7 +16,7 @@ class m180424_195400_create_center_user_oauth_table extends Migration
     {
         $this->createTable($this->tableName, [
             'id' => $this->primaryKey(),
-            'center_id' => $this->integer(11)->unsigned()->notNull()->comment('用户ID'),
+            'user_id' => $this->integer(11)->unsigned()->notNull()->comment('用户ID'),
             'oauth_name' => $this->tinyInteger(1)->notNull()->comment('第三方名称'),
             'oauth_key' => $this->string(50)->notNull()->comment('第三方key值'),
             'created_at' => $this->integer(11)->notNull()->unsigned()->comment('创建时间')
@@ -24,7 +24,7 @@ class m180424_195400_create_center_user_oauth_table extends Migration
         $this->addCommentOnTable($this->tableName, '第三方授权绑定信息');
 
         $this->createIndex('idx-oauth_name-oauth-key', $this->tableName, ['oauth_name', 'oauth_key']);
-        $this->createIndex('idx-center_id', $this->tableName, 'center_id');
+        $this->createIndex('idx-user_id', $this->tableName, 'user_id');
     }
 
     /**

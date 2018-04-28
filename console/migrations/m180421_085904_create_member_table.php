@@ -17,17 +17,20 @@ class m180421_085904_create_member_table extends Migration
     {
         $this->createTable($this->tableName, [
             'id' => $this->primaryKey()->unsigned(),
-            'center_id' => $this->integer(11)->unsigned()->comment('用户中心ID'),
-            'mobile' => $this->char(11)->notNull()->comment('用户手机号'),
+            'username' => $this->string(30)->notNull()->defaultValue('')->comment('用户名'),
+            'mobile' => $this->char(11)->notNull()->defaultValue('')->comment('用户手机号'),
             'sex' => $this->tinyInteger(1)->notNull()->defaultValue(0)->comment('姓别'),
             'headimg_id' => $this->integer(11)->notNull()->defaultValue(0)->comment('头像'),
             'coin' => $this->integer(11)->notNull()->defaultValue(0)->comment('图币'),
             'last_login_time' => $this->integer(11)->notNull()->defaultValue(0)->comment('最后登录时间'),
+            'password_hash' => $this->char(60)->notNull()->defaultValue('')->comment('密码hash'),
+            'salt' => $this->string(16)->notNull()->defaultValue('')->comment('旧salt'),
+            'status' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(10)->comment('用户状态'),
             'created_at' => $this->integer(11)->notNull()->unsigned()->comment('创建时间'),
             'updated_at' => $this->integer(11)->notNull()->unsigned()->comment('修改时间'),
         ]);
 
-        $this->createIndex('idx-center_id', $this->tableName, 'center_id');
+        $this->createIndex('idx-mobile', $this->tableName, 'mobile');
 
         $this->addCommentOnTable($this->tableName, '用户表');
 

@@ -5,7 +5,7 @@
 
 namespace common\models\forms;
 
-use common\components\traits\funcTraits;
+use common\components\traits\FuncTraits;
 use common\models\FileCommon;
 use Yii;
 use common\extension\Code;
@@ -14,17 +14,19 @@ use yii\helpers\ArrayHelper;
 use yii\imagine\Image;
 use yii\validators\UrlValidator;
 
+
 /**
+ * 文件上传助手类
  * Class FileUpload
  * @property string $content
- * @property string $mime
  * @package common\models\forms
+ * @author thanatos <thanatos915@163.com>
  */
 class FileUpload extends Model
 {
 
-    /** @var string|resource */
-    public $source;
+    /** @var string*/
+    public $url;
 
     /** @var array 远程文件信息 */
     private $_content;
@@ -55,14 +57,14 @@ class FileUpload extends Model
             [['url'], 'required'],
             // 文件是否存在
             ['url', function () {
-                if (!is_string($this->source) || !(new UrlValidator())->validate($this->source)) {
-                    $this->addError('source', Code::FILE_NOT_EXIST);
+                if (!is_string($this->url) || !(new UrlValidator())->validate($this->url)) {
+                    $this->addError('url', Code::FILE_NOT_EXIST);
                 }
             }],
             // 文件是否合法
             ['url', function () {
                 if (!$this->getIsAllowByMime()) {
-                    return $this->addError('source', Code::FILE_EXTENSION_NOT_ALLOW);
+                    return $this->addError('url', Code::FILE_EXTENSION_NOT_ALLOW);
                 }
                 // 修正SVG标签不正确
                 if ($this->getExtType() == FileCommon::EXT_SVG) {
@@ -88,7 +90,7 @@ class FileUpload extends Model
         // 上传OSS
         $result = Yii::$app->oss->putObject($filename, $this->content);
         if (empty($result)) {
-            $this->addError('source', Code::SERVER_FAILED);
+            $this->addError('url', Code::SERVER_FAILED);
             return false;
         }
 
@@ -208,7 +210,7 @@ class FileUpload extends Model
     protected function sourceContent()
     {
         if ($this->_content === null && $this->_mime === null) {
-            list('content' => $this->_content, 'mime' => $this->_mime)= funcTraits::getSourceOrigin($this->source);
+            list('content' => $this->_content, 'mime' => $this->_mime)= FuncTraits::getSourceOrigin($this->url);
         }
     }
 
@@ -229,7 +231,7 @@ class FileUpload extends Model
 
         // SVG宽高信息
         if ($this->getExtType() === FileCommon::EXT_SVG) {
-            list('height' => $height, 'width' => $width) = funcTraits::getSvgSize($this->content);
+            list('height' => $height, 'width' => $width) = FuncTraits::getSvgSize($this->content);
         }
 
         return ['height' => round($height) ?? 0, 'width' => round($width) ?? 0];
@@ -295,7 +297,7 @@ class FileUpload extends Model
     private function rollbackFile($filename)
     {
         if (empty(Yii::$app->oss->deleteObject($filename))) {
-            $this->addError('source', Code::SERVER_FAILED);
+            $this->addError('url', Code::SERVER_FAILED);
             Yii::error(['name' => 'deleteFile', 'params' => [$filename]]);
             return false;
         }

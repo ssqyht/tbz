@@ -1,8 +1,9 @@
 <?php
 namespace api\controllers;
 
-use common\components\traits\funcTraits;
+use common\components\traits\FuncTraits;
 use common\models\forms\FileUpload;
+use common\models\forms\RegisterForm;
 use Yii;
 use yii\web\Controller;
 

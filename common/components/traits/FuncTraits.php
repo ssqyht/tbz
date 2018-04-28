@@ -6,11 +6,17 @@
 namespace common\components\traits;
 
 
+use common\models\FileCommon;
 use yii\httpclient\Client;
 use yii\httpclient\CurlTransport;
 use yii\validators\UrlValidator;
 
-trait funcTraits
+/**
+ * Trait FuncTraits
+ * @package common\components\traits
+ * @author thanatos <thanatos915@163.com>
+ */
+trait FuncTraits
 {
 
     /**
@@ -30,6 +36,20 @@ trait funcTraits
             return false;
         }
         return ['content' => $response->content, 'mime' => $response->headers->get('content-type')];
+    }
+
+    /**
+     * 返回base64后远程图片
+     * @param array $content 由 getSourceOrigin 返回的数据
+     * @return bool|string
+     */
+    public static function base64Image($content)
+    {
+        if (empty($content)) {
+            return false;
+        }
+
+        return 'data:'. $content['mime'] .';base64,'.base64_encode($content['content']);
     }
 
     /**

@@ -51,6 +51,7 @@ return [
             'rules' => [
                 '' => 'site/index',
                 '<wechat>/server' => 'wechat/server',
+                '<wechat>/qrcode' => 'wechat/qrcode',
             ],
         ],
     ],

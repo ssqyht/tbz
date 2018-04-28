@@ -20,12 +20,18 @@ class FileUsedRecord extends \yii\db\ActiveRecord
 {
     use TimestampTrait;
 
+    /** @var int 用户头像 */
     const PURPOSE_HEADIMG = 1;
+    /** @var int 模板使用类型 */
     const PURPOSE_TEMPLATE = 2;
+    /** @var int 素材使用类型 */
     const PURPOSE_MATERIAL = 3;
+    /** @var int purpose 最大值 */
     const PURPOSE_MAX = self::PURPOSE_MATERIAL;
 
+    /** @var string 增加使用记录 */
     const SCENARIO_CREATE = 'create';
+    /** @var string 删除使用记录 */
     const SCENARIO_DROP = 'drop';
 
     /**
@@ -76,8 +82,6 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     /**
      * 文件处理总入口
      * @return bool|FileUsedRecord|false|int|null|string
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
      */
     public function submit()
     {
@@ -97,7 +101,7 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     }
 
     /**
-     * 删除使用记录
+     * 添加使用记录
      * @return bool|FileUsedRecord|null|string
      */
     protected function create()
@@ -125,8 +129,6 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     /**
      * 删除使用记录
      * @return bool|false|int
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
      */
     protected function drop()
     {
@@ -134,7 +136,16 @@ class FileUsedRecord extends \yii\db\ActiveRecord
         if (empty($model)) {
             return true;
         }
-        return $model->delete();
+        try {
+            $result = $model->delete();
+        } catch (\Exception $e) {
+            $this->addError('', $e->getMessage());
+            return false;
+        } catch (\Throwable $e)  {
+            $this->addError('', $e->getMessage());
+            return false;
+        }
+        return $result;
     }
 
     /**
