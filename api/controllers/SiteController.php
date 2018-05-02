@@ -14,6 +14,30 @@ use yii\web\Controller;
  */
 class SiteController extends Controller
 {
+
+    public function actions()
+    {
+        return [
+            'doc' => [
+                'class' => 'light\swagger\SwaggerAction',
+                'restUrl' => \yii\helpers\Url::to(['/site/api'], true),
+                'title' => '图帮主接口',
+            ],
+            'api' => [
+                'class' => 'light\swagger\SwaggerApiAction',
+                //The scan directories, you should use real path there.
+                'scanDir' => [
+                    Yii::getAlias('@api/common/controllers'),
+                    Yii::getAlias('@api/common/swagger'),
+                    Yii::getAlias('@api/modules/v1/swagger'),
+                    Yii::getAlias('@api/modules/v1/controllers'),
+                ],
+                //The security key
+//                'api_key' => 'balbalbal',
+            ],
+        ];
+    }
+
     /**
      * Displays homepage.
      *
@@ -21,13 +45,6 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $model = new LoginForm(['scenario' => LoginForm::SCENARIO_OAUTH]);
-        $model->load([
-            'oauth_name' => MemberOauth::OAUTH_WECHAT,
-            'oauth_key' => 'oABZht56ASGUupPlW8jRuczPHpdI'
-        ], '');
-        var_dump($model->submit());
-
         echo 'You must visit a module  "/v1"';exit;
     }
 

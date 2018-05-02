@@ -22,7 +22,6 @@ return [
         ],
         'response' => [
             'class' => 'common\extension\Response',
-
         ],
         'user' => [
             'identityClass' => 'common\models\Member',
@@ -52,12 +51,7 @@ return [
             'enablePrettyUrl' => true,
             'enableStrictParsing' => true,
             'showScriptName' => false,
-            'rules' => [
-                '' => 'site/index',
-                '<wechat>/server' => 'wechat/server',
-                '<wechat>/qrcode' => 'wechat/qrcode',
-                '<wechat>/session' => 'wechat/session',
-            ],
+            'rules' => require __DIR__ . '/urls.php',
         ],
     ],
     'params' => $params,

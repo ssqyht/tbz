@@ -42,6 +42,7 @@ class MemberLoginHistory extends \yii\db\ActiveRecord
     {
         return [
             [['user_id', 'method', 'ip'], 'required'],
+            [['http_user_agent', 'http_referer', 'login_url'], 'default', 'value' => ''],
             [['user_id', 'created_at'], 'integer'],
             [['method'], 'integer', 'max' => static::LOGIN_METHOD_MOBILE],
             [['ip'], 'string', 'max' => 64],

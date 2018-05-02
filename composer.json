@@ -11,10 +11,10 @@
         "yiisoft/yii2": "*",
         "yiisoft/yii2-bootstrap": "*",
         "yiisoft/yii2-swiftmailer": "*",
-        "thanatosxia/yii2-wechat": "dev-master",
-        "thanatosxia/yii2-oss": "dev-master",
-        "yiisoft/yii2-imagine": "^2.1",
-        "yiisoft/yii2-httpclient": "^2.0"
+        "yiisoft/yii2-imagine": "~2.1",
+        "yiisoft/yii2-httpclient": "~2.0",
+        "thanatosxia/yii2-wechat": "~1.1",
+        "thanatosxia/yii2-oss": "~1.1"
 
     },
     "require-dev": {
@@ -22,7 +22,8 @@
         "yiisoft/yii2-gii": "*",
         "yiisoft/yii2-faker": "*",
         "codeception/base": "^2.2.3",
-        "codeception/verify": "~0.3.1"
+        "codeception/verify": "~0.3.1",
+        "light/yii2-swagger": "2.0.0-alpha"
     },
     "config": {
         "process-timeout": 1800,
@@ -31,14 +32,6 @@
         }
     },
     "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:thanatos915/yii2-wechat.git"
-        },
-        {
-            "type": "vcs",
-            "url": "git@github.com:thanatos915/yii2-oss.git"
-        },
         {
             "type": "composer",
             "url": "https://asset-packagist.org"

@@ -12,7 +12,7 @@ services:
       - ./.docker/php/conf.d/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
       - ./.docker/php/php.ini:/usr/local/etc/php/php.ini
     environment:
-      XDEBUG_CONFIG: remote_host=192.168.1.143
+      XDEBUG_CONFIG: remote_host=192.168.1.162
 #    command: /bin/sh -c "cd server && composer install && php-fpm"
     depends_on:
 #       - mysql

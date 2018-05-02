@@ -21,8 +21,7 @@ trait TimestampTrait
 
         $config = [
             'class' => TimestampBehavior::class,
-            'attributes' => [
-            ]
+            'attributes' => []
         ];
 
         if ($hasCreatedAt && $hasUpdatedAt) {
