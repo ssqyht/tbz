@@ -45,14 +45,10 @@ class UserController extends Controller
      */
     public function actionLogin()
     {
-        $model = new LoginForm(['scenario' => LoginForm::SCENARIO_MOBILE]);
     }
 
     public function actionIndex()
     {
-        /** @var Member $member */
-        $member = Member::find()->joinWith('accessToken')->one();
-        var_dump($member);exit;
     }
 
 }

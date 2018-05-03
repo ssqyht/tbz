@@ -46,7 +46,7 @@ class FileUpload extends Model
         if ($model->load(['url' => $url], '') && $result = $model->submit()) {
             return $result;
         } else {
-            $model->addErrors($result->getErrors());
+            $model->addErrors($model->getErrors());
             return false;
         }
     }
