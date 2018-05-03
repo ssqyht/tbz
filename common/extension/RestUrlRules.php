@@ -41,6 +41,11 @@ class RestUrlRules
                     $urls[$key] = $item;
                 }
                 if (is_array($item)) {
+                    foreach ($item as $name => $value) {
+                        if ($name != 'controller') {
+                            $urls[$key][$name] = $value;
+                        }
+                    }
                     if (empty($item['class'])) {
                         $urls[$key]['class'] = static::$ruleConfig;
                     }

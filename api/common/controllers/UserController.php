@@ -5,11 +5,11 @@
 
 namespace api\common\controllers;
 
+use common\components\vendor\RestController;
 use common\models\forms\LoginForm;
 use common\models\Member;
-use yii\rest\Controller;
 
-class UserController extends Controller
+class UserController extends RestController
 {
 
     /**

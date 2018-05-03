@@ -2,7 +2,7 @@
 /**
  * @user: thanatos <thanatos915@163.com>
  */
-namespace common\extension;
+namespace common\components\vendor;
 use yii\base\Event;
 
 /**

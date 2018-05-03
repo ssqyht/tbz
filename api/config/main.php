@@ -21,7 +21,7 @@ return [
             'csrfParam' => '_csrf-frontend',
         ],
         'response' => [
-            'class' => 'common\extension\Response',
+            'class' => 'common\components\vendor\Response',
         ],
         'user' => [
             'identityClass' => 'common\models\Member',
