@@ -14,6 +14,7 @@ use yii\db\ActiveRecord;
  */
 trait TimestampTrait
 {
+    /*
     public function behaviors()
     {
         $hasCreatedAt = $this->hasAttribute('created_at');
@@ -43,4 +44,5 @@ trait TimestampTrait
         }
         return [$config];
     }
+    */
 }

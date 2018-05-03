@@ -5,6 +5,8 @@
 
 namespace api\common\controllers;
 
+use common\models\forms\LoginForm;
+use common\models\Member;
 use yii\rest\Controller;
 
 class UserController extends Controller
@@ -13,27 +15,44 @@ class UserController extends Controller
     /**
      * @SWG\Get(path="/user/login",
      *     tags={"user"},
-     *     summary="用户登录",
+     *     summary="手机号登录接口",
      *     description="",
      *     produces={"application/json"},
      *     @SWG\Parameter(
-     *        in = "query",
-     *        name = "access_token",
-     *        description = "access token",
+     *        in = "formData",
+     *        name = "mobile",
+     *        description = "手机号",
+     *        required = true,
+     *        type = "string"
+     *     ),
+     *     @SWG\Parameter(
+     *        in = "formData",
+     *        name = "password",
+     *        description = "密码",
      *        required = true,
      *        type = "string"
      *     ),
      *
      *     @SWG\Response(
      *         response = 200,
-     *         description = " success"
+     *         description = "success",
+     *         @SWG\Schema(
+     *           ref="$/definitions/Response",
+     *         )
      *     )
      * )
      *
      */
     public function actionLogin()
     {
+        $model = new LoginForm(['scenario' => LoginForm::SCENARIO_MOBILE]);
+    }
 
+    public function actionIndex()
+    {
+        /** @var Member $member */
+        $member = Member::find()->joinWith('accessToken')->one();
+        var_dump($member);exit;
     }
 
 }
