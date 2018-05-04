@@ -37,9 +37,7 @@ class Code
     public $user = [
         self::USER_EXIST => '用户已经存在',
         self::USER_OAUTH_KEY_NOT_FOUND => '用户不存在',
-
     ];
-
 
 
 }
