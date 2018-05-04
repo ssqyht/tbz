@@ -25,7 +25,6 @@ use yii\web\UnauthorizedHttpException;
 
 class WechatController extends Controller
 {
-    const LOGIN_QRCODE_KEY = 'login_qrcode_cache';
     public $enableCsrfValidation = false;
 
     public function init()
@@ -50,59 +49,6 @@ class WechatController extends Controller
         $response->send();
     }
 
-    /**
-     * 带参数二维码
-     */
-    public function actionQrcode()
-    {
-        $app = Yii::$app->wechat->app;
-        $result = $app->qrcode->temporary(EventMessageHandle::SCENE_LOGIN, 3600);
-        $url = $app->qrcode->url($result->ticket);
 
-        // 记录session缓存
-        Yii::$app->session->set(self::LOGIN_QRCODE_KEY, $result->ticket);
-
-        $content = FuncTraits::getSourceOrigin($url);
-        // Ajax 返回base64
-        if (Yii::$app->request->isAjax) {
-            return Json::encode(['content' => FuncTraits::base64Image($content)]);
-        }
-        // 直接输出图片
-        $response = Yii::$app->response;
-        // 移除格式化事件
-        $response->headers->set('Content-type', $content['mime']);
-        $response->format = Response::FORMAT_RAW;
-        $response->data = $content['content'];
-        return $response;
-    }
-
-    /**
-     * 检查登录状态，完成微信登录
-     * @return array
-     * @throws UnauthorizedHttpException
-     */
-    public function actionSession()
-    {
-//        if (Yii::$app->request->isAjax) {
-            $ticket = Yii::$app->session->get(self::LOGIN_QRCODE_KEY);
-            $cacheKey = [
-                $ticket
-            ];
-            $unionid = Yii::$app->cache->get($cacheKey);
-
-            $model = new LoginForm(['scenario' => LoginForm::SCENARIO_OAUTH]);
-            $model->load([
-                'oauth_name' => MemberOauth::OAUTH_WECHAT,
-                'oauth_key' => $unionid,
-                // 电脑端登录
-                'token_type' => MemberAccessToken::TOKEN_TYPE_WEB,
-            ], '');
-            if ($result = $model->submit()) {
-                return ArrayHelper::merge(Yii::$app->user->identity->toArray(), ['access_token' => $result->access_token]);
-            } else {
-                throw new UnauthorizedHttpException('验证失败', Code::SERVER_UNAUTHORIZED);
-            }
-//        }
-    }
 
 }

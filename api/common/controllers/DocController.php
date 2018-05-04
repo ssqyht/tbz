@@ -39,6 +39,7 @@ class DocController extends Controller
     {
         return [
             Yii::getAlias('@api/common/controllers'),
+            Yii::getAlias('@common/models'),
             Yii::getAlias('@api/common/swagger'),
             Yii::getAlias('@api/modules/v1/swagger'),
             Yii::getAlias('@api/modules/v1/controllers'),

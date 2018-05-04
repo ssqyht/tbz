@@ -36,7 +36,13 @@ class RestUrlRules
         foreach ($modules as $module) {
             foreach ($rules as $key => $item) {
                 if (is_string($item)) {
-                    $key = $module . '/' . $key;
+                    // 区别有限制http方法的规则
+                    if (strpos($key, ' ') !== false) {
+                        $tmp = explode(' ', $key);
+                        $key = $tmp[0] . ' ' . $module . '/' . $tmp[1];
+                    } else {
+                        $key = $module . '/' . $key;
+                    }
                     $item = $module . '/' . $item;
                     $urls[$key] = $item;
                 }

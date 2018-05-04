@@ -22,7 +22,7 @@ class Yii extends \yii\BaseYii
  * @property \thanatos\wechat\Wechat $wechat 微信类
  * @property \thanatos\oss\Oss $oss Oss
  * @property \common\extension\User $user
- * @property \yii\web\Response|\yii\console\Response|\common\extension\Response $response The response component. This property is
+ * @property \yii\web\Response|\yii\console\Response|\common\components\vendor\Response $response The response component. This property is
  * read-only.
  */
 abstract class BaseApplication extends yii\base\Application

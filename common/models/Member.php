@@ -8,7 +8,8 @@ use Yii;
 use yii\web\IdentityInterface;
 
 /**
- * This is the model class for table "{{%member}}".
+ * 用户类
+ * @SWG\Definition(type="object", @SWG\Xml(name="Member"))
  *
  * @property int $id
  * @property string $username 用户名
@@ -27,6 +28,7 @@ use yii\web\IdentityInterface;
  */
 class Member extends \yii\db\ActiveRecord implements IdentityInterface
 {
+
     use TimestampTrait;
 
     const LOGIN_DURATION = 3600*24*15;

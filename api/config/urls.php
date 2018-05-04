@@ -5,8 +5,6 @@
 $rules = [
     '' => 'site/index',
     '<wechat>/server' => 'wechat/server',
-    '<wechat>/qrcode' => 'wechat/qrcode',
-    '<wechat>/session' => 'wechat/session',
 ];
 
 $restUrls = [
@@ -18,6 +16,10 @@ $restUrls = [
                 'POST,OPTIONS login' => 'login'
             ],
         ],
+        // 微信配置
+        'GET,POST,OPTIONS wechat/qrcode' => 'wechat/qrcode',
+        'POST,OPTIONS wechat/session' => 'wechat/session',
+        // 开始文档
         'doc/index' => 'doc/index',
         'doc/api' => 'doc/api',
     ],
