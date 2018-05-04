@@ -7,8 +7,6 @@ $rules = [
     '<wechat>/server' => 'wechat/server',
     '<wechat>/qrcode' => 'wechat/qrcode',
     '<wechat>/session' => 'wechat/session',
-    'doc/index' => 'doc/index',
-    'doc/api' => 'doc/api',
 ];
 
 $restUrls = [

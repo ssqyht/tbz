@@ -32,3 +32,23 @@ api
 vendor/                  第三方包
 environments/            环境配置
 ```
+
+安装
+-------
+1、初始化环境
+```bash
+./init # php init
+```
+2、初始化数据库
+```bash
+./yii migrate # php yii migrate
+```
+3、配置host文件
+```bash
+127.0.0.1   api.tbz.com
+```
+4、运行docker
+```bash
+docker-compose up
+#docker-compose up -d --force-recreate
+```
