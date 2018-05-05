@@ -12,6 +12,13 @@ return [
     'bootstrap' => ['log'],
     'controllerNamespace' => 'api\controllers',
     'modules' => [
+        'oauth2' => [
+            'class' => 'sweelix\oauth2\server\Module',
+            'backend' => 'redis',
+            'db' => 'redis',
+            'identityClass' => 'common\models\Member',
+            'allowJwtAccessToken' => true,
+        ],
         'v1' => [
             'class' => 'api\modules\v1\module',
         ],
@@ -57,7 +64,7 @@ return [
         */
         'urlManager' => [
             'enablePrettyUrl' => true,
-            'enableStrictParsing' => true,
+//            'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => require __DIR__ . '/urls.php',
         ],

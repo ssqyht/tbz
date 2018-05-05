@@ -8,7 +8,7 @@ use yii\db\Migration;
 class m180421_092932_create_member_login_history_table extends Migration
 {
 
-    public $tablename = '{{member_login_history}}';
+    public $tablename = '{{%member_login_history}}';
 
     /**
      * {@inheritdoc}

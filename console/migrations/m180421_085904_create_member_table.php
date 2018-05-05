@@ -8,7 +8,7 @@ use yii\db\Migration;
 class m180421_085904_create_member_table extends Migration
 {
 
-    public $tableName = '{{member}}';
+    public $tableName = '{{%member}}';
 
     /**
      * {@inheritdoc}

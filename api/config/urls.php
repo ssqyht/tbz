@@ -4,7 +4,7 @@
  */
 $rules = [
     '' => 'site/index',
-    '<wechat>/server' => 'wechat/server',
+    'wechat/server' => 'wechat/server',
 ];
 
 $restUrls = [

@@ -8,7 +8,7 @@ use yii\db\Migration;
 class m180423_004523_create_member_access_token_table extends Migration
 {
 
-    public $tableName = '{{member_access_token}}';
+    public $tableName = '{{%member_access_token}}';
 
     /**
      * {@inheritdoc}

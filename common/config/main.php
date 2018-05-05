@@ -11,7 +11,7 @@ return [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'class' => 'common\extension\User',
+            'class' => 'common\components\vendor\User',
             'identityClass' => 'common\models\Member',
         ],
         // 微信配置

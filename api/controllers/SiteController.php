@@ -1,4 +1,5 @@
 <?php
+
 namespace api\controllers;
 
 use common\components\traits\FuncTraits;
@@ -6,6 +7,7 @@ use common\models\forms\FileUpload;
 use common\models\forms\LoginForm;
 use common\models\forms\RegisterForm;
 use common\models\MemberOauth;
+use Firebase\JWT\JWT;
 use Yii;
 use yii\web\Controller;
 
@@ -33,7 +35,6 @@ class SiteController extends Controller
                     Yii::getAlias('@api/modules/v1/controllers'),
                 ],
                 //The security key
-//                'api_key' => 'balbalbal',
             ],
         ];
     }
@@ -45,7 +46,8 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        echo 'You must visit a module  "/v1"';exit;
+        echo 'You must visit a module  "/v1"';
+        exit;
     }
 
 

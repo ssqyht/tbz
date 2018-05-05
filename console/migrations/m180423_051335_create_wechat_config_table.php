@@ -8,7 +8,7 @@ use yii\db\Migration;
 class m180423_051335_create_wechat_config_table extends Migration
 {
 
-    public $tableName = '{{wechat_config}}';
+    public $tableName = '{{%wechat_config}}';
 
     /**
      * {@inheritdoc}
