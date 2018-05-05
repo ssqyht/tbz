@@ -67,6 +67,7 @@ class WechatController extends RestController
      */
     public function actionQrcode()
     {
+        throw new BadRequestHttpException(123);
         $app = Yii::$app->wechat->app;
         $result = $app->qrcode->temporary(EventMessageHandle::SCENE_LOGIN, 3600);
         $url = $app->qrcode->url($result->ticket);
@@ -99,6 +100,12 @@ class WechatController extends RestController
      *          response=200,
      *          description="请求成功",
      *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  ref="#/definitions/Member"
+     *              )
+     *          )
      *     ),
      *     @SWG\Response(
      *          response="default",
@@ -106,14 +113,13 @@ class WechatController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     *
-     * @return array
+     * @return \common\models\Member|null|\yii\web\IdentityInterface
      * @throws UnauthorizedHttpException
      * @author thanatos <thanatos915@163.com>
      */
     public function actionSession()
     {
-        if (Yii::$app->request->isPost) {
+//        if (Yii::$app->request->isPost) {
             $ticket = Yii::$app->session->get(self::LOGIN_QRCODE_KEY);
             $cacheKey = [
                 $ticket
@@ -128,11 +134,13 @@ class WechatController extends RestController
                 'token_type' => MemberAccessToken::TOKEN_TYPE_WEB,
             ], '');
             if ($result = $model->submit()) {
-                return ArrayHelper::merge(Yii::$app->user->identity->toArray(), ['access_token' => $result->access_token]);
+                $user = Yii::$app->user->identity;
+                $user->access_token = $result->access_token;
+                return $user;
             } else {
                 throw new UnauthorizedHttpException('验证失败', Code::SERVER_UNAUTHORIZED);
             }
-        }
+//        }
     }
 
 }

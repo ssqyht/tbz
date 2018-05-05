@@ -11,17 +11,17 @@ use yii\web\IdentityInterface;
  * 用户类
  * @SWG\Definition(type="object", @SWG\Xml(name="Member"))
  *
- * @property int $id
- * @property string $username 用户名
- * @property string $mobile 用户手机号
- * @property int $sex 姓别
- * @property int $headimg_id 头像id
- * @property string $headimg_url 头像url
- * @property int $coin 图币
- * @property int $last_login_time 最后登录时间
+ * @property int $id @SWG\Property(property="id", type="integer", description="")
+ * @property string $username 用户名 @SWG\Property(property="username", type="string", description=" 用户名")
+ * @property string $mobile 用户手机号 @SWG\Property(property="mobile", type="string", description=" 用户手机号")
+ * @property int $sex 姓别 @SWG\Property(property="sex", type="integer", description=" 姓别")
+ * @property int $headimg_id 头像ID
+ * @property string $headimg_url 头像url @SWG\Property(property="headimgUrl", type="string", description=" 头像url")
+ * @property int $coin 图币 @SWG\Property(property="coin", type="integer", description=" 图币")
+ * @property int $last_login_time 最后登录时间 @SWG\Property(property="lastLoginTime", type="integer", description=" 最后登录时间")
  * @property string $password_hash 密码hash
  * @property string $salt 旧salt
- * @property string $status 用户状态
+ * @property int $status 用户状态
  * @property int $created_at 创建时间
  * @property int $updated_at 修改时间
  * @property MemberAccessToken $accessToken
@@ -44,6 +44,13 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
 
     /** @var int 用户正常状态 */
     const STATUS_NORMAL = 10;
+
+    /**
+     * 用于接口返回
+     * @SWG\Property(property="accessToken", type="string", description="")
+     * @var string
+     */
+    public $access_token;
 
     /**
      * @inheritdoc
@@ -97,7 +104,10 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
     public function fields()
     {
         return [
-            'id', 'username','mobile', 'sex', 'headimg_url', 'coin'
+            'id', 'username','mobile', 'sex', 'headimg_url', 'coin',
+            'accessToken' => function($model) {
+                return $model->access_token;
+            }
         ];
     }
 

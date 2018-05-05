@@ -105,7 +105,7 @@ class LoginForm extends Model
             if (!$accessModel = MemberAccessToken::createAccessToken($this->token_type)) {
                 return false;
             }
-            return true;
+            return $accessModel;
         }
         return true;
     }
