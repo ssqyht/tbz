@@ -20,6 +20,7 @@ echo "<?php\n";
 namespace <?= $generator->ns ?>;
 
 use Yii;
+use common\components\traits\TimestampTrait;
 
 /**
  * This is the model class for table "<?= $generator->generateTableName($tableName) ?>".
@@ -43,6 +44,9 @@ use Yii;
  */
 class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . "\n" ?>
 {
+
+    use TimestampTrait;
+
     /**
      * @inheritdoc
      */
