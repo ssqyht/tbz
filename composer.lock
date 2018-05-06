@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1edd52877794fc396f939c7986f4979c",
+    "content-hash": "366694ca6f646bae0a3f41b8aca596c0",
     "packages": [
         {
             "name": "aliyuncs/oss-sdk-php",
@@ -147,64 +147,6 @@
             "license": [
                 "MIT"
             ]
-        },
-        {
-            "name": "bshaffer/oauth2-server-php",
-            "version": "v1.10.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/bshaffer/oauth2-server-php.git",
-                "reference": "d158878425392fe5a0cc34f15dbaf46315ae0ed9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://files.phpcomposer.com/files/bshaffer/oauth2-server-php/d158878425392fe5a0cc34f15dbaf46315ae0ed9.zip",
-                "reference": "d158878425392fe5a0cc34f15dbaf46315ae0ed9",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.9"
-            },
-            "require-dev": {
-                "aws/aws-sdk-php": "~2.8",
-                "firebase/php-jwt": "~2.2",
-                "mongodb/mongodb": "^1.1",
-                "phpunit/phpunit": "^4.0",
-                "predis/predis": "dev-master",
-                "thobbs/phpcassa": "dev-master"
-            },
-            "suggest": {
-                "aws/aws-sdk-php": "~2.8 is required to use DynamoDB storage",
-                "firebase/php-jwt": "~2.2 is required to use JWT features",
-                "mongodb/mongodb": "^1.1 is required to use MongoDB storage",
-                "predis/predis": "Required to use Redis storage",
-                "thobbs/phpcassa": "Required to use Cassandra storage"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "OAuth2": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Brent Shaffer",
-                    "email": "bshafs@gmail.com",
-                    "homepage": "http://brentertainment.com"
-                }
-            ],
-            "description": "OAuth2 Server for PHP",
-            "homepage": "http://github.com/bshaffer/oauth2-server-php",
-            "keywords": [
-                "auth",
-                "oauth",
-                "oauth2"
-            ],
-            "time": "2017-11-15T01:41:02+00:00"
         },
         {
             "name": "cebe/markdown",
@@ -1187,62 +1129,6 @@
                 "simple-cache"
             ],
             "time": "2017-10-23T01:57:42+00:00"
-        },
-        {
-            "name": "sweelix/yii2-oauth2-server",
-            "version": "1.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pgaultier/yii2-oauth2.git",
-                "reference": "336b1d314bea6fb361e3ce57d35a4d3359f7cae0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://files.phpcomposer.com/files/pgaultier/yii2-oauth2/336b1d314bea6fb361e3ce57d35a4d3359f7cae0.zip",
-                "reference": "336b1d314bea6fb361e3ce57d35a4d3359f7cae0",
-                "shasum": ""
-            },
-            "require": {
-                "bshaffer/oauth2-server-php": "~1.8",
-                "ext-openssl": "*",
-                "php": ">=5.6.0",
-                "yiisoft/yii2": "~2.0",
-                "yiisoft/yii2-bootstrap": "~2.0",
-                "yiisoft/yii2-redis": "~2.0"
-            },
-            "require-dev": {
-                "codeception/codeception": "~2.2",
-                "php": ">=5.6.0"
-            },
-            "type": "yii2-extension",
-            "extra": {
-                "branch-alias": {
-                    "dev-devel": "1.2.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "sweelix\\oauth2\\server\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Philippe Gaultier",
-                    "email": "pgaultier@gmail.com"
-                }
-            ],
-            "description": "PHP 5.6+ Oauth2 server integration for the Yii framework",
-            "keywords": [
-                "authorization",
-                "oauth2",
-                "server",
-                "yii2"
-            ],
-            "time": "2017-07-11T07:39:29+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",

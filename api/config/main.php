@@ -12,13 +12,6 @@ return [
     'bootstrap' => ['log'],
     'controllerNamespace' => 'api\controllers',
     'modules' => [
-        'oauth2' => [
-            'class' => 'sweelix\oauth2\server\Module',
-            'backend' => 'redis',
-            'db' => 'redis',
-            'identityClass' => 'common\models\Member',
-            'allowJwtAccessToken' => true,
-        ],
         'v1' => [
             'class' => 'api\modules\v1\module',
         ],

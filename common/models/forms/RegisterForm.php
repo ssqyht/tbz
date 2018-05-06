@@ -89,7 +89,7 @@ class RegisterForm extends Model
             $member->sex = $this->sex;
             $member->status = Member::STATUS_NORMAL;
             // 生成头像
-            if ($this->headimgurl && $result = FileUpload::upload($this->headimgurl)) {
+            if ($this->headimgurl && $result = FileUpload::upload($this->headimgurl, FileUpload::DIR_OTHER)) {
                 $member->headimg_id = $result->file_id ?? 0;
                 $member->headimg_url = $result->path ?? '';
             }

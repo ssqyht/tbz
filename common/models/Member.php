@@ -27,7 +27,7 @@ use yii\web\IdentityInterface;
  * @property int $updated_at 修改时间
  * @property MemberAccessToken $accessToken
  */
-class Member extends \yii\db\ActiveRecord implements UserCredentialsInterface
+class Member extends \yii\db\ActiveRecord implements IdentityInterface
 {
 
     use TimestampTrait;
@@ -147,27 +147,6 @@ class Member extends \yii\db\ActiveRecord implements UserCredentialsInterface
     public function getDuration()
     {
         return static::LOGIN_DURATION;
-    }
-
-    /**
-     * Implemented for Oauth2 Interface
-     */
-    public function checkUserCredentials($username, $password)
-    {
-        $user = static::findByUsername($username);
-        if (empty($user)) {
-            return false;
-        }
-        return $user->validatePassword($password);
-    }
-
-    /**
-     * Implemented for Oauth2 Interface
-     */
-    public function getUserDetails($username)
-    {
-        $user = static::findByUsername($username);
-        return ['user_id' => $user->getId()];
     }
 
 }

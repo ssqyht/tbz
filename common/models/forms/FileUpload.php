@@ -25,8 +25,19 @@ use yii\validators\UrlValidator;
 class FileUpload extends Model
 {
 
+    /** @var string 存放模板缩略图 */
+    const DIR_TEMPLATE = 'template';
+    /** @var string 存放官方素材 */
+    const DIR_MATERIAL = 'material';
+    /** @var string 存放用户素材 */
+    const DIR_ELEMENT  = 'element';
+    /** @var string 其它文件 */
+    const DIR_OTHER = 'other';
+
     /** @var string*/
     public $url;
+    /** @var string */
+    public $dir;
 
     /** @var array 远程文件信息 */
     private $_content;
@@ -37,13 +48,15 @@ class FileUpload extends Model
 
     /**
      * 上传文件
-     * @param $url
+     * @param string $url 文件URl
+     * @param string $dir 存放位置
      * @return bool|FileCommon|null
+     * @author thanatos <thanatos915@163.com>
      */
-    public static function upload($url)
+    public static function upload($url, $dir)
     {
         $model = new static();
-        if ($model->load(['url' => $url], '') && $result = $model->submit()) {
+        if ($model->load(['url' => $url, 'dir' => $dir], '') && $result = $model->submit()) {
             return $result;
         } else {
             $model->addErrors($model->getErrors());
@@ -54,7 +67,12 @@ class FileUpload extends Model
     public function rules()
     {
         return [
-            [['url'], 'required'],
+            [['url', 'dir'], 'required'],
+            ['dir', function(){
+                if (in_array($this->dir, [static::DIR_ELEMENT, static::DIR_MATERIAL, static::DIR_OTHER, static::DIR_TEMPLATE]))
+                    // 目录不存在
+                    $this->addError('dir', Code::DIR_NOT_EXIST);
+            }],
             // 文件是否存在
             ['url', function () {
                 if (!is_string($this->url) || !(new UrlValidator())->validate($this->url)) {
@@ -130,14 +148,14 @@ class FileUpload extends Model
      */
     public function generateFileName()
     {
-        $dir = 'member';
+        $baseDir = base64_encode('uploads');
         try {
-            $filename = Yii::$app->security->generateRandomString();
+            $filename = Yii::$app->security->generateRandomString(20);
         } catch (\Throwable $throwable) {
             $filename = md5(uniqid());
         }
         $extension = $this->getExtString();
-        return base64_encode($dir) . DIRECTORY_SEPARATOR . base64_encode(date('Ym')) . $filename . '.' . $extension ?? 'png';
+        return $baseDir . DIRECTORY_SEPARATOR . $this->dir. DIRECTORY_SEPARATOR . date('Ym') . DIRECTORY_SEPARATOR .   $filename . '.' . $extension ?? 'png';
     }
 
     /**

@@ -7,8 +7,20 @@ return [
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'language' => 'zh-CN',
     'components' => [
+        'redis' => [
+            'class' => 'yii\redis\Connection',
+            'hostname' => 'redis',
+            'port' => 6379,
+            'database' => 0,
+        ],
         'cache' => [
-            'class' => 'yii\caching\FileCache',
+            'class' => 'yii\redis\Cache',
+        ],
+        'db' => [
+            'class' => 'yii\db\Connection',
+            'enableSchemaCache' => true,
+            'schemaCacheDuration' => 0,
+            'schemaCache' => 'cache',
         ],
         'user' => [
             'class' => 'common\components\vendor\User',

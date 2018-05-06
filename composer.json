@@ -15,8 +15,7 @@
         "yiisoft/yii2-httpclient": "~2.0",
         "thanatosxia/yii2-wechat": "~1.1",
         "thanatosxia/yii2-oss": "~1.1",
-        "yiisoft/yii2-redis": "*",
-        "sweelix/yii2-oauth2-server": "^1.2.1"
+        "yiisoft/yii2-redis": "*"
 
     },
     "require-dev": {

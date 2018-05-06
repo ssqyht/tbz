@@ -52,3 +52,10 @@ environments/            环境配置
 docker-compose up
 #docker-compose up -d --force-recreate
 ```
+
+性能优化
+-------
+1、在服务器更新数据库后清空表结构缓存
+```bash
+./yii cache flush-schema
+```
