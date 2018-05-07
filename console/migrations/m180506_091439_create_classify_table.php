@@ -15,7 +15,7 @@ class m180506_091439_create_classify_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->tableName, [
-            'id' => $this->primaryKey()->unsigned(),
+            'id' => $this->primaryKey(11)->unsigned(),
             'product' => $this->string(30)->notNull()->comment('模板分类标识'),
             'parent_product' => $this->string(30)->notNull()->defaultValue('')->comment('父分类'),
             'category' => $this->string(30)->notNull()->comment('所属品类标识'),
@@ -24,7 +24,7 @@ class m180506_091439_create_classify_table extends Migration
             'default_price' => $this->smallInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('默认价格'),
             'is_hot' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('是否是热门'),
             'is_new' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('是否是新上'),
-            'default_edit' => $this->json()->notNull()->comment('模板默认配置'),
+            'default_edit' => $this->text()->notNull()->comment('模板默认配置'),
             'order_link' => $this->string(255)->notNull()->defaultValue('')->comment('下单连接'),
             'thumbnail' => $this->string(255)->notNull()->defaultValue('')->comment('缩略图'),
             'thumbnail_id' => $this->integer(11)->notNull()->unsigned()->defaultValue(0)->comment('缩略图file_id'),

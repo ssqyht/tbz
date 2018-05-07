@@ -16,7 +16,7 @@ class m180421_085904_create_member_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->tableName, [
-            'id' => $this->primaryKey()->unsigned(),
+            'id' => $this->primaryKey(11)->unsigned(),
             'username' => $this->string(30)->notNull()->defaultValue('')->comment('用户名'),
             'mobile' => $this->char(11)->notNull()->defaultValue('')->comment('用户手机号'),
             'sex' => $this->tinyInteger(1)->notNull()->defaultValue(0)->comment('姓别'),

@@ -16,7 +16,7 @@ class m180506_082203_create_category_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->tableName, [
-            'id' => $this->primaryKey()->unsigned(),
+            'id' => $this->primaryKey(11)->unsigned(),
             'name' => $this->string(10)->notNull()->comment('品类名称'),
             'class_name' => $this->string(15)->notNull()->comment('品类class名'),
             'product' => $this->string(30)->notNull()->comment('品类唯一标识'),

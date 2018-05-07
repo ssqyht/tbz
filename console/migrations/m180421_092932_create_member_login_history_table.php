@@ -16,7 +16,7 @@ class m180421_092932_create_member_login_history_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->tablename, [
-            'history_id' => $this->primaryKey()->unsigned(),
+            'history_id' => $this->primaryKey(11)->unsigned(),
             'user_id' => $this->integer(11)->unsigned()->notNull()->comment('用户id'),
             'method' => $this->tinyInteger(1)->notNull()->comment('登录方式'),
             'ip' => $this->string(64)->notNull()->comment('登录ip'),

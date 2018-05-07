@@ -14,7 +14,7 @@ class m180426_233732_create_file_used_record_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->tableName, [
-            'id' => $this->primaryKey()->unsigned(),
+            'id' => $this->primaryKey(11)->unsigned(),
             'user_id' => $this->integer(11)->unsigned()->notNull()->comment('用户ID'),
             'file_id' => $this->integer(11)->unsigned()->notNull()->comment('文件ID'),
             'purpose' => $this->tinyInteger(1)->unsigned()->notNull()->comment('用例'),

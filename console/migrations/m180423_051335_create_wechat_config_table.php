@@ -16,7 +16,7 @@ class m180423_051335_create_wechat_config_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->tableName, [
-            'wechat_id' => $this->primaryKey()->unsigned(),
+            'wechat_id' => $this->primaryKey(11)->unsigned(),
             'app_id' => $this->string(32)->notNull()->comment('AppId'),
             'secret' => $this->string(32)->notNull()->comment('secret'),
             'name' => $this->string(32)->notNull()->comment('内部标识'),

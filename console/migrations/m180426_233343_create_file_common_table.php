@@ -14,7 +14,7 @@ class m180426_233343_create_file_common_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->tableName, [
-            'file_id' => $this->primaryKey()->unsigned(),
+            'file_id' => $this->primaryKey(11)->unsigned(),
             'etag' => $this->char(32)->notNull()->comment('文件唯一值'),
             'path' => $this->string(255)->notNull()->comment('文件路径'),
             'size' => $this->integer(1)->unsigned()->notNull()->comment('文件大小'),

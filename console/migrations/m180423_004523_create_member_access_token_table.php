@@ -16,7 +16,7 @@ class m180423_004523_create_member_access_token_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->tableName, [
-            'token_id' => $this->primaryKey()->unsigned(),
+            'token_id' => $this->primaryKey(11)->unsigned(),
             'user_id' => $this->integer()->unsigned()->notNull()->comment('用户ID'),
             'access_token' => $this->string(32)->notNull()->comment('access_token'),
             'token_type' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('登录设备号'),

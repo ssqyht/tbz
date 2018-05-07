@@ -15,7 +15,7 @@ class m180424_195400_create_center_user_oauth_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->tableName, [
-            'id' => $this->primaryKey(),
+            'id' => $this->primaryKey(11),
             'user_id' => $this->integer(11)->unsigned()->notNull()->comment('用户ID'),
             'oauth_name' => $this->tinyInteger(1)->notNull()->comment('第三方名称'),
             'oauth_key' => $this->string(50)->notNull()->comment('第三方key值'),
