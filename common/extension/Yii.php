@@ -40,6 +40,8 @@ abstract class WebApplication extends  yii\web\Application
 
 /**
  * Class ConsoleApplication
+ * @property \yii\db\Connection $dbMigrateDdy
+ * @property \yii\db\Connection $dbMigrateTbz
  * Include only Console application related components here
  */
 abstract class ConsoleApplication extends yii\console\Application

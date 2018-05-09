@@ -6,7 +6,6 @@
 namespace common\models\forms;
 
 use common\models\Member;
-use common\models\MemberAccessToken;
 use common\models\MemberLoginHistory;
 use Yii;
 use common\components\validators\MobileValidator;
@@ -33,18 +32,15 @@ class LoginForm extends Model
     public $oauth_key;
     public $mobile;
     public $password;
-    public $token_type;
 
     public function rules()
     {
         return [
-            ['token_type', 'default', 'value' => MemberAccessToken::TOKEN_TYPE_WEB],
             [['oauth_name', 'oauth_key', 'mobile', 'password'], 'required'],
             [['oauth_name'], 'integer', 'max' => MemberOauth::MAX_OAUTH_NAME, 'min' => 1],
             [['oauth_key'], 'string', 'max' => 50],
             [['mobile'], 'string', 'max' => 11],
             ['mobile', MobileValidator::class],
-            [['token_type'], 'integer', 'max' => MemberAccessToken::MAX_TOKEN_TYPE],
         ];
     }
 
@@ -60,7 +56,8 @@ class LoginForm extends Model
 
     /**
      * 统一登录入口
-     * @return bool|MemberAccessToken
+     * @return array|bool
+     * @author thanatos <thanatos915@163.com>
      */
     public function submit()
     {
@@ -69,10 +66,14 @@ class LoginForm extends Model
         }
 
         switch ($this->scenario) {
+            // 微信登录
             case static::SCENARIO_OAUTH:
             case static::SCENARIO_SYSTEM:
                 return $this->loginByOauth();
                 break;
+            // 手机号登录
+            case static::SCENARIO_MOBILE:
+                return $this->loginByMobile();
             default:
                 $this->addError('scenario', 'scenario not exist');
                 return false;
@@ -81,17 +82,51 @@ class LoginForm extends Model
 
     /**
      * 第三方登录
-     * @return bool|MemberAccessToken
+     * @return array|bool
+     * @author thanatos <thanatos915@163.com>
      */
     protected function loginByOauth()
     {
         // 查找第三方名和key的用户
         if (!$memberOauth = MemberOauth::findMemberByNameAndKey($this->oauth_name, $this->oauth_key)) {
-            $this->addError('oauth', Code::USER_OAUTH_KEY_NOT_FOUND);
+            $this->addError('oauth', Code::USER_NOT_FOUND);
             return false;
         }
         // 登录
-        if (!Yii::$app->user->login($memberOauth->member, $memberOauth->member->getDuration())) {
+        return $this->doLogin($memberOauth->member);
+    }
+
+    /**
+     * 手机号登录
+     */
+    protected function loginByMobile()
+    {
+        // 验证用户
+        if (!$user = Member::findByMobile($this->mobile)) {
+            $this->addError('mobile', Code::USER_NOT_FOUND);
+            return false;
+        }
+
+        // 验证密码
+        if (!$user->validatePassword($this->password)) {
+            $this->addError('mobile', Code::USER_WRONG_PASSWORD);
+            return false;
+        }
+        // 登录
+        return $this->doLogin($user);
+    }
+
+    /**
+     * 执行登录动作
+     * @param Member $member
+     * @return array|bool
+     * @author thanatos <thanatos915@163.com>
+     * @internal
+     */
+    private function doLogin(Member $member)
+    {
+        // 登录
+        if (!Yii::$app->user->login($member)) {
             $this->addError('oauth', Code::SERVER_FAILED);
             return false;
         }
@@ -102,20 +137,11 @@ class LoginForm extends Model
             MemberLoginHistory::createLoginHistory(MemberLoginHistory::LOGIN_METHOD_WECHAT);
 
             // 生成access_token
-            if (!$accessModel = MemberAccessToken::createAccessToken($this->token_type)) {
-                return false;
-            }
-            return $accessModel;
+            $user = Yii::$app->user->identity;
+            $access_token = $user->generateJwtToken();
+            return ArrayHelper::merge($user->toArray(), ['access_token' => $access_token]);
         }
         return true;
-    }
-
-    /**
-     * 手机号登录
-     */
-    protected function loginByMobile()
-    {
-
     }
 
 }

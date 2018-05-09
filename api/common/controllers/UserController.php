@@ -12,8 +12,14 @@ use yii\web\BadRequestHttpException;
 
 class UserController extends RestController
 {
+
+    /**
+     * 用户账号密码登录
+     * @author thanatos <thanatos915@163.com>
+     */
     public function actionLogin()
     {
+
     }
 
     public function actionIndex()

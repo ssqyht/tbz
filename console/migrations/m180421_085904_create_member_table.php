@@ -26,6 +26,7 @@ class m180421_085904_create_member_table extends Migration
             'last_login_time' => $this->integer(11)->notNull()->defaultValue(0)->comment('最后登录时间'),
             'password_hash' => $this->char(60)->notNull()->defaultValue('')->comment('密码hash'),
             'salt' => $this->string(16)->notNull()->defaultValue('')->comment('旧salt'),
+            'password' => $this->string(32)->notNull()->defaultValue('')->comment('旧password'),
             'status' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(10)->comment('用户状态'),
             'created_at' => $this->integer(11)->notNull()->unsigned()->comment('创建时间'),
             'updated_at' => $this->integer(11)->notNull()->unsigned()->comment('修改时间'),

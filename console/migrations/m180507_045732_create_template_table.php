@@ -79,6 +79,8 @@ class m180507_045732_create_template_table extends Migration
      */
     public function safeDown()
     {
-        $this->dropTable('template');
+        $this->dropTable($this->official);
+        $this->dropTable($this->official_tag);
+        $this->dropTable($this->member);
     }
 }

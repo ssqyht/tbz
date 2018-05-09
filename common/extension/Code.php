@@ -9,7 +9,8 @@ class Code
     /** @var int 用户已经存在 */
     const USER_EXIST = 50001;
     /** @var int 用户不存在 */
-    const USER_OAUTH_KEY_NOT_FOUND = 50002;
+    const USER_NOT_FOUND = 50002;
+    const USER_WRONG_PASSWORD = 50003;
 
 
     /** @var int 文件不存在 */
@@ -40,7 +41,8 @@ class Code
     /** @var array user return code */
     public $user = [
         self::USER_EXIST => '用户已经存在',
-        self::USER_OAUTH_KEY_NOT_FOUND => '用户不存在',
+        self::USER_NOT_FOUND => '用户不存在',
+        self::USER_WRONG_PASSWORD => '密码不正确',
     ];
 
 

@@ -69,7 +69,7 @@ class FileUpload extends Model
         return [
             [['url', 'dir'], 'required'],
             ['dir', function(){
-                if (in_array($this->dir, [static::DIR_ELEMENT, static::DIR_MATERIAL, static::DIR_OTHER, static::DIR_TEMPLATE]))
+                if (!in_array($this->dir, [static::DIR_ELEMENT, static::DIR_MATERIAL, static::DIR_OTHER, static::DIR_TEMPLATE]))
                     // 目录不存在
                     $this->addError('dir', Code::DIR_NOT_EXIST);
             }],

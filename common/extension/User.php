@@ -2,7 +2,7 @@
 /**
  * @user: thanatos <thanatos915@163.com>
  */
-namespace common\components\vendor;
+namespace common\extension;
 use common\models\Member;
 use yii\web\IdentityInterface;
 

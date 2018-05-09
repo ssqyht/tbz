@@ -7,6 +7,7 @@ use common\models\forms\FileUpload;
 use common\models\forms\LoginForm;
 use common\models\forms\RegisterForm;
 use common\models\MemberOauth;
+use common\models\OauthPublicKeys;
 use Firebase\JWT\JWT;
 use Yii;
 use yii\web\Controller;
@@ -46,6 +47,15 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        /** @var OauthPublicKeys $model */
+        $model = OauthPublicKeys::find()->one();
+
+
+
+
+        $jwt = JWT::encode($array, $model->private_key, $model->encryption_algorithm);
+        var_dump($jwt);exit;
+
         echo 'You must visit a module  "/v1"';
         exit;
     }

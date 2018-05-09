@@ -13,6 +13,7 @@ services:
       - ./.docker/php/php.ini:/usr/local/etc/php/php.ini
     environment:
       XDEBUG_CONFIG: remote_host=192.168.1.162
+      PHP_IDE_CONFIG: "serverName=localhost"
 #    command: /bin/sh -c "cd server && composer install && php-fpm"
     depends_on:
 #       - mysql

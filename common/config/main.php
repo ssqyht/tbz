@@ -23,7 +23,7 @@ return [
             'schemaCache' => 'cache',
         ],
         'user' => [
-            'class' => 'common\components\vendor\User',
+            'class' => 'yii\web\User',
             'identityClass' => 'common\models\Member',
         ],
         // 微信配置

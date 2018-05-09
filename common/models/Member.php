@@ -4,6 +4,7 @@ namespace common\models;
 
 use common\components\traits\TimestampTrait;
 use common\components\validators\MobileValidator;
+use Firebase\JWT\JWT;
 use OAuth2\Storage\UserCredentialsInterface;
 use Yii;
 use yii\web\IdentityInterface;
@@ -22,17 +23,15 @@ use yii\web\IdentityInterface;
  * @property int $last_login_time 最后登录时间 @SWG\Property(property="lastLoginTime", type="integer", description=" 最后登录时间")
  * @property string $password_hash 密码hash
  * @property string $salt 旧salt
+ * @property string $password 旧密码
  * @property int $status 用户状态
  * @property int $created_at 创建时间
  * @property int $updated_at 修改时间
- * @property MemberAccessToken $accessToken
  */
 class Member extends \yii\db\ActiveRecord implements IdentityInterface
 {
 
     use TimestampTrait;
-
-    const LOGIN_DURATION = 3600*24*15;
 
     /** @var int 男 */
     const SEX_MALE = 1;
@@ -45,6 +44,11 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
 
     /** @var int 用户正常状态 */
     const STATUS_NORMAL = 10;
+
+    // token 过期时间 5小时
+    const EXPIRED_TIME = 3600*5;
+    // token 刷新时间 15天
+    const REFRESH_TIME = 3600*24*15;
 
     /**
      * 用于接口返回
@@ -77,6 +81,7 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
             ['status', 'default', 'value' => 10],
             [['password_hash'], 'string', 'max' => 60],
             [['salt'], 'string', 'max' => 16],
+            [['password'], 'string', 'max' => 32],
         ];
     }
 
@@ -97,6 +102,7 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
             'status' => 'Status',
             'password_hash' => 'Password Hash',
             'salt' => 'Salt',
+            'password' => 'password',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
@@ -112,14 +118,92 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
         ];
     }
 
-    public static function findIdentity($id)
+    /**
+     * 通过mobile查找
+     * @param $mobile
+     * @return Member|null
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function findByMobile($mobile)
     {
-        return static::findOne(['id' => $id]);
+        return static::findOne(['mobile' => $mobile]);
     }
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
     }
+
+
+    /**
+     * 生成JWT TOKEN
+     * 如果需要更新，需手动清除缓存
+     * @return string
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function generateJwtToken()
+    {
+        $time = time();
+        // 定义payload属性
+        $token = [
+            'iss' => 'https://www.tubangzhu.com',
+            'aud' => 'tubangzhu_web',
+            'sub' => $this->id,
+            'exp' => $time + static::EXPIRED_TIME,
+            'iat' => $time,
+            'ref' => $time + static::REFRESH_TIME,
+            'data' => [
+                'name' => $this->username,
+                'headimg_url' => $this->headimg_url,
+            ]
+        ];
+
+        // 通过缓存取得密钥
+        $cache = Yii::$app->cache;
+        $cacheKey = [
+            OauthPublicKeys::class,
+            'JWT_clients_cache',
+        ];
+        if (!$jwt = $cache->get($cacheKey)) {
+            /** @var OauthPublicKeys $jwt */
+            $jwt = OauthPublicKeys::find()->where(['client_id' => 'tubangzhu_web'])->one();
+            $cache->set($cacheKey, $jwt);
+        }
+
+        return JWT::encode($token, $jwt->primaryKey, $jwt->encryption_algorithm);
+    }
+
+    /**
+     * 验证用户密码
+     * @param string $password 用户密码
+     * @return bool
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function validatePassword($password)
+    {
+        // 验证老的密码体系
+        if ($this->salt) {
+            if ($this->password == md5(md5($password), $this->salt)) {
+                // 通过后重置新的密码格式
+                try {
+                    $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+                }catch (\Throwable $exception) {
+                    return false;
+                }
+                return $this->save() ?: false;
+            }
+        }
+        // 验证新密码格式
+        if ($this->password_hash) {
+            return Yii::$app->security->validatePassword($password, $this->password_hash);
+        }
+        return false;
+    }
+
+    public static function findIdentity($id)
+    {
+        return static::findOne(['id' => $id]);
+    }
+
 
     public function getId()
     {
@@ -131,22 +215,5 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
 
     public function validateAuthKey($authKey)
     {}
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAccessToken()
-    {
-        return $this->hasOne(MemberAccessToken::class, ['user_id' => 'id']);
-    }
-
-    /**
-     * 返回登录保持时间
-     * @return float|int
-     */
-    public function getDuration()
-    {
-        return static::LOGIN_DURATION;
-    }
 
 }

@@ -15,7 +15,8 @@
         "yiisoft/yii2-httpclient": "~2.0",
         "thanatosxia/yii2-wechat": "~1.1",
         "thanatosxia/yii2-oss": "~1.1",
-        "yiisoft/yii2-redis": "*"
+        "yiisoft/yii2-redis": "*",
+        "firebase/php-jwt": "^5.0"
 
     },
     "require-dev": {

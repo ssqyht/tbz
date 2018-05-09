@@ -67,7 +67,6 @@ class WechatController extends RestController
      */
     public function actionQrcode()
     {
-        var_dump(Yii::$app->request->hostInfo);exit;
         $app = Yii::$app->wechat->app;
         $result = $app->qrcode->temporary(EventMessageHandle::SCENE_LOGIN, 3600);
         $url = $app->qrcode->url($result->ticket);

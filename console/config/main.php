@@ -20,15 +20,29 @@ return [
             'class' => 'yii\console\controllers\FixtureController',
             'namespace' => 'common\fixtures',
           ],
+        'cache' => 'console\controllers\CacheController'
     ],
     'components' => [
         'log' => [
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
+                    'levels' => ['error', 'warning', 'info'],
+                    'logVars' => [],
                 ],
             ],
+        ],
+        'dbMigrateDdy' => [
+            'class' => 'yii\db\Connection',
+            'enableSchemaCache' => true,
+            'schemaCacheDuration' => 0,
+            'schemaCache' => 'cache',
+        ],
+        'dbMigrateTbz' => [
+            'class' => 'yii\db\Connection',
+            'enableSchemaCache' => true,
+            'schemaCacheDuration' => 0,
+            'schemaCache' => 'cache',
         ],
     ],
     'params' => $params,
