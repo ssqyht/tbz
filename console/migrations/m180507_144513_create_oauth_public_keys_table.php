@@ -29,7 +29,8 @@ jDxpymdqmWPl+tXo3d6TSxhL2Lv8XM5WYviCX+MmiAMdXyQspie8w1yadRCoEqIa
 u7pQdwwb9B3tcPqoC05tlhmWu8oltOe23kI3qucO/GeCbOdOE5RvF5IifhAb6V2a
 SLGVhK9zvpTcRWF8Zola4XH5S6y/dsGzTPzxoU4oXtE/YnRlBt/F5kQQgafwBJgq
 GQIDAQAB
------END PUBLIC KEY-----";
+-----END PUBLIC KEY-----
+";
 
         $private_key = "-----BEGIN RSA PRIVATE KEY-----
 MIIEogIBAAKCAQEAvqLkG1oRxwNSs6DkTiIsvrbYrq8SU+Zkr0JJg19yXDqjcTYM
@@ -57,7 +58,8 @@ kaFqboLQkv7oZyh34hbQmIVrZaHyQczTXJAS/EBLkSitfICMfM+CXeXKgHyTI2FF
 jbTBAoGAD5T3EQX+zSkPZBcb4OmsUe2JStXRcSclB80zmb37cb821RySknHf0rbX
 8KK4tCHeqDgDdoylzeh1eCAxlEjBGj2vhKmUFri5Q1BLytrGeD5oH6lwkk19bM1k
 94eOIAw7UK4vPdaB0RF6U6t6tMx6cM95meiRXpMTa7nm1t44ffw=
------END RSA PRIVATE KEY-----";
+-----END RSA PRIVATE KEY-----
+";
 
 
         $this->getDb()->createCommand()->insert($this->tableName, [

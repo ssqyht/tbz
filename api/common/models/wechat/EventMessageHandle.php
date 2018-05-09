@@ -13,6 +13,8 @@ use yii\web\BadRequestHttpException;
 class EventMessageHandle extends BaseMessageHandle
 {
     const SCENE_LOGIN = 'login';
+    /** @var int 登录缓存时间 */
+    const LOGIN_DURATION = 1800;
 
     /** @var array 二维码参数数组 */
     private $_scene;
@@ -88,7 +90,7 @@ class EventMessageHandle extends BaseMessageHandle
             $cacheKey = [
                 $this->ticket,
             ];
-            if (!$cache->set($cacheKey, $this->wechatInfo->unionid)) {
+            if (!$cache->set($cacheKey, $this->wechatInfo->unionid, static::LOGIN_DURATION)) {
                 return false;
             }
         }

@@ -19,6 +19,7 @@ class Yii extends \yii\BaseYii
 /**
  * Class BaseApplication
  * Used for properties that are identical for both WebApplication and ConsoleApplication
+ * @property \common\components\vendor\RestController $controller
  * @property \thanatos\wechat\Wechat $wechat 微信类
  * @property \thanatos\oss\Oss $oss Oss
  * @property \common\extension\User $user

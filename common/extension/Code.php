@@ -11,6 +11,7 @@ class Code
     /** @var int 用户不存在 */
     const USER_NOT_FOUND = 50002;
     const USER_WRONG_PASSWORD = 50003;
+    const USER_TOKEN_FAILED = '50004';
 
 
     /** @var int 文件不存在 */
@@ -23,6 +24,7 @@ class Code
     const SERVER_FAILED = -1;
     const SERVER_SUCCESS = 0;
     const SERVER_UNAUTHORIZED = 10001;
+    const SERVER_NOT_PERMISSION = 10002;
 
     /** @var array common return code */
     public $common = [
@@ -36,6 +38,7 @@ class Code
         self::FILE_NOT_EXIST => '文件不存在',
         self::FILE_EXTENSION_NOT_ALLOW => '不允许的文件类型',
         self::DIR_NOT_EXIST => '目录不存在',
+        self::SERVER_NOT_PERMISSION => '没有权限'
     ];
 
     /** @var array user return code */
@@ -43,6 +46,7 @@ class Code
         self::USER_EXIST => '用户已经存在',
         self::USER_NOT_FOUND => '用户不存在',
         self::USER_WRONG_PASSWORD => '密码不正确',
+        self::USER_TOKEN_FAILED => 'refreshToken不正确'
     ];
 
 

@@ -18,7 +18,8 @@ $restUrls = [
         ],
         // 微信配置
         'GET,POST,OPTIONS wechat/qrcode' => 'wechat/qrcode',
-        'POST,GET,OPTIONS wechat/session' => 'wechat/session',
+        'POST,OPTIONS wechat/session' => 'wechat/session',
+        'POST,OPTIONS wechat/refresh' => 'wechat/refresh',
         // 开始文档
         'doc/index' => 'doc/index',
         'doc/api' => 'doc/api',

@@ -7,6 +7,7 @@ namespace common\models\forms;
 
 use common\models\Member;
 use common\models\MemberLoginHistory;
+use common\models\OauthRefreshToken;
 use Yii;
 use common\components\validators\MobileValidator;
 use common\extension\Code;
@@ -47,7 +48,7 @@ class LoginForm extends Model
     public function scenarios()
     {
         $scenarios = [
-            static::SCENARIO_OAUTH => ['oauth_name', 'oauth_key', 'token_type'],
+            static::SCENARIO_OAUTH => ['oauth_name', 'oauth_key'],
             static::SCENARIO_SYSTEM => ['oauth_name', 'oauth_key'],
             static::SCENARIO_MOBILE => ['mobile', 'password'],
         ];
@@ -120,8 +121,8 @@ class LoginForm extends Model
      * 执行登录动作
      * @param Member $member
      * @return array|bool
+     * @throws \yii\db\Exception
      * @author thanatos <thanatos915@163.com>
-     * @internal
      */
     private function doLogin(Member $member)
     {
@@ -139,7 +140,8 @@ class LoginForm extends Model
             // 生成access_token
             $user = Yii::$app->user->identity;
             $access_token = $user->generateJwtToken();
-            return ArrayHelper::merge($user->toArray(), ['access_token' => $access_token]);
+
+            return ArrayHelper::merge($user->toArray(), ['accessToken' => $access_token]);
         }
         return true;
     }

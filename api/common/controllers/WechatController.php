@@ -9,8 +9,10 @@ use api\common\models\wechat\EventMessageHandle;
 use common\components\traits\FuncTraits;
 use common\extension\Code;
 use common\models\forms\LoginForm;
-use common\models\MemberAccessToken;
+use common\models\Member;
 use common\models\MemberOauth;
+use common\models\OauthRefreshToken;
+use Firebase\JWT\JWT;
 use Yii;
 use common\components\vendor\RestController;
 use yii\helpers\ArrayHelper;
@@ -31,6 +33,12 @@ class WechatController extends RestController
      *     operationId="getQrcode",
      *     tags={"用户相关接口"},
      *     summary="获取微信登录的二维码",
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
      *     @SWG\Response(
      *          response=200,
      *          description="返回图片",
@@ -42,6 +50,12 @@ class WechatController extends RestController
      *     operationId="postQrcode",
      *     tags={"用户相关接口"},
      *     summary="获取微信登录的二维码",
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
      *     @SWG\Response(
      *          response=200,
      *          description="请求成功",
@@ -95,6 +109,12 @@ class WechatController extends RestController
      *     path="/wechat/session",
      *     tags={"用户相关接口"},
      *     summary="检查微信登录状态",
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
      *     @SWG\Response(
      *          response=200,
      *          description="请求成功",
@@ -112,34 +132,97 @@ class WechatController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return \common\models\Member|null|\yii\web\IdentityInterface
+     *
+     * @return array|bool
      * @throws UnauthorizedHttpException
      * @author thanatos <thanatos915@163.com>
      */
     public function actionSession()
     {
-//        if (Yii::$app->request->isPost) {
+        if (Yii::$app->request->isPost) {
             $ticket = Yii::$app->session->get(self::LOGIN_QRCODE_KEY);
             $cacheKey = [
                 $ticket
             ];
             $unionid = Yii::$app->cache->get($cacheKey);
 
+
             $model = new LoginForm(['scenario' => LoginForm::SCENARIO_OAUTH]);
             $model->load([
                 'oauth_name' => MemberOauth::OAUTH_WECHAT,
                 'oauth_key' => $unionid,
-                // 电脑端登录
-                'token_type' => MemberAccessToken::TOKEN_TYPE_WEB,
             ], '');
             if ($result = $model->submit()) {
-                $user = Yii::$app->user->identity;
-                $user->access_token = $result->access_token;
-                return $user;
+                Yii::$app->cache->delete($cacheKey);
+                return $result;
             } else {
                 throw new UnauthorizedHttpException('验证失败', Code::SERVER_UNAUTHORIZED);
             }
-//        }
+        }
+    }
+
+    /**
+     * 刷新AccessToken
+     * @SWG\Post(
+     *     path="/wechat/refresh",
+     *     tags={"用户相关接口"},
+     *     summary="刷新AccessToken",
+     *     operationId="refreshToken",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *        name="body",
+     *        in="body",
+     *        @SWG\Schema(
+     *            @SWG\Property(
+     *                property="refresh_token",
+     *                type="string",
+     *            ),
+     *        ),
+     *
+     *     ),
+     *     @SWG\Response(
+     *        response=200,
+     *        description="请求成功",
+     *        ref="$/responses/Success",
+     *        @SWG\Schema(
+     *            @SWG\Property(
+     *                property="data",
+     *                ref="#/definitions/Member"
+     *            )
+     *        )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     *
+     * @throws BadRequestHttpException
+     * @throws \yii\db\Exception
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function actionRefresh()
+    {
+        $token = Yii::$app->request->post('refresh_token');
+
+        if (empty($token)) {
+            throw new BadRequestHttpException('token不正确', Code::USER_TOKEN_FAILED);
+        }
+        $model = OauthRefreshToken::findByToken($token);
+        if (empty($model) || time() > ($model->expires)) {
+            throw new BadRequestHttpException('token不正确', Code::USER_TOKEN_FAILED);
+        }
+
+        $member = Member::findIdentity($model->user_id);
+        $access_token = $member->generateJwtToken();
+        return ArrayHelper::merge($member->toArray(), ['accessToken' => $access_token]);
     }
 
 }
