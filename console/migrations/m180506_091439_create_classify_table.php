@@ -36,6 +36,8 @@ class m180506_091439_create_classify_table extends Migration
         $this->addCommentOnTable($this->tableName, '分类信息表');
         $this->createIndex('idx-product', $this->tableName, 'product');
         $this->createIndex('idx-category', $this->tableName, 'category');
+
+
     }
 
     /**

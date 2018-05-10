@@ -5,7 +5,7 @@
 
 namespace common\models\forms;
 
-use common\components\traits\FuncTraits;
+use common\components\traits\FuncTrait;
 use common\models\FileCommon;
 use Yii;
 use common\extension\Code;
@@ -228,7 +228,7 @@ class FileUpload extends Model
     protected function sourceContent()
     {
         if ($this->_content === null && $this->_mime === null) {
-            list('content' => $this->_content, 'mime' => $this->_mime)= FuncTraits::getSourceOrigin($this->url);
+            list('content' => $this->_content, 'mime' => $this->_mime)= FuncTrait::getSourceOrigin($this->url);
         }
     }
 
@@ -249,7 +249,7 @@ class FileUpload extends Model
 
         // SVG宽高信息
         if ($this->getExtType() === FileCommon::EXT_SVG) {
-            list('height' => $height, 'width' => $width) = FuncTraits::getSvgSize($this->content);
+            list('height' => $height, 'width' => $width) = FuncTrait::getSvgSize($this->content);
         }
 
         return ['height' => round($height) ?? 0, 'width' => round($width) ?? 0];

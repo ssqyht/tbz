@@ -6,7 +6,7 @@
 namespace common\models\forms;
 
 
-use common\components\traits\FuncTraits;
+use common\components\traits\FuncTrait;
 use common\extension\Code;
 use common\models\FileCommon;
 use common\models\FileUsedRecord;

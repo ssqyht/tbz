@@ -16,7 +16,7 @@ use yii\validators\UrlValidator;
  * @package common\components\traits
  * @author thanatos <thanatos915@163.com>
  */
-trait FuncTraits
+trait FuncTrait
 {
 
     /**

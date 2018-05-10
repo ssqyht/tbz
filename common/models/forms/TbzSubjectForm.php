@@ -46,6 +46,10 @@ class TbzSubjectForm extends Model
      */
     public function TbzSubjectAdd($params)
     {
+        if (!$this->validate()) {
+            return false;
+        }
+
         $tbz_subject = new TbzSubject();
         $tbz_subject->title = $params['title'];
         $tbz_subject->description = $params['description'];
@@ -56,8 +60,6 @@ class TbzSubjectForm extends Model
         $tbz_subject->seo_description = $params['description'];
         $tbz_subject->status = $params['status'];
         $tbz_subject->sort = $params['sort'];
-        $tbz_subject->updated_time = time();
-        $tbz_subject->created_time = time();
         if ($tbz_subject->save(false)) {
             return $tbz_subject;
         } else {
@@ -80,8 +82,6 @@ class TbzSubjectForm extends Model
         $tbz_subject->seo_description = $params['description'];
         $tbz_subject->status = $params['status'];
         $tbz_subject->sort = $params['sort'];
-        $tbz_subject->updated_time = time();
-        //$tbz_subject ->created_time = time();
         if ($tbz_subject->save(false)) {
             return $tbz_subject;
         } else {

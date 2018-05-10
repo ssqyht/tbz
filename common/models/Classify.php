@@ -29,7 +29,6 @@ use common\components\traits\TimestampTrait;
  */
 class Classify extends \yii\db\ActiveRecord
 {
-
     use TimestampTrait;
 
     /**
@@ -81,4 +80,6 @@ class Classify extends \yii\db\ActiveRecord
             'update_at' => '修改时间',
         ];
     }
+
+
 }

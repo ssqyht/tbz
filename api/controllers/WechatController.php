@@ -10,7 +10,7 @@ namespace api\controllers;
 
 
 use api\common\models\wechat\EventMessageHandle;
-use common\components\traits\FuncTraits;
+use common\components\traits\FuncTrait;
 use common\extension\Code;
 use common\models\forms\LoginForm;
 use common\models\MemberAccessToken;

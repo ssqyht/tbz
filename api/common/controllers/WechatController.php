@@ -6,7 +6,7 @@
 namespace api\common\controllers;
 
 use api\common\models\wechat\EventMessageHandle;
-use common\components\traits\FuncTraits;
+use common\components\traits\FuncTrait;
 use common\extension\Code;
 use common\models\forms\LoginForm;
 use common\models\Member;
@@ -88,10 +88,10 @@ class WechatController extends RestController
         // 记录session缓存
         Yii::$app->session->set(self::LOGIN_QRCODE_KEY, $result->ticket);
 
-        $content = FuncTraits::getSourceOrigin($url);
+        $content = FuncTrait::getSourceOrigin($url);
         // Ajax 返回base64
         if (Yii::$app->request->isPost) {
-            return ['content' => FuncTraits::base64Image($content)];
+            return ['content' => FuncTrait::base64Image($content)];
         }
         // 直接输出图片
         $response = Yii::$app->response;

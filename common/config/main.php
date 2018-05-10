@@ -21,6 +21,7 @@ return [
             'enableSchemaCache' => true,
             'schemaCacheDuration' => 0,
             'schemaCache' => 'cache',
+            'tablePrefix' => 'tu_',
         ],
         'user' => [
             'class' => 'yii\web\User',

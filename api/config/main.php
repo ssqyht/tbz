@@ -60,7 +60,7 @@ return [
         */
         'urlManager' => [
             'enablePrettyUrl' => true,
-//            'enableStrictParsing' => true,
+            'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => require __DIR__ . '/urls.php',
         ],

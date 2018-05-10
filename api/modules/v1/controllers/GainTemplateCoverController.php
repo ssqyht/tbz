@@ -9,12 +9,16 @@ use common\models\forms\TbzSubjectForm;
 use common\models\TbzSubject;
 use yii\data\ActiveDataProvider;
 use Yii;
+use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use common\models\search\TbzSubjectSearch;
 use common\extension\Code;
 
-class GainTemplateCoverController extends \api\common\controllers\UserController
+class GainTemplateCoverController extends Controller
 {
+
+
+
     /**
      * @SWG\Post(
      *     path="/gain-template-cover/get-cover",
@@ -50,6 +54,7 @@ class GainTemplateCoverController extends \api\common\controllers\UserController
      *     ),
      * )
      * @return array|\common\components\vendor\Response|\yii\console\Response|Response
+     * @throws NotFoundHttpException
      * @author swz
      */
     public function actionGetCover()
@@ -157,7 +162,8 @@ class GainTemplateCoverController extends \api\common\controllers\UserController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return array|\common\components\vendor\Response|\yii\console\Response|Response
+     * @return bool|TbzSubject
+     * @throws NotFoundHttpException
      * @author swz
      */
     public function actionAddCover()
@@ -173,7 +179,6 @@ class GainTemplateCoverController extends \api\common\controllers\UserController
         } else {
             throw new NotFoundHttpException('添加模板失败');
         }
-
     }
 
     /**
@@ -274,6 +279,7 @@ class GainTemplateCoverController extends \api\common\controllers\UserController
      *     ),
      * )
      * @return array|\common\components\vendor\Response|\yii\console\Response|Response
+     * @throws NotFoundHttpException
      * @author swz
      */
     public function actionUpdateCover()

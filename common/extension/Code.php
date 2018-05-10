@@ -25,12 +25,14 @@ class Code
     const SERVER_SUCCESS = 0;
     const SERVER_UNAUTHORIZED = 10001;
     const SERVER_NOT_PERMISSION = 10002;
+    const SOURCE_NOT_FOUND = 10004;
 
     /** @var array common return code */
     public $common = [
         self::SERVER_SUCCESS => '请求成功',
-        self::USER_EXIST => '系统繁忙, 请稍候再试',
+        self::SERVER_FAILED => '系统繁忙, 请稍候再试',
         self::SERVER_UNAUTHORIZED => '验证失败',
+        self::SOURCE_NOT_FOUND => '资源不存在',
     ];
 
     /** @var array system return code */
