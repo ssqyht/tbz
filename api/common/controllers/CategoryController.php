@@ -8,7 +8,7 @@ namespace api\common\controllers;
 use common\components\vendor\RestController;
 use common\extension\Code;
 use common\models\Classify;
-use common\models\search\ClassifySearch;
+use common\models\search\CategorySearch;
 use Yii;
 use common\models\Category;
 use yii\web\BadRequestHttpException;
@@ -49,8 +49,11 @@ class CategoryController extends RestController
      */
     public function actionIndex()
     {
-        $model = new ClassifySearch();
-        $result = $model->search();
+        $config = [
+            'scenario' => $this->isFrontend() ? CategorySearch::SCENARIO_FRONTEND : CategorySearch::SCENARIO_BACKEND
+        ];
+        $model = new CategorySearch($config);
+        $result = $model->search(Yii::$app->request->get());
         return $result;
     }
 

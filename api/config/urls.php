@@ -11,7 +11,7 @@ $restUrls = [
     'modules' => ['v1', 'v2'],
     'rules' => [
         [
-            'controller' => ['user', 'category'],
+            'controller' => ['user', 'category', 'classify'],
             'extraPatterns' => [
                 'POST,OPTIONS login' => 'login'
             ],

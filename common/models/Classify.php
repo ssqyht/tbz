@@ -3,6 +3,7 @@
 namespace common\models;
 
 use Yii;
+use common\components\traits\ModelFieldsTrait;
 use common\components\traits\TimestampTrait;
 
 /**
@@ -23,13 +24,24 @@ use common\components\traits\TimestampTrait;
  * @property string $thumbnail 缩略图 @SWG\Property(property="thumbnail", type="string", description=" 缩略图")
  * @property int $thumbnail_id 缩略图file_id @SWG\Property(property="thumbnailId", type="integer", description=" 缩略图file_id")
  * @property int $sort 排序值 @SWG\Property(property="sort", type="integer", description=" 排序值")
- * @property int $is_open 是否对外开放 @SWG\Property(property="isOpen", type="integer", description=" 是否对外开放")
- * @property int $created_at 创建时间 @SWG\Property(property="createAt", type="integer", description=" 创建时间")
- * @property int $updated_at 修改时间 @SWG\Property(property="updateAt", type="integer", description=" 修改时间")
+ * @property int $is_open 是否对外开放
+ * @property int $created_at 创建时间
+ * @property int $updated_at 修改时间
  */
 class Classify extends \yii\db\ActiveRecord
 {
     use TimestampTrait;
+    use ModelFieldsTrait;
+
+    /** @var int 分类下线 */
+    const STATUS_OFFLINE = 10;
+    /** @var int 分类下线 */
+    const STATUS_ONLINE = 20;
+
+    /** @var array 公共返回数据 */
+    static $frontendFields = [
+        'product', 'name', 'parent_name', 'is_hot', 'is_new', 'order_link', 'thumbnail'
+    ];
 
     /**
      * @inheritdoc
@@ -46,7 +58,7 @@ class Classify extends \yii\db\ActiveRecord
     {
         return [
             [['product', 'category', 'name', 'parent_name', 'default_edit', 'created_at', 'updated_at'], 'required'],
-            [['default_price', 'thumbnail_id', 'sort', 'created_at', 'updated_at'], 'integer'],
+            [['default_price', 'thumbnail_id', 'sort', 'status','created_at', 'updated_at'], 'integer'],
             [['default_edit'], 'string'],
             [['product', 'parent_product', 'category'], 'string', 'max' => 30],
             [['name', 'parent_name'], 'string', 'max' => 10],

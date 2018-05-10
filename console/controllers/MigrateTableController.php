@@ -229,6 +229,7 @@ class MigrateTableController extends Controller
                     'thumbnail_id'  => $thumbnail_id ?: 0,
                     'sort' => $model['sort'] ?: 0,
                     'is_open' => $model['isOpen'],
+                    'status' => 10,
                     'created_at' => time(),
                     'updated_at' => time(),
                 ];
@@ -236,7 +237,7 @@ class MigrateTableController extends Controller
 
         }
 
-        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['product', 'parent_product', 'category', 'name', 'parent_name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'created_at', 'updated_at'], $data)->execute();
+        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['product', 'parent_product', 'category', 'name', 'parent_name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'status', 'created_at', 'updated_at'], $data)->execute();
 
         /** @var Classify[] $models */
         $models = Classify::find()->all();

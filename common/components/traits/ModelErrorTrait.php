@@ -8,7 +8,7 @@ namespace common\components\traits;
 
 use yii\helpers\Json;
 
-trait ModelTrait
+trait ModelErrorTrait
 {
 
     /**
