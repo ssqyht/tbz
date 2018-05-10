@@ -24,8 +24,8 @@ use common\components\traits\TimestampTrait;
  * @property int $thumbnail_id 缩略图file_id @SWG\Property(property="thumbnailId", type="integer", description=" 缩略图file_id")
  * @property int $sort 排序值 @SWG\Property(property="sort", type="integer", description=" 排序值")
  * @property int $is_open 是否对外开放 @SWG\Property(property="isOpen", type="integer", description=" 是否对外开放")
- * @property int $create_at 创建时间 @SWG\Property(property="createAt", type="integer", description=" 创建时间")
- * @property int $update_at 修改时间 @SWG\Property(property="updateAt", type="integer", description=" 修改时间")
+ * @property int $created_at 创建时间 @SWG\Property(property="createAt", type="integer", description=" 创建时间")
+ * @property int $updated_at 修改时间 @SWG\Property(property="updateAt", type="integer", description=" 修改时间")
  */
 class Classify extends \yii\db\ActiveRecord
 {
@@ -45,8 +45,8 @@ class Classify extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['product', 'category', 'name', 'parent_name', 'default_edit', 'create_at', 'update_at'], 'required'],
-            [['default_price', 'thumbnail_id', 'sort', 'create_at', 'update_at'], 'integer'],
+            [['product', 'category', 'name', 'parent_name', 'default_edit', 'created_at', 'updated_at'], 'required'],
+            [['default_price', 'thumbnail_id', 'sort', 'created_at', 'updated_at'], 'integer'],
             [['default_edit'], 'string'],
             [['product', 'parent_product', 'category'], 'string', 'max' => 30],
             [['name', 'parent_name'], 'string', 'max' => 10],
@@ -76,8 +76,8 @@ class Classify extends \yii\db\ActiveRecord
             'thumbnail_id' => '缩略图file_id',
             'sort' => '排序值',
             'is_open' => '是否对外开放',
-            'create_at' => '创建时间',
-            'update_at' => '修改时间',
+            'created_at' => '创建时间',
+            'updated_at' => '修改时间',
         ];
     }
 

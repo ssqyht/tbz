@@ -53,7 +53,7 @@ class FileUpload extends Model
      * @return bool|FileCommon|null
      * @author thanatos <thanatos915@163.com>
      */
-    public static function upload($url, $dir)
+    public static function upload($url, $dir = self::DIR_OTHER)
     {
         $model = new static();
         if ($model->load(['url' => $url, 'dir' => $dir], '') && $result = $model->submit()) {

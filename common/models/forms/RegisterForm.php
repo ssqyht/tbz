@@ -97,6 +97,7 @@ class RegisterForm extends Model
             if (!$member->save()) {
                 throw new Exception('member save failed:'. Json::encode($member->getErrors()));
             }
+
             // 添加文件使用日志
             $usedModel = new FileUsedRecord(['scenario' => FileUsedRecord::SCENARIO_CREATE]);
             $usedModel->load([

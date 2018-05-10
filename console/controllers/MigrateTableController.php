@@ -5,12 +5,15 @@
 
 namespace console\controllers;
 
+use common\models\Classify;
+use common\models\FileUsedRecord;
 use common\models\forms\FileUpload;
 use common\models\Member;
 use common\models\MemberOauth;
 use Yii;
 use yii\base\Exception;
 use yii\console\Controller;
+use yii\data\ActiveDataProvider;
 use yii\data\SqlDataProvider;
 use yii\db\ActiveQuery;
 use yii\db\Query;
@@ -82,12 +85,13 @@ class MigrateTableController extends Controller
                 $headimg_id = 0;
                 $headimg_url = '';
                 // 头像
-                $imageUrl = Yii::$app->params['image_url'] . '/uploads/face/'.$model['id'].'_180.png';
+                $imageUrl = Yii::$app->params['image_url'] . '/uploads/face/' . $model['id'] . '_180.png';
                 echo $imageUrl . "\n";
                 if ($result = FileUpload::upload($imageUrl, FileUpload::DIR_OTHER)) {
                     $headimg_id = $result->file_id ?? 0;
                     $headimg_url = $result->path ?? '';
                 }
+
 
                 $isBreak = false;
                 // 用户状态
@@ -145,6 +149,20 @@ class MigrateTableController extends Controller
                             throw new Exception('save member_oauth error');
                         }
                     }
+                    // 添加文件使用日志
+                    if ($member->headimg_id) {
+                        $usedModel = new FileUsedRecord(['scenario' => FileUsedRecord::SCENARIO_CREATE]);
+                        $usedModel->load([
+                            'user_id' => $member->id,
+                            'file_id' => $member->headimg_id,
+                            'purpose' => FileUsedRecord::PURPOSE_HEADIMG,
+                            'purpose_id' => $member->id,
+                        ], '');
+                        if (!$usedModel->save()) {
+                            throw new Exception('save file_used_record error');
+                        }
+                    }
+
                     $successAmount++;
                     $this->stdout('Member: ' . $model['id'] . '迁移成功' . "\n", Console::FG_GREEN);
                     $transaction->commit();
@@ -169,9 +187,101 @@ class MigrateTableController extends Controller
 
     }
 
+    /**
+     * 迁移分类表
+     * @throws \yii\db\Exception
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function actionProduct()
+    {
+        $db = Yii::$app->dbMigrateDdy;
+        $query = (new Query())
+            ->from('com_template_product')
+            ->where(['coopId' => 0, 'status' => 1]);
+
+        $list = $query->all($db);
+
+        $data = [];
+        $sum = 0;
+        foreach ($list as $key => $model) {
+            $sum++;
+            $category = $this->getCategory($model['type']);
+            if ($category) {
+                // 上传文件
+                $imageUrl = Yii::$app->params['image_url'] . '/uploads' . $model['thumbnail'];
+                if ($result = FileUpload::upload($imageUrl, FileUpload::DIR_OTHER)) {
+                    $thumbnail_id = $result->file_id ?: 0;
+                    $thumbnail = $result->path ?: '';
+                }
+
+                $data[] = [
+                    'product' => $model['product'],
+                    'parent_product' => $model['parentProduct'],
+                    'category' => $category,
+                    'name' => $model['name'],
+                    'parent_name' => $model['parentName'],
+                    'default_price' => $model['defaultPrice'],
+                    'is_hot' => $model['recommend'] == 1 ? 1 : 0,
+                    'is_new' => $model['recommend']  == 2 ? 1 : 0,
+                    'default_edit' => $model['editConfig'],
+                    'order_link' => $model['goodsLink'] ?: '',
+                    'thumbnail' => $thumbnail ?: '',
+                    'thumbnail_id'  => $thumbnail_id ?: 0,
+                    'sort' => $model['sort'] ?: 0,
+                    'is_open' => $model['isOpen'],
+                    'created_at' => time(),
+                    'updated_at' => time(),
+                ];
+            }
+
+        }
+
+        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['product', 'parent_product', 'category', 'name', 'parent_name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'created_at', 'updated_at'], $data)->execute();
+
+        /** @var Classify[] $models */
+        $models = Classify::find()->all();
+        $data = [];
+        foreach ($models as $key => $model) {
+            $data[] = [
+                'user_id' => 1,
+                'file_id' => $model->thumbnail_id,
+                'purpose' => FileUsedRecord::PURPOSE_CLASSIFY,
+                'purpose_id' => $model->id,
+                'created_at' => time(),
+            ];
+        }
+        FileUsedRecord::getDb()->createCommand()->batchInsert(FileUsedRecord::tableName(), ['user_id', 'file_id', 'purpose', 'purpose_id', 'created_at'], $data)->execute();
+
+        $this->stdout('迁移成功数: ' . $sum. "\n", Console::FG_GREEN);
+
+    }
+
+
     public function getPageSize()
     {
         return $this->test ? 3 : $this->defaultPageSize;
+    }
+
+    private function getCategory($type)
+    {
+        switch ($type) {
+            case 0:
+                return 1;
+            case 1:
+                return 2;
+            case 2:
+                return 4;
+            case 3:
+                return 6;
+            case 5:
+                return 7;
+            case 6:
+                return 5;
+            case 7:
+                return 3;
+
+        }
+
     }
 
 }

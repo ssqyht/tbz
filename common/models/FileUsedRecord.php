@@ -21,11 +21,14 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     use TimestampTrait;
 
     /** @var int 用户头像 */
-    const PURPOSE_HEADIMG = 1;
+    const PURPOSE_HEADIMG = 10;
     /** @var int 模板使用类型 */
-    const PURPOSE_TEMPLATE = 2;
+    const PURPOSE_TEMPLATE = 12;
     /** @var int 素材使用类型 */
-    const PURPOSE_MATERIAL = 3;
+    const PURPOSE_MATERIAL = 13;
+    /** @var int 分类缩略图 */
+    const PURPOSE_CLASSIFY = 14;
+
     /** @var int purpose 最大值 */
     const PURPOSE_MAX = self::PURPOSE_MATERIAL;
 

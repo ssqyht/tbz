@@ -30,8 +30,9 @@ class m180506_091439_create_classify_table extends Migration
             'thumbnail_id' => $this->integer(11)->notNull()->unsigned()->defaultValue(0)->comment('缩略图file_id'),
             'sort' => $this->smallInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('排序值'),
             'is_open' => $this->tinyInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('是否对外开放'),
-            'create_at' => $this->integer(10)->notNull()->comment('创建时间'),
-            'update_at' => $this->integer(10)->notNull()->comment('修改时间')
+            'status' => $this->tinyInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('分类状态'),
+            'created_at' => $this->integer(10)->notNull()->comment('创建时间'),
+            'updated_at' => $this->integer(10)->notNull()->comment('修改时间')
         ]);
         $this->addCommentOnTable($this->tableName, '分类信息表');
         $this->createIndex('idx-product', $this->tableName, 'product');
