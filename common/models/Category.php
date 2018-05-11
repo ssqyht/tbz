@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\components\traits\ModelErrorTrait;
+use common\components\traits\ModelFieldsTrait;
 use function foo\func;
 use Yii;
 use common\components\traits\TimestampTrait;
@@ -22,6 +23,9 @@ class Category extends \yii\db\ActiveRecord
 {
     use ModelErrorTrait;
     use TimestampTrait;
+    use ModelFieldsTrait;
+
+    static $frontendFields = ['name', 'class_name', 'product', 'sort'];
 
     /**
      * @inheritdoc
@@ -60,14 +64,10 @@ class Category extends \yii\db\ActiveRecord
         ];
     }
 
-    public function fields()
+    public function extraFields()
     {
-        $data = [
-            'name', 'product',
-            'className' => function(){
-                return $this->class_name;
-            }
-        ];
+        $data = [];
+        // 添加classify属性
         if ($this->isRelationPopulated('classifies')) {
             $data['classifies'] = function () {
                 return $this->classifies;

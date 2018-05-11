@@ -54,6 +54,7 @@ class CategoryController extends RestController
         ];
         $model = new CategorySearch($config);
         $result = $model->search(Yii::$app->request->get());
+//        var_dump($result);exit;
         return $result;
     }
 

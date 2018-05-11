@@ -24,7 +24,7 @@ use common\components\traits\TimestampTrait;
  * @property string $thumbnail 缩略图 @SWG\Property(property="thumbnail", type="string", description=" 缩略图")
  * @property int $thumbnail_id 缩略图file_id @SWG\Property(property="thumbnailId", type="integer", description=" 缩略图file_id")
  * @property int $sort 排序值 @SWG\Property(property="sort", type="integer", description=" 排序值")
- * @property int $is_open 是否对外开放
+ * @property int $is_open 是否对外开放 @SWG\Property(property="isOpen", type="integer", description="是否对外开放")
  * @property int $created_at 创建时间
  * @property int $updated_at 修改时间
  */
@@ -66,6 +66,7 @@ class Classify extends \yii\db\ActiveRecord
             [['order_link', 'thumbnail'], 'string', 'max' => 255],
         ];
     }
+
 
     /**
      * @inheritdoc
