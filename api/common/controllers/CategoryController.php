@@ -217,7 +217,7 @@ class CategoryController extends RestController
             $message = $throwable->getMessage();
         }
         if ($message)
-            throw new HttpException(500, Code::SERVER_FAILED);
+            throw new HttpException(500, '',Code::SERVER_FAILED);
     }
 
 }

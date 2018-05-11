@@ -20,8 +20,16 @@ class TbzSubjectSearch extends \yii\base\Model
         ];
     }
 
+    /**
+     * @param $status
+     * @return array|bool
+     * 查询数据
+     */
     public function search($status)
     {
+        if (!isset($status) || $status == '') {
+            $status = 1;
+        }
         $cover_data = TbzSubject::find()
             ->where(['status' => $status]);
         $provider = new ActiveDataProvider([
@@ -31,7 +39,7 @@ class TbzSubjectSearch extends \yii\base\Model
             ],
             'sort' => [
                 'defaultOrder' => [
-                    'created_time' => SORT_DESC,
+                    'sort' => SORT_DESC,
                 ]
             ],
         ]);

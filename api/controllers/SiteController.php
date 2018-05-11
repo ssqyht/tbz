@@ -53,8 +53,7 @@ class SiteController extends Controller
 
 
 
-        $jwt = JWT::encode($array, $model->private_key, $model->encryption_algorithm);
-        var_dump($jwt);exit;
+       // $jwt = JWT::encode($array, $model->private_key, $model->encryption_algorithm);
 
         echo 'You must visit a module  "/v1"';
         exit;

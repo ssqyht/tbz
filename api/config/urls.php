@@ -11,7 +11,7 @@ $restUrls = [
     'modules' => ['v1', 'v2'],
     'rules' => [
         [
-            'controller' => ['user', 'category', 'classify'],
+            'controller' => ['user', 'category', 'classify', 'gain-template-cover','message'],
             'extraPatterns' => [
                 'POST,OPTIONS login' => 'login'
             ],
@@ -23,11 +23,6 @@ $restUrls = [
         // 开始文档
         'doc/index' => 'doc/index',
         'doc/api' => 'doc/api',
-        'gain-template-cover/get-cover' => 'gain-template-cover/get-cover',
-        'gain-template-cover/add-cover' => 'gain-template-cover/add-cover',
-        'gain-template-cover/update-cover' => 'gain-template-cover/update-cover',
-        'gain-template-cover/delete-cover' => 'gain-template-cover/delete-cover',
-        'gain-template-cover/migrate-old-data' => 'gain-template-cover/migrate-old-data',
     ],
     'pluralize' => false
 ];

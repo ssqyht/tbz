@@ -44,47 +44,54 @@ class TbzSubjectForm extends Model
      * @return bool|TbzSubject
      * 添加模板新消息
      */
-    public function TbzSubjectAdd($params)
+    public function TbzSubjectAdd()
     {
         if (!$this->validate()) {
             return false;
         }
-
         $tbz_subject = new TbzSubject();
-        $tbz_subject->title = $params['title'];
-        $tbz_subject->description = $params['description'];
-        $tbz_subject->banner = $params['banner'];
-        $tbz_subject->thumbnail = $params['thumbnail'];
-        $tbz_subject->seo_title = $params['seo_title'];
-        $tbz_subject->seo_keyword = $params['seo_keyword'];
-        $tbz_subject->seo_description = $params['description'];
-        $tbz_subject->status = $params['status'];
-        $tbz_subject->sort = $params['sort'];
-        if ($tbz_subject->save(false)) {
+        if ($tbz_subject->load($this->attributes,'') && $tbz_subject->save(false)) {
             return $tbz_subject;
         } else {
             return false;
         }
     }
 
-    public function TbzSubjectUpdate($params)
+    /**
+     * @param $id
+     * @return bool|TbzSubject|null
+     * 修改模板信息
+     */
+    public function TbzSubjectUpdate($id)
     {
-        $tbz_subject = TbzSubject::findOne($params['id']);
+        if(!$this->validate()){
+            return false;
+        }
+        $tbz_subject = TbzSubject::findOne($id);
         if (!$tbz_subject) {
             return false;
         }
-        $tbz_subject->title = $params['title'];
-        $tbz_subject->description = $params['description'];
-        $tbz_subject->banner = $params['banner'];
-        $tbz_subject->thumbnail = $params['thumbnail'];
-        $tbz_subject->seo_title = $params['seo_title'];
-        $tbz_subject->seo_keyword = $params['seo_keyword'];
-        $tbz_subject->seo_description = $params['description'];
-        $tbz_subject->status = $params['status'];
-        $tbz_subject->sort = $params['sort'];
-        if ($tbz_subject->save(false)) {
+        if ($tbz_subject->load($this->attributes,'') && $tbz_subject->save(false)) {
             return $tbz_subject;
         } else {
+            return false;
+        }
+    }
+
+    /**
+     * @param $id
+     * @return bool
+     * 删除模板专题
+     */
+    public function TbzSubjectDelete($id){
+        $tbz_subject = TbzSubject::findOne($id);
+        if (!$tbz_subject){
+            return false;
+        }
+        $tbz_subject->status = 0;
+        if ($tbz_subject ->save(false)){
+            return true;
+        }else{
             return false;
         }
     }

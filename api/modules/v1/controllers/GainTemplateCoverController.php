@@ -13,15 +13,12 @@ use yii\rest\Controller;
 use yii\web\NotFoundHttpException;
 use common\models\search\TbzSubjectSearch;
 use common\extension\Code;
-
+use yii\web\BadRequestHttpException;
 class GainTemplateCoverController extends Controller
 {
-
-
-
     /**
-     * @SWG\Post(
-     *     path="/gain-template-cover/get-cover",
+     * @SWG\Get(
+     *     path="/gain-template-cover/{id}",
      *     operationId="GetCover",
      *     schemes={"http"},
      *     tags={"专题模板相关接口"},
@@ -30,7 +27,7 @@ class GainTemplateCoverController extends Controller
      *          in="formData",
      *          name="status",
      *          type="integer",
-     *          description="是否上线,0为线下，1为上线",
+     *          description="是否上线,1为上线，0线下",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -57,24 +54,20 @@ class GainTemplateCoverController extends Controller
      * @throws NotFoundHttpException
      * @author swz
      */
-    public function actionGetCover()
+    public function actionView()
     {
-        $status = trim(\Yii::$app->request->post('status'));
-        if (!isset($status) || $status == '') {
-            $status = 1;
-        }
+        $status = \Yii::$app->request->get('id');
         $tbz_subject = new TbzSubjectSearch();
         $result_data = $tbz_subject->search($status);
         if ($result_data) {
             return $result_data;
         } else {
-            throw new NotFoundHttpException('获取专题模板失败');
+            throw new NotFoundHttpException('',Code::SOURCE_NOT_FOUND);
         }
     }
-
     /**
      * @SWG\Post(
-     *     path="/gain-template-cover/add-cover",
+     *     path="/gain-template-cover",
      *     operationId="AddCover",
      *     schemes={"http"},
      *     tags={"专题模板相关接口"},
@@ -163,33 +156,29 @@ class GainTemplateCoverController extends Controller
      *     ),
      * )
      * @return bool|TbzSubject
-     * @throws NotFoundHttpException
+     * @throws BadRequestHttpException
      * @author swz
      */
-    public function actionAddCover()
+    public function actionCreate()
     {
         $add_data = \Yii::$app->request->post();
         $tbz_subject = new TbzSubjectForm();
-        $tbz_subject->attributes = $add_data;
-        if (!$tbz_subject->validate()) {
-            throw new NotFoundHttpException('信息有误');
-        }
-        if ($result = $tbz_subject->TbzSubjectAdd($add_data)) {
+        if ($tbz_subject->load($add_data,'') && ($result = $tbz_subject->TbzSubjectAdd())) {
             return $result;
-        } else {
-            throw new NotFoundHttpException('添加模板失败');
+        }else{
+            throw new BadRequestHttpException('', Code::SERVER_UNAUTHORIZED);
         }
     }
 
     /**
-     * @SWG\Post(
-     *     path="/gain-template-cover/update-cover",
+     * @SWG\Put(
+     *     path="/gain-template-cover/{id}",
      *     operationId="UpdateCover",
      *     schemes={"http"},
      *     tags={"专题模板相关接口"},
      *     summary="修改专题模板信息",
      *       @SWG\Parameter(
-     *          in="formData",
+     *          in="path",
      *          name="id",
      *          type="integer",
      *          description="模板标识",
@@ -278,46 +267,64 @@ class GainTemplateCoverController extends Controller
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return array|\common\components\vendor\Response|\yii\console\Response|Response
+     * @return bool|array|\common\components\vendor\Response|\yii\console\Response|Response
+     * @throws BadRequestHttpException
+     * @author swz
+     */
+    public function actionUpdate($id)
+    {
+        $update_data = \Yii::$app->request->post();
+        $tbz_subject = new TbzSubjectForm();
+        if ($tbz_subject->load($update_data,'') && ($result = $tbz_subject->TbzSubjectUpdate($id))) {
+            return $result;
+        }
+        throw new BadRequestHttpException('', Code::SERVER_UNAUTHORIZED);
+    }
+    /**
+     * @SWG\Delete(
+     *     path="/gain-template-cover/{id}",
+     *     operationId="deleteCover",
+     *     schemes={"http"},
+     *     tags={"专题模板相关接口"},
+     *     summary="删除专题模板信息",
+     *       @SWG\Parameter(
+     *          in="path",
+     *          name="id",
+     *          type="integer",
+     *          description="模板标识",
+     *          required=true,
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  @SWG\Property(
+     *                      property="content",
+     *                      type="string"
+     *                  )
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     * @return bool|\common\components\vendor\Response|\yii\console\Response|Response
      * @throws NotFoundHttpException
      * @author swz
      */
-    public function actionUpdateCover()
+    public function actionDelete($id)
     {
-        $update_data = \Yii::$app->request->post();
-        $id = $update_data['id'];
-        if (!$id) {
-            throw new NotFoundHttpException('id不能为空');
-        }
         $tbz_subject = new TbzSubjectForm();
-        $tbz_subject->attributes = $update_data;
-        if (!$tbz_subject->validate()) {
-            throw new NotFoundHttpException('信息有误');
+        if ($tbz_subject->TbzSubjectDelete($id)) {
+           return true;
         }
-        $result = $tbz_subject->TbzSubjectUpdate($update_data);
-        if ($result) {
-            return $result;
-        } else {
-            throw new NotFoundHttpException('修改信息失败');
-        }
-    }
-
-    public function actionDeleteCover()
-    {
-        $id = trim(\Yii::$app->request->post('id'));
-        if (!$id) {
-            throw new NotFoundHttpException('id不能为空');
-        }
-        $com_tbz_subject = TbzSubject::findOne($id);
-        if (!$com_tbz_subject) {
-            throw new NotFoundHttpException('当前操作的模板不存在');
-        }
-        $result = TbzSubject::deleteAll(['id' => $id]);
-        if ($result) {
-            return ['message' => '删除模板成功'];
-        } else {
-            throw new NotFoundHttpException('删除专题模板失败');
-        }
+        throw new NotFoundHttpException('',Code::SOURCE_NOT_FOUND);
     }
 
     /*
