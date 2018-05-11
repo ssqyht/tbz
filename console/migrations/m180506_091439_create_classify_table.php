@@ -31,6 +31,7 @@ class m180506_091439_create_classify_table extends Migration
             'sort' => $this->smallInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('排序值'),
             'is_open' => $this->tinyInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('是否对外开放'),
             'status' => $this->tinyInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('分类状态'),
+            'is_recommend' => $this->tinyInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('是否推荐到热门场景'),
             'created_at' => $this->integer(10)->notNull()->comment('创建时间'),
             'updated_at' => $this->integer(10)->notNull()->comment('修改时间')
         ]);

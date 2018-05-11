@@ -13,6 +13,11 @@ use yii\helpers\ArrayHelper;
 
 class ClassifySearch extends Model
 {
+    /** @var string 前台查询 */
+    const SCENARIO_FRONTEND = 'frontend';
+    /** @var string 后台查询 */
+    const SCENARIO_BACKEND = 'backend';
+
     public $category;
     public $status;
 

@@ -7,6 +7,7 @@ namespace api\common\controllers;
 
 use common\components\vendor\RestController;
 use common\extension\Code;
+use common\models\CacheDependency;
 use common\models\Classify;
 use common\models\search\CategorySearch;
 use Yii;

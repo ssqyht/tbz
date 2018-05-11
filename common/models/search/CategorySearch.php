@@ -8,6 +8,7 @@ namespace common\models\search;
 use common\components\traits\CacheDependencyTrait;
 use common\models\CacheDependency;
 use common\models\Category;
+use function foo\func;
 use Yii;
 use common\models\Classify;
 use yii\base\Model;
@@ -26,7 +27,10 @@ class CategorySearch extends Model
 
     /** @var string 前台开启设计页 */
     const SCENARIO_FRONTEND = 'frontend';
+    /** @var string 后台查询列表 */
     const SCENARIO_BACKEND = 'backend';
+
+    public $product;
 
     /** @var array */
     private $_cacheKey;
@@ -34,15 +38,17 @@ class CategorySearch extends Model
 
     public function rules()
     {
-        return [];
+        return [
+            [['product'], 'string', 'max' => 30],
+        ];
     }
 
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => [],
+            static::SCENARIO_DEFAULT => ['product'],
             static::SCENARIO_BACKEND => [],
-            static::SCENARIO_FRONTEND => []
+            static::SCENARIO_FRONTEND => ['product']
         ];
     }
 
@@ -56,6 +62,7 @@ class CategorySearch extends Model
     public function search($params)
     {
         $this->load($params, '');
+
         switch ($this->scenario) {
             case static::SCENARIO_FRONTEND:
                 return $this->searchFrontend();
@@ -68,23 +75,6 @@ class CategorySearch extends Model
     }
 
     /**
-     * 查询并设置缓存
-     * @param ActiveQuery $query
-     * @return array|mixed|\yii\db\ActiveRecord[]
-     * @author thanatos <thanatos915@163.com>
-     */
-    public function getCacheData(ActiveQuery $query)
-    {
-        $cache = Yii::$app->cache;
-        $result = $cache->get($this->cacheKey);
-        if ($result === false) {
-            $result = $query->all();
-            $cache->set($this->cacheKey, $result);
-        }
-        return $result;
-    }
-
-    /**
      * 查询缓存Key
      * @return array|null
      * @author thanatos <thanatos915@163.com>
@@ -94,8 +84,10 @@ class CategorySearch extends Model
         if ($this->_cacheKey === null) {
             $this->_cacheKey = [
                 __CLASS__,
-                Classify::class,
+                static::class,
+                Category::tableName(),
                 Classify::tableName(),
+                $this->scenario,
             ];
         }
         return $this->_cacheKey;
@@ -116,15 +108,17 @@ class CategorySearch extends Model
      */
     protected function searchFrontend()
     {
-        $query = Category::active();
-        try {
-            $result = Yii::$app->getDb()->cache(function () use ($query) {
-                $query->with('classifies');
-                return $query->all();
-            }, null, static::getCacheDependency(CacheDependency::OFFICIAL_CLASSIFY));
-        } catch (\Throwable $throwable) {
-            $result = [];
-        }
+        $query = $this->generateQuery(Category::active());
+        $query->with('classifies');
+
+        // 查询数据 使用缓存
+        $result = Yii::$app->dataCache->cache(function() use($query) {
+            $result = $query->all();
+            // 查询热门推荐
+            $result[0]->populateRelation('classifies', Classify::findHot());
+            return $result;
+        }, $this->cacheKey, CacheDependency::OFFICIAL_CLASSIFY);
+
         return $result;
     }
 
@@ -135,7 +129,26 @@ class CategorySearch extends Model
      */
     protected function searchBackend()
     {
-        return $this->getCacheData(Category::active());
+        return Yii::$app->dataCache->cache(function() {
+            return $this->generateQuery(Category::active());
+        }, $this->cacheKey, CacheDependency::OFFICIAL_CLASSIFY);
+    }
+
+    /**
+     * 根据条件生成Query
+     * @param ActiveQuery $query
+     * @return ActiveQuery
+     * @author thanatos <thanatos915@163.com>
+     */
+    protected function generateQuery(ActiveQuery $query)
+    {
+        if ($this->product) {
+            $query->andFilterWhere([
+                'product' => $this->product
+            ]);
+        }
+
+        return $query;
     }
 
 }

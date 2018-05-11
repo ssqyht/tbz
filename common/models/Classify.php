@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use common\components\traits\ModelFieldsTrait;
 use common\components\traits\TimestampTrait;
+use yii\helpers\Url;
 
 /**
  * This is the model class for table "{{%classify}}".
@@ -25,6 +26,8 @@ use common\components\traits\TimestampTrait;
  * @property int $thumbnail_id 缩略图file_id @SWG\Property(property="thumbnailId", type="integer", description=" 缩略图file_id")
  * @property int $sort 排序值 @SWG\Property(property="sort", type="integer", description=" 排序值")
  * @property int $is_open 是否对外开放 @SWG\Property(property="isOpen", type="integer", description="是否对外开放")
+ * @property int $is_recommend 是否推荐到热门场景 @SWG\Property(property="isRecommend", type="integer", description="是否推荐到热门场景")
+ * @property int $status 分类状态 @SWG\Property(property="status", type="integer", description="分类状态")
  * @property int $created_at 创建时间
  * @property int $updated_at 修改时间
  */
@@ -35,13 +38,16 @@ class Classify extends \yii\db\ActiveRecord
 
     /** @var int 分类下线 */
     const STATUS_OFFLINE = 10;
-    /** @var int 分类下线 */
+    /** @var int 分类上线 */
     const STATUS_ONLINE = 20;
+
+    /** @var int 推荐到热门场景 */
+    const IS_RECOMMEND = 1;
 
     /** @var array 公共返回数据 */
     static $frontendFields = [
-        'product', 'name', 'parent_name', 'is_hot', 'is_new', 'order_link', 'thumbnail'
-    ];
+        'product', 'name', 'parent_name', 'is_hot', 'is_new', 'order_link',
+   ];
 
     /**
      * @inheritdoc
@@ -58,6 +64,7 @@ class Classify extends \yii\db\ActiveRecord
     {
         return [
             [['product', 'category', 'name', 'parent_name', 'default_edit', 'created_at', 'updated_at'], 'required'],
+            ['status', 'default', 'value' => 10],
             [['default_price', 'thumbnail_id', 'sort', 'status','created_at', 'updated_at'], 'integer'],
             [['default_edit'], 'string'],
             [['product', 'parent_product', 'category'], 'string', 'max' => 30],
@@ -65,6 +72,13 @@ class Classify extends \yii\db\ActiveRecord
             [['is_hot', 'is_new', 'is_open'], 'string', 'max' => 1],
             [['order_link', 'thumbnail'], 'string', 'max' => 255],
         ];
+    }
+
+    public function extraFields()
+    {
+        return ['thumbnail' => function() {
+            return Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail;
+        }];
     }
 
 
@@ -92,6 +106,34 @@ class Classify extends \yii\db\ActiveRecord
             'created_at' => '创建时间',
             'updated_at' => '修改时间',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function active()
+    {
+        return static::find()->orderBy(['sort' => SORT_ASC]);
+    }
+
+    /**
+     * 上线分类
+     * @return \yii\db\ActiveQuery
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function online()
+    {
+        return static::active()->andWhere(['status' => static::STATUS_ONLINE]);
+    }
+
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function findHot()
+    {
+        return static::online()->where(['is_recommend' => static::IS_RECOMMEND])->all();
     }
 
 

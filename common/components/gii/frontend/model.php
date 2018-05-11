@@ -22,6 +22,7 @@ $newProperty = preg_replace_callback('%_([a-z0-9_])%i', function ($matches) {
     return ucfirst($matches[1]);
 }, $property);
 ?>
+    // <?= ($data['comment'] ? ' ' . strtr($data['comment'], ["\n" => ' ']) : '')  .  "\n" ?>
     public <?= "{$newProperty}: ". ($data['type'] == 'int' ? 'number' : $data['type']) . ",\n" ?>
 <?php endforeach; ?>
   ) {}

@@ -15,9 +15,11 @@ return [
         ],
         'cache' => [
             'class' => 'yii\redis\Cache',
+            'defaultDuration' => 43200,
         ],
         'db' => [
             'class' => 'yii\db\Connection',
+            'queryCacheDuration' => '43200',
             'enableSchemaCache' => true,
             'schemaCacheDuration' => 0,
             'schemaCache' => 'cache',
@@ -40,5 +42,9 @@ return [
         'oss' => [
             'class' => 'thanatos\oss\Oss',
         ],
+        // 缓存组件
+        'dataCache' => [
+            'class' => 'common\components\vendor\DataCache'
+        ]
     ],
 ];

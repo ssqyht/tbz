@@ -215,8 +215,8 @@ class MigrateTableController extends Controller
                 }
 
                 $data[] = [
-                    'product' => $model['product'],
-                    'parent_product' => $model['parentProduct'],
+                    'product' => strtolower($model['product']),
+                    'parent_product' => strtolower($model['parentProduct']),
                     'category' => $category,
                     'name' => $model['name'],
                     'parent_name' => $model['parentName'],
@@ -229,7 +229,8 @@ class MigrateTableController extends Controller
                     'thumbnail_id'  => $thumbnail_id ?: 0,
                     'sort' => $model['sort'] ?: 0,
                     'is_open' => $model['isOpen'],
-                    'status' => 10,
+                    'is_recommend' => (int) $model['recommend2'] ? 1 : 0,
+                    'status' => 20,
                     'created_at' => time(),
                     'updated_at' => time(),
                 ];
@@ -237,7 +238,7 @@ class MigrateTableController extends Controller
 
         }
 
-        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['product', 'parent_product', 'category', 'name', 'parent_name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'status', 'created_at', 'updated_at'], $data)->execute();
+        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['product', 'parent_product', 'category', 'name', 'parent_name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
 
         /** @var Classify[] $models */
         $models = Classify::find()->all();
@@ -267,8 +268,6 @@ class MigrateTableController extends Controller
     {
         switch ($type) {
             case 0:
-                return 1;
-            case 1:
                 return 2;
             case 2:
                 return 4;
