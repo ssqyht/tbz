@@ -46,6 +46,7 @@ class CategoryController extends RestController
      *     ),
      * )
      * @return array|null
+     * @return Category[]|null
      * @author thanatos <thanatos915@163.com>
      */
     public function actionIndex()
