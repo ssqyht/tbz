@@ -58,6 +58,7 @@ class LoginForm extends Model
     /**
      * 统一登录入口
      * @return array|bool
+     * @throws \yii\db\Exception
      * @author thanatos <thanatos915@163.com>
      */
     public function submit()
@@ -84,10 +85,8 @@ class LoginForm extends Model
     /**
      * 第三方登录
      * @return array|bool
+     * @throws \yii\db\Exception
      * @author thanatos <thanatos915@163.com>
-     */
-    /*
-     *
      */
     protected function loginByOauth()
     {
@@ -127,24 +126,26 @@ class LoginForm extends Model
      * @throws \yii\db\Exception
      * @author thanatos <thanatos915@163.com>
      */
-    private function doLogin(Member $member)
+    private function doLogin($member)
     {
-        // 登录
-        if (!Yii::$app->user->login($member)) {
-            $this->addError('oauth', Code::SERVER_FAILED);
-            return false;
-        }
+        if ($member && $member instanceof Member) {
+            // 登录
+            if (!Yii::$app->user->login($member)) {
+                $this->addError('oauth', Code::SERVER_FAILED);
+                return false;
+            }
 
-        // 系统自动登录不生成access_token和登录日志
-        if ($this->scenario != static::SCENARIO_SYSTEM) {
-            // 添加登录日志
-            MemberLoginHistory::createLoginHistory(MemberLoginHistory::LOGIN_METHOD_WECHAT);
+            // 系统自动登录不生成access_token和登录日志
+            if ($this->scenario != static::SCENARIO_SYSTEM) {
+                // 添加登录日志
+                MemberLoginHistory::createLoginHistory(MemberLoginHistory::LOGIN_METHOD_WECHAT);
 
-            // 生成access_token
-            $user = Yii::$app->user->identity;
-            $access_token = $user->generateJwtToken();
+                // 生成access_token
+                $user = Yii::$app->user->identity;
+                $access_token = $user->generateJwtToken();
 
-            return ArrayHelper::merge($user->toArray(), ['accessToken' => $access_token]);
+                return ArrayHelper::merge($user->toArray(), ['accessToken' => $access_token]);
+            }
         }
         return true;
     }
