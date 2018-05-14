@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\traits\ModelErrorTrait;
 use Yii;
 use common\components\traits\TimestampTrait;
 
@@ -14,12 +15,13 @@ use common\components\traits\TimestampTrait;
  * @property int $type tag种类 @SWG\Property(property="type", type="integer", description=" tag种类")
  * @property int $sort 排序名称 @SWG\Property(property="sort", type="integer", description=" 排序名称")
  * @property int $updated_at 修改时间 @SWG\Property(property="updatedAt", type="integer", description=" 修改时间")
+ * @property int $created_at 创建时间 @SWG\Property(property="createdAt", type="integer", description=" 创建时间")
  */
 class Tag extends \yii\db\ActiveRecord
 {
 
     use TimestampTrait;
-
+    use ModelErrorTrait;
     /**
      * @inheritdoc
      */
@@ -34,10 +36,9 @@ class Tag extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'updated_at'], 'required'],
-            [['sort', 'updated_at'], 'integer'],
+            [['name'], 'required'],
+            [['type', 'sort', 'updated_at', 'created_at'], 'integer'],
             [['name'], 'string', 'max' => 10],
-            [['type'], 'string', 'max' => 1],
         ];
     }
 
@@ -48,10 +49,11 @@ class Tag extends \yii\db\ActiveRecord
     {
         return [
             'tag_id' => 'Tag ID',
-            'name' => 'Tag名称',
-            'type' => 'tag种类',
-            'sort' => '排序名称',
-            'updated_at' => '修改时间',
+            'name' => 'Name',
+            'type' => 'Type',
+            'sort' => 'Sort',
+            'updated_at' => 'Updated At',
+            'created_at' => 'Created At',
         ];
     }
 }

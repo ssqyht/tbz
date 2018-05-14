@@ -20,6 +20,7 @@ class m180506_094145_create_industry_style_function_table extends Migration
             'type' => $this->tinyInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('tag种类'),
             'sort' => $this->smallInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('排序名称'),
             'updated_at' => $this->integer(11)->notNull()->comment('修改时间'),
+            'created_at' => $this->integer(11)->notNull()->comment('创建时间'),
         ]);
 
         $this->addCommentOnTable($this->tableName, '平台Tag表');

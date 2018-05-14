@@ -32,7 +32,7 @@ class TbzSubject extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return '{{tbz_subject}}';
+        return '{{%tbz_subject}}';
     }
 
     /**
