@@ -2,12 +2,13 @@
 
 namespace common\models;
 
+use common\components\traits\ModelFieldsTrait;
 use common\components\traits\TimestampTrait;
 use common\components\validators\MobileValidator;
 use common\components\vendor\RestController;
 use Firebase\JWT\JWT;
-use OAuth2\Storage\UserCredentialsInterface;
 use Yii;
+use yii\helpers\Url;
 use yii\web\IdentityInterface;
 
 /**
@@ -33,6 +34,7 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
 {
 
     use TimestampTrait;
+    use ModelFieldsTrait;
 
     /** @var int 男 */
     const SEX_MALE = 1;
@@ -50,6 +52,10 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
     const EXPIRED_TIME = 3600 * 5;
     // token 刷新时间 15天
     const REFRESH_TIME = 3600 * 24 * 15;
+
+    static $frontendFields = [
+        'id', 'username', 'mobile', 'sex', 'coin'
+    ];
 
     /**
      * 用于接口返回
@@ -109,10 +115,12 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
         ];
     }
 
-    public function fields()
+    public function extraFields()
     {
         return [
-            'id', 'username', 'mobile', 'sex', 'headimg_url', 'coin',
+            'headimgUrl' => function () {
+                return Url::to('@oss') . DIRECTORY_SEPARATOR . $this->headimg_url;
+            },
             'accessToken' => function ($model) {
                 return $model->access_token;
             }

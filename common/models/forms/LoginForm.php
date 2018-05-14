@@ -86,6 +86,9 @@ class LoginForm extends Model
      * @return array|bool
      * @author thanatos <thanatos915@163.com>
      */
+    /*
+     *
+     */
     protected function loginByOauth()
     {
         // 查找第三方名和key的用户
