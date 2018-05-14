@@ -14,7 +14,7 @@ use Yii;
  */
 class CacheDependency extends \yii\db\ActiveRecord
 {
-    const OFFICIAL_CLASSIFY = 'officialClassify';
+    const OFFICIAL_CLASSIFY = 'official_classify';
 
     /**
      * @inheritdoc

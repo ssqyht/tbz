@@ -6,6 +6,7 @@
 namespace common\components\vendor;
 
 use common\models\CacheDependency;
+use common\models\CacheGroup;
 use Yii;
 use yii\base\Component;
 use yii\base\Exception;
@@ -14,6 +15,7 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\db\Connection;
 use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class DataCache
@@ -48,6 +50,34 @@ class DataCache extends Component
         }
 
         return $result;
+    }
+
+    /**
+     * 根据ActiveRecord类修改缓存信息
+     * @param $class
+     * @return bool|int
+     * 返回true执行成功
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function updateCache($class)
+    {
+        if (class_exists($class)) {
+            /** @var Connection $db */
+            $db = $class::getDb();
+            if ($db && ($table = $db->getTableSchema($class::tableName()))) {
+                /** @var CacheGroup[] $data */
+                $data = CacheGroup::find()->where(['table_name' => $table->fullName])->asArray()->all();
+                $caches = ArrayHelper::getColumn($data, 'cache_name');
+                // 修改数据缓存
+                try {
+                    $result = CacheDependency::getDb()->createCommand()->update(CacheDependency::tableName(), ['updated_at' => time()], ['cache_name' => $caches])->execute();
+                    return $result;
+                } catch (\Throwable $e) {
+                    $message = $e->getMessage();
+                }
+            }
+        }
+        return $message ?: false;
     }
 
     /**

@@ -27,8 +27,13 @@ if (!YII_ENV_TEST) {
                 'class' => 'yii\gii\generators\model\Generator',
                 'templates' => [
                     'swagger' => '@common/components/gii/model',
-                    'frontend' => '@common/components/gii/frontend',
                 ],
+            ],
+            'frontend' => [
+                'class' => 'common\components\gii\frontend\Generator',
+                'templates' => [
+                    'frontend' => '@common/components/gii/frontend',
+                ]
             ]
         ],
     ];
