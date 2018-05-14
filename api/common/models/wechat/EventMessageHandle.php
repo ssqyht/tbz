@@ -70,7 +70,7 @@ class EventMessageHandle extends BaseMessageHandle
         // 如果没有登录的话，就自动注册账号
         if (Yii::$app->user->isGuest) {
             // 用户注册
-            $model = new RegisterForm();
+            $model = new RegisterForm(['scenario' => RegisterForm::SCENARIO_OAUTH]);
             $model->load([
                 'username' => $this->wechatInfo->nickname,
                 'sex' => (int)$this->wechatInfo->sex,

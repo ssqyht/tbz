@@ -10,8 +10,13 @@ class Code
     const USER_EXIST = 50001;
     /** @var int 用户不存在 */
     const USER_NOT_FOUND = 50002;
+    /** @var int 密码不正确 */
     const USER_WRONG_PASSWORD = 50003;
+    /** @var string refreshToken不正确  */
     const USER_TOKEN_FAILED = '50004';
+    /** @var string 密码必须在8-16位之间 */
+    const USER_PASSWORD_LENGTH_FAILED = '50005';
+    const USER_MOBILE_EXIST = '50006';
 
 
     /** @var int 文件不存在 */
@@ -48,7 +53,9 @@ class Code
         self::USER_EXIST => '用户已经存在',
         self::USER_NOT_FOUND => '用户不存在',
         self::USER_WRONG_PASSWORD => '密码不正确',
-        self::USER_TOKEN_FAILED => 'refreshToken不正确'
+        self::USER_TOKEN_FAILED => 'refreshToken不正确',
+        self::USER_PASSWORD_LENGTH_FAILED => '密码必须在8-16位之间',
+        self::USER_MOBILE_EXIST => '手机号已被使用，请联系客服',
     ];
 
 

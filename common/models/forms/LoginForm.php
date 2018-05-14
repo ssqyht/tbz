@@ -58,7 +58,6 @@ class LoginForm extends Model
     /**
      * 统一登录入口
      * @return array|bool
-     * @throws \yii\db\Exception
      * @author thanatos <thanatos915@163.com>
      */
     public function submit()
@@ -85,7 +84,6 @@ class LoginForm extends Model
     /**
      * 第三方登录
      * @return array|bool
-     * @throws \yii\db\Exception
      * @author thanatos <thanatos915@163.com>
      */
     protected function loginByOauth()
@@ -123,7 +121,6 @@ class LoginForm extends Model
      * 执行登录动作
      * @param Member $member
      * @return array|bool
-     * @throws \yii\db\Exception
      * @author thanatos <thanatos915@163.com>
      */
     private function doLogin($member)

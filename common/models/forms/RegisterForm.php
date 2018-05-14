@@ -7,6 +7,10 @@ namespace common\models\forms;
 
 
 use common\components\traits\FuncTrait;
+use common\components\traits\ModelErrorTrait;
+use common\components\validators\MobileValidator;
+use common\components\validators\SmsCodeValidator;
+use common\components\vendor\Sms;
 use common\extension\Code;
 use common\models\FileCommon;
 use common\models\FileUsedRecord;
@@ -27,6 +31,11 @@ use yii\imagine\Image;
  */
 class RegisterForm extends Model
 {
+    use ModelErrorTrait;
+
+    public $sms_code;
+    public $password;
+    public $mobile;
     public $username;
     public $sex;
     public $headimgurl;
@@ -34,18 +43,33 @@ class RegisterForm extends Model
     public $oauth_name;
 
     const SCENARIO_OAUTH = 'oauth';
+    const SCENARIO_BIND = 'BIND';
 
     public function rules()
     {
         return [
-            [['username', 'sex', 'oauth_name', 'oauth_key'], 'required'],
+            [['username', 'sex', 'oauth_name', 'oauth_key', 'mobile', 'password', 'sms_code'], 'required'],
             [['headimgurl'], 'string'],
             [['username'], 'string', 'max' => 30],
             [['sex'], 'integer', 'max' => Member::SEX_MAX, 'min' => 0],
             [['oauth_name'], 'integer', 'max' => MemberOauth::MAX_OAUTH_NAME, 'min' => 1],
             ['oauth_key', 'string', 'max' => 50],
             ['oauth_key', 'validateOauthKey'],
+            ['mobile', MobileValidator::class],
+            ['password', 'string', 'max' => 16, 'min' => '8', 'message' => Code::USER_PASSWORD_LENGTH_FAILED],
+            ['sms_code', 'validateSms']
         ];
+    }
+
+    public function validateSms($attribute)
+    {
+        if (!$this->hasErrors()) {
+            $smsModel = Yii::$app->sms;
+            if (!$smsModel->validateCode($this->mobile, $this->sms_code, Sms::TYPE_BIND_MOBILE)) {
+                $this->addErrors($smsModel->getErrors());
+                return false;
+            }
+        }
     }
 
     /**
@@ -67,6 +91,7 @@ class RegisterForm extends Model
     {
         $scenarios = [
             static::SCENARIO_OAUTH => ['username', 'sex', 'oauth_name', 'oauth_key'],
+            static::SCENARIO_BIND => ['mobile', 'password', 'sms_code'],
         ];
         return ArrayHelper::merge(parent::scenarios(), $scenarios);
     }
@@ -131,7 +156,33 @@ class RegisterForm extends Model
                 return false;
             }
         }
+    }
 
+    /**
+     * 绑定手机号
+     * @return bool|Member|null|\yii\web\IdentityInterface
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function bind()
+    {
+        if (!$this->validate()) {
+            return false;
+        }
+
+        // 绑定手机号
+        $member = Yii::$app->user->identity;
+        try {
+            $member->password_hash = Yii::$app->security->generatePasswordHash($this->sms_code);
+        } catch (\Throwable $e) {
+            $this->addError('server', Code::SERVER_FAILED);
+            return false;
+        }
+        $member->mobile = $this->mobile;
+        if (!$member->save()) {
+            $this->addErrors($member->getErrors());
+            return false;
+        }
+        return $member;
     }
 
 }

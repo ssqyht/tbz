@@ -140,6 +140,13 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
+        /** @var RestController $controller */
+        $controller = Yii::$app->controller;
+        $data = JWT::decode($token, $controller->client->public_key, [$controller->client->encryption_algorithm]);
+        if (isset($data->sub)) {
+            return static::findIdentity($data->sub);
+        }
+        return null;
     }
 
 
@@ -147,7 +154,6 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
      * 生成JWT TOKEN
      * 如果需要更新，需手动清除缓存
      * @return bool|string
-     * @throws \yii\db\Exception
      * @author thanatos <thanatos915@163.com>
      */
     public function generateJwtToken()
@@ -178,10 +184,14 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
             'user_id' => $this->id,
             'expires' => $time + static::REFRESH_TIME
         ], '');
-        $query = OauthRefreshToken::getDb()->createCommand()->delete(OauthRefreshToken::tableName(), [
-            'client_id' => Yii::$app->controller->client->client_id,
-            'user_id' => $this->id,
-        ])->execute();
+        try {
+            OauthRefreshToken::getDb()->createCommand()->delete(OauthRefreshToken::tableName(), [
+                'client_id' => Yii::$app->controller->client->client_id,
+                'user_id' => $this->id,
+            ])->execute();
+        } catch (\Throwable $e) {
+
+        }
         if (!$model->save()) {
             return false;
         }

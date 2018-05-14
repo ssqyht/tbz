@@ -13,7 +13,8 @@ $restUrls = [
         [
             'controller' => ['user', 'category', 'classify'],
             'extraPatterns' => [
-                'POST,OPTIONS login' => 'login'
+                'POST,OPTIONS login' => 'login',
+                'POST,OPTIONS bind' => 'bind',
             ],
         ],
         // 微信配置
