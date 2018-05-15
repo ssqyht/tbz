@@ -19,6 +19,7 @@ class Sms extends Model
 {
     public $app_key;
     public $app_secret;
+
     public $mobile;
     public $type;
     public $code;
@@ -45,7 +46,7 @@ class Sms extends Model
             ['type', 'string'],
             ['type', 'in', 'range' => [static::TYPE_BIND_MOBILE]],
             ['mobile', MobileValidator::class],
-            ['mobile', 'unique', 'targetClass' => Member::className(), 'targetAttribute' => 'mobile', 'message' => Code::USER_MOBILE_EXIST, 'on' => self::SCENARIO_DEFAULT],
+            ['mobile', 'unique', 'targetClass' => Member::class, 'targetAttribute' => 'mobile', 'message' => Code::USER_MOBILE_EXIST, 'on' => self::SCENARIO_DEFAULT],
             ['mobile', 'validateTimes', 'on' => self::SCENARIO_DEFAULT],
             ['code', 'string', 'on' => self::SCENARIO_VALIDATE],
         ];
@@ -68,8 +69,8 @@ class Sms extends Model
     public function scenarios()
     {
         return [
-            self::SCENARIO_SEND => ['mobile'],
-            self::SCENARIO_VALIDATE => ['mobile', 'code'],
+            self::SCENARIO_SEND => ['mobile', 'type'],
+            self::SCENARIO_VALIDATE => ['mobile', 'code', 'type'],
         ];
     }
 
@@ -84,7 +85,7 @@ class Sms extends Model
     public function send($mobile, $type)
     {
         $model = new static(['scenario' => static::SCENARIO_SEND]);
-        $model->load(['mobile' => $model, 'type' => $type], '');
+        $model->load(['mobile' => $mobile, 'type' => $type], '');
 
         if (!$model->validate()) {
             $this->addErrors($model->getErrors());
@@ -96,9 +97,10 @@ class Sms extends Model
         if (YII_ENV_PROD) {
             $model->getReq()
                 ->setRecNum($model->mobile)
-                ->setSmsParam(['number' => $model->getCode()])
+                ->setSmsParam(['code' => $model->getCode()])
+                ->setSmsFreeSignName('图帮主')
                 ->setSmsTemplateCode($model->getTemplateCode());
-            $result = $model->getClient()->execute($model->getReq());
+            $result = json_decode(json_encode($model->getClient()->execute($model->getReq())), true);
         } else {
             // 增加开发环境日志
             $result['alibaba_aliqin_fc_sms_num_send_response'] = true;
@@ -206,7 +208,7 @@ class Sms extends Model
     {
         if ($this->_client === null) {
             try {
-                $this->_client = new Client(new App(['app_key' => $this->app_key, 'app_secret' => $this->app_secret]));
+                $this->_client = new Client(new App(['app_key' => Yii::$app->sms->app_key, 'app_secret' => Yii::$app->sms->app_secret]));
             } catch (\Throwable $exception) {
                 $this->_client = false;
             }
