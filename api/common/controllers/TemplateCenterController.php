@@ -10,6 +10,7 @@ use common\components\vendor\RestController;
 use common\models\search\TemplateCenterSearch;
 use Yii;
 use yii\web\NotFoundHttpException;
+use common\extension\Code;
 class TemplateCenterController extends RestController
 {
         /**

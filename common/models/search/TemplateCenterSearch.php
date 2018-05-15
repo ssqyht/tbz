@@ -113,18 +113,6 @@ class TemplateCenterSearch extends Model
         $result['classify'] = $classify_data;
         if (!$condition['classify_id']){
             $template_data = TemplateOfficial::online()->where(['product'=>$classify_data[0]->product])->all();//小分类查寻时，返回的模板数据
-            $provider = new ActiveDataProvider([
-                'query' => $tbz_letter,
-                'pagination' => [
-                    'pageSize' => 10,
-                ],
-                'sort' => [
-                    'defaultOrder' => [
-                        'created_time' => SORT_DESC,
-                    ]
-                ],
-            ]);
-            $result_data = $provider->getModels();
             $result['template'] = $template_data;
             return $result;
         }else{
