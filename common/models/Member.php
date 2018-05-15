@@ -235,7 +235,6 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
         return static::findOne(['id' => $id]);
     }
 
-
     public function getId()
     {
         return $this->id;
