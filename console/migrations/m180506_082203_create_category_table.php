@@ -27,13 +27,13 @@ class m180506_082203_create_category_table extends Migration
 
         // 添加初始记录
         $this->getDb()->createCommand()->batchInsert($this->tableName, ['name', 'class_name', 'product', 'sort'], [
-            ['name' => '热门推荐', 'class_name' => 'hot', 'product' => 'recommend', 'sort' => 0],
-            ['name' => '广告印刷', 'class_name' => 'hot', 'product' => 'printing', 'sort' => 0],
-            ['name' => '展架画面', 'class_name' => 'hot', 'product' => 'display', 'sort' => 0],
-            ['name' => '社交媒体', 'class_name' => 'hot', 'product' => 'social', 'sort' => 0],
-            ['name' => '网站电商', 'class_name' => 'hot', 'product' => 'website', 'sort' => 0],
-            ['name' => '商务办公', 'class_name' => 'hot', 'product' => 'commerce', 'sort' => 0],
-            ['name' => '创意生活', 'class_name' => 'hot', 'product' => 'creativelife', 'sort' => 0],
+            ['name' => '热门推荐', 'class_name' => 'icon-remen', 'product' => 'recommend', 'sort' => 0],
+            ['name' => '广告印刷', 'class_name' => 'icon-guanggaoyinshua', 'product' => 'printing', 'sort' => 0],
+            ['name' => '展架画面', 'class_name' => 'icon-zhanjiahuamian', 'product' => 'display', 'sort' => 0],
+            ['name' => '社交媒体', 'class_name' => 'icon-shejiaomeiti', 'product' => 'social', 'sort' => 0],
+            ['name' => '网站电商', 'class_name' => 'icon-wangzhandianshang', 'product' => 'website', 'sort' => 0],
+            ['name' => '商务办公', 'class_name' => 'icon-shangwubangong', 'product' => 'commerce', 'sort' => 0],
+            ['name' => '创意生活', 'class_name' => 'icon-chuangyishenghuo', 'product' => 'creativelife', 'sort' => 0],
         ])->execute();
     }
 

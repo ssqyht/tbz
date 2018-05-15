@@ -45,6 +45,10 @@ return [
         // 缓存组件
         'dataCache' => [
             'class' => 'common\components\vendor\DataCache'
+        ],
+        //Sms 验证码
+        'sms' => [
+            'class' => 'common\components\vendor\Sms'
         ]
     ],
 ];
