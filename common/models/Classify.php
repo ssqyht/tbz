@@ -45,7 +45,8 @@ class Classify extends \yii\db\ActiveRecord
 
     /** @var int 推荐到热门场景 */
     const IS_RECOMMEND = 1;
-
+    /** @var integer 模板状态 */
+    const template_official_status = 20;
     /** @var array 公共返回数据 */
     static $frontendFields = [
         'product', 'name', 'parent_name', 'is_hot', 'is_new', 'order_link',
@@ -158,4 +159,19 @@ class Classify extends \yii\db\ActiveRecord
         return static::findOne(['id' => $id]);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     * 关联TemplateOfficial
+     */
+    public function getTemplate()
+    {
+        return $this->hasMany(TemplateOfficial::class, ['product' => 'product'])
+            ->where(['status'=>static::template_official_status])
+            ->orderBy(['sort'=>SORT_DESC]);
+    }
+    public function getTag()
+    {
+        return $this->hasMany(Tag::class, ['tag_id' => 'tag_id'])
+            ->viaTable('tu_tag_relation_classify', ['classify_id' => 'id']);
+    }
 }
