@@ -144,6 +144,8 @@ class Sms extends Model
         $model->load(['mobile' => $mobile, 'code' => $code, 'type' => $type], '');
         $cache = Yii::$app->cache;
         if( $model->validate() && $cache->get($model->getValueCacheKey()) == $model->code ){
+            // 清除缓存
+            $cache->delete($model->getValueCacheKey());
             return true;
         }
         $this->addError('code', '验证码错误');

@@ -142,10 +142,14 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
     {
         /** @var RestController $controller */
         $controller = Yii::$app->controller;
-        $data = JWT::decode($token, $controller->client->public_key, [$controller->client->encryption_algorithm]);
-        if (isset($data->sub)) {
-            return static::findIdentity($data->sub);
+        try {
+            $data = JWT::decode($token, $controller->client->public_key, [$controller->client->encryption_algorithm]);
+            if (isset($data->sub)) {
+                return static::findIdentity($data->sub);
+            }
+        } catch (\Throwable $e) {
         }
+
         return null;
     }
 
