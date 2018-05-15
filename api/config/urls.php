@@ -15,6 +15,7 @@ $restUrls = [
             'extraPatterns' => [
                 'POST,OPTIONS login' => 'login',
                 'POST,OPTIONS bind' => 'bind',
+                'POST,OPTIONS reset-password' => 'reset-password',
             ],
         ],
         // 微信配置

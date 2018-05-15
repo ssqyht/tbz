@@ -38,7 +38,7 @@ class MainController extends RestController
      *         in="formData",
      *         required=true,
      *         type="string",
-     *         enum={"bind-mobile"}
+     *         enum={"bind-mobile", "reset-password"}
      *     ),
      *     @SWG\Response(
      *          response=200,

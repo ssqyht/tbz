@@ -35,6 +35,7 @@ class Sms extends Model
     const VALUE_CACHE_KEY = 'SMS_VALUE_';
 
     const TYPE_BIND_MOBILE = 'bind-mobile';
+    const TYPE_RESET_PASSWORD = 'reset-password';
 
     // 一小时最多发送多少次
     const MAX_TIMES = '5';
@@ -47,7 +48,7 @@ class Sms extends Model
         return [
             [['mobile', 'type', 'code'], 'required'],
             ['type', 'string'],
-            ['type', 'in', 'range' => [static::TYPE_BIND_MOBILE]],
+            ['type', 'in', 'range' => [static::TYPE_BIND_MOBILE, static::TYPE_RESET_PASSWORD]],
             ['mobile', MobileValidator::class],
             ['mobile', 'unique', 'targetClass' => Member::class, 'targetAttribute' => 'mobile', 'message' => Code::USER_MOBILE_EXIST, 'on' => self::SCENARIO_DEFAULT],
             ['mobile', 'validateTimes', 'on' => self::SCENARIO_DEFAULT],
