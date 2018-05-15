@@ -6,6 +6,8 @@ use common\components\traits\ModelFieldsTrait;
 use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelErrorTrait;
+use yii\helpers\Url;
+
 /**
  * This is the model class for table "{{%template_official}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="TemplateOfficial"))
@@ -22,8 +24,11 @@ use common\components\traits\ModelErrorTrait;
  * @property int $updated_at 修改时间 @SWG\Property(property="updatedAt", type="integer", description=" 修改时间")
  * @property int $price 模板价格 @SWG\Property(property="price", type="integer", description=" 模板价格")
  * @property int $amount_edit 编辑量 @SWG\Property(property="amountEdit", type="integer", description=" 编辑量")
+ * @property int $virtual_edit 虚拟编辑量 @SWG\Property(property="virtualEdit", type="integer", description=" 虚拟编辑量")
  * @property int $amount_view 浏览量 @SWG\Property(property="amountView", type="integer", description=" 浏览量")
+ * @property int $virtual_view 虚拟浏览量 @SWG\Property(property="virtualView", type="integer", description=" 虚拟浏览量")
  * @property int $amount_favorite 收藏量 @SWG\Property(property="amountFavorite", type="integer", description=" 收藏量")
+ * @property int $virtual_favorite 虚拟收藏量 @SWG\Property(property="virtualFavorite", type="integer", description=" 虚拟收藏量")
  * @property int $amount_buy 购买量 @SWG\Property(property="amountBuy", type="integer", description=" 购买量")
  * @property int $sort 排序 @SWG\Property(property="sort", type="integer", description=" 排序")
  * @property string $content 模板数据 @SWG\Property(property="content", type="string", description=" 模板数据")
@@ -36,7 +41,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     const STATUS_ONLINE = 20;
 
     static $frontendFields = [
-        'template_id', 'user_id', 'title','product','thumbnail_url','thumbnail_id','created_at','updated_at','price'
+        'template_id', 'user_id', 'title','product','thumbnail_id','created_at','updated_at','price', 'virtual_edit', 'virtual_view', 'virtual_favorite'
     ];
 
     /**
@@ -54,7 +59,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     {
         return [
             [['user_id', 'cooperation_id', 'created_at', 'updated_at', 'content'], 'required'],
-            [['user_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'amount_view', 'amount_favorite', 'amount_buy', 'sort'], 'integer'],
+            [['user_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort'], 'integer'],
             [['content'], 'string'],
             [['title'], 'string', 'max' => 50],
             [['product'], 'string', 'max' => 30],
@@ -62,6 +67,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             [['status'], 'string', 'max' => 1],
         ];
     }
+
 
     /**
      * @inheritdoc
@@ -81,12 +87,25 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             'updated_at' => '修改时间',
             'price' => '模板价格',
             'amount_edit' => '编辑量',
+            'virtual_edit' => '虚拟编辑量',
             'amount_view' => '浏览量',
+            'virtual_view' => '虚拟浏览量',
             'amount_favorite' => '收藏量',
+            'virtual_favorite' => '虚拟收藏量',
             'amount_buy' => '购买量',
             'sort' => '排序',
             'content' => '模板数据',
         ];
+    }
+
+    public function extraFields()
+    {
+        $data = [
+          'thumbnailUrl' => function(){
+            return Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url;
+          }
+        ];
+        return $data;
     }
 
     /**
