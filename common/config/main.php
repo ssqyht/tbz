@@ -2,7 +2,7 @@
 return [
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
+        '@npm' => '@vendor/npm-asset',
     ],
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'language' => 'zh-CN',
@@ -49,6 +49,10 @@ return [
         //Sms 验证码
         'sms' => [
             'class' => 'common\components\vendor\Sms'
-        ]
+        ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+             'cache' => 'cache',
+        ],
     ],
 ];
