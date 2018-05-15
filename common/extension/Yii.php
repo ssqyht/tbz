@@ -22,7 +22,7 @@ class Yii extends \yii\BaseYii
  * @property \common\components\vendor\RestController $controller
  * @property \thanatos\wechat\Wechat $wechat 微信类
  * @property \common\components\vendor\DataCache $dataCache 缓存组件
- * @property \common\components\vendor\SMs $sms 验证码类
+ * @property \common\components\vendor\Sms $sms 验证码类
  * @property \thanatos\oss\Oss $oss Oss
  * @property \common\extension\User $user
  * @property \yii\web\Response|\yii\console\Response|\common\components\vendor\Response $response The response component. This property is

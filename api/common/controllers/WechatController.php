@@ -205,7 +205,6 @@ class WechatController extends RestController
      * )
      *
      * @throws BadRequestHttpException
-     * @throws \yii\db\Exception
      * @author thanatos <thanatos915@163.com>
      */
     public function actionRefresh()

@@ -5,6 +5,7 @@
 
 namespace common\components\vendor;
 
+use common\components\traits\ModelErrorTrait;
 use Flc\Alidayu\App;
 use Flc\Alidayu\Client;
 use Flc\Alidayu\Requests\AlibabaAliqinFcSmsNumSend;
@@ -17,6 +18,8 @@ use yii\base\Model;
 
 class Sms extends Model
 {
+    use ModelErrorTrait;
+
     public $app_key;
     public $app_secret;
 
