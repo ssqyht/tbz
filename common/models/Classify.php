@@ -31,6 +31,7 @@ use yii\helpers\Url;
  * @property int $status 分类状态 @SWG\Property(property="status", type="integer", description="分类状态")
  * @property int $created_at 创建时间
  * @property int $updated_at 修改时间
+ * @property TemplateOfficial[] $templates
  */
 class Classify extends \yii\db\ActiveRecord
 {
@@ -79,9 +80,15 @@ class Classify extends \yii\db\ActiveRecord
 
     public function extraFields()
     {
-        return ['thumbnail' => function() {
+        $data = ['thumbnail' => function() {
             return Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail;
         }];
+        if ($this->isRelationPopulated('templates')) {
+            $data['templates'] = function () {
+                return $this->templates;
+            };
+        }
+        return $data;
     }
 
 
@@ -163,11 +170,11 @@ class Classify extends \yii\db\ActiveRecord
      * @return \yii\db\ActiveQuery
      * 关联TemplateOfficial
      */
-    public function getTemplate()
+    public function getTemplates()
     {
         return $this->hasMany(TemplateOfficial::class, ['product' => 'product'])
             ->where(['status'=>static::template_official_status])
-            ->orderBy(['sort'=>SORT_DESC]);
+            ->orderBy(['sort'=>SORT_ASC]);
     }
     public function getTag()
     {

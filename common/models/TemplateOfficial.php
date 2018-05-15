@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\traits\ModelFieldsTrait;
 use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelErrorTrait;
@@ -31,7 +32,13 @@ class TemplateOfficial extends \yii\db\ActiveRecord
 {
     use ModelErrorTrait;
     use TimestampTrait;
+    use ModelFieldsTrait;
     const STATUS_ONLINE = 20;
+
+    static $frontendFields = [
+        'template_id', 'user_id', 'title','product','thumbnail_url','thumbnail_id','created_at','updated_at','price'
+    ];
+
     /**
      * @inheritdoc
      */

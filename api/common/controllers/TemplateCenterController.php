@@ -13,7 +13,7 @@ use yii\web\NotFoundHttpException;
 use common\extension\Code;
 class TemplateCenterController extends RestController
 {
-        /**
+    /**
      * @SWG\Get(
      *     path="/template-center/classify-search",
      *     operationId="classifySearch",
@@ -59,20 +59,11 @@ class TemplateCenterController extends RestController
      * @throws NotFoundHttpException
      */
     public function actionClassifySearch(){
-        $config = [
-            'scenario' => $this->isFrontend() ? TemplateCenterSearch::SCENARIO_FRONTEND : TemplateCenterSearch::SCENARIO_BACKEND
-        ];
-        $model = new TemplateCenterSearch($config);
+        $model = new TemplateCenterSearch();
         $result = $model->search();
         if(!$result){
             throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
         }
-        return $result;
-    }
-    public function actionSearch(){
-        $model = new TemplateCenterSearch();
-        $condition = Yii::$app->request->get();
-        $result = $model->conditionSearch($condition);
         return $result;
     }
 }
