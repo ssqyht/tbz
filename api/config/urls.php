@@ -16,6 +16,7 @@ $restUrls = [
                 'POST,OPTIONS login' => 'login',
                 'POST,OPTIONS bind' => 'bind',
                 'POST,OPTIONS reset-password' => 'reset-password',
+                'GET,OPTIONS classify-search' => 'classify-search',
             ],
         ],
         // 微信配置
@@ -28,7 +29,6 @@ $restUrls = [
         // 开始文档
         'doc/index' => 'doc/index',
         'doc/api' => 'doc/api',
-        'template-center/classify-search' => 'template-center/classify-search',
     ],
     'pluralize' => false
 ];

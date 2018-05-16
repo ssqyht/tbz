@@ -15,6 +15,13 @@ use yii\caching\ExpressionDependency;
 use yii\db\ActiveQuery;
 use yii\data\ActiveDataProvider;
 use common\models\Tag;
+
+/**
+ * Class TemplateOfficialSearch
+ * @property string $cacheKey
+ * @package common\models\search
+ * @author thanatos <thanatos915@163.com>
+ */
 class TemplateOfficialSearch extends Model
 {
     use CacheDependencyTrait;
@@ -51,6 +58,7 @@ class TemplateOfficialSearch extends Model
     {
         Yii::$app->cache->delete($this->cacheKey);
     }
+
     /**
      * 查询缓存Key
      * @return array|null
@@ -71,8 +79,8 @@ class TemplateOfficialSearch extends Model
     }
 
     /**
-     * @var array
      * 价格区间
+     * @var array
      */
     public $prices = [
         1 =>['>=','price',0],
