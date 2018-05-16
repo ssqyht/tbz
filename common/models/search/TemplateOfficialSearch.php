@@ -30,8 +30,39 @@ class TemplateOfficialSearch extends Model
     const SCENARIO_FRONTEND = 'frontend';
     /** @var string 后台查询列表 */
     const SCENARIO_BACKEND = 'backend';
-    const TEMPLATE_LIMIT = 12;
-
+    const DEFAULT_CLASSIFY = 'mingpian';
+    /** @var string 小分类 */
+    public $product;
+    /** @var integer 价格 */
+    public $price;
+    /** @var integer 风格 */
+    public $tag_style_id;
+    /** @var integer 行业 */
+    public $tag_industry_id;
+    /** @var integer 热度排序 */
+    public $sort;
+    /** @var integer 模板转态 */
+    public $status;
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [['product','price','tag_style_id','tag_industry_id','sort','status'], 'integer'],
+        ];
+    }
+    /**
+     * @return array
+     */
+    public function scenarios()
+    {
+        return [
+            static::SCENARIO_DEFAULT => ['product','price','tag_style_id','tag_industry_id','sort','status'],
+            static::SCENARIO_BACKEND => ['product','price','tag_style_id','tag_industry_id','sort','status'],
+            static::SCENARIO_FRONTEND => ['product','price','tag_style_id','tag_industry_id','sort']
+        ];
+    }
     /**
      * @param $params
      * @return array|bool|null|ActiveQuery
@@ -39,12 +70,13 @@ class TemplateOfficialSearch extends Model
      */
     public function search($params)
     {
+        $this->load($params,'');
         switch ($this->scenario) {
             case static::SCENARIO_FRONTEND:
-                return $this->searchFrontend($params);
+                return $this->searchFrontend();
             case static::SCENARIO_BACKEND:
             case static::SCENARIO_DEFAULT:
-            return $this->searchBackend($params);
+            return $this->searchBackend();
             default:
                 return null;
         }
@@ -93,34 +125,14 @@ class TemplateOfficialSearch extends Model
      * @param $params
      * @return array|bool|ActiveQuery
      * @throws \yii\db\Exception
-     *
+     * 前端查询
      */
-    public function searchFrontend($params)
+    public function searchFrontend()
     {
-        if (!$params['classify_id']){
-            return false;
-        }
-        $classify = Classify::findById($params['classify_id']);
-        //按小分类查询
-        $template_data = TemplateOfficial::online()->where(['product' =>$classify->product]);
-        //按价格区间查询
-        if ($params['price'] && array_key_exists($params['price'],$this->prices)){
-            $template_data ->andWhere(($this->prices)[$params['price']]);
-        }
-        //按标签类型查询
-        if ($params['tag_style_id'] || $params['tag_industry_id']){
-            $tag_id = $this->tagSql($params);
-            if (!$tag_id){
-                return false;
-            }
-            $template_data->andWhere(['in','template_id',$tag_id]);
-        }
-        //按时间或者热度排序
-        if ($params['sort'] && $params['sort'] == 1){
-            $template_data ->orderBy(['sort'=>SORT_DESC]);
-        }else{
-            $template_data ->orderBy(['updated_at'=>SORT_DESC]);
-        }
+        //条件查询
+        $template_data = $this->searchCondition();
+        //线上
+        $template_data->andWhere(['status'=> TemplateOfficial::STATUS_ONLINE]);
         //分页
         $result = $this->paging($template_data);
        /*try {
@@ -147,18 +159,17 @@ class TemplateOfficialSearch extends Model
         ]);
         return $provider->getModels();
     }
-
     /**
      * @param $params
      * @return array
      * @throws \yii\db\Exception
      */
-    public function tagSql($params){
-        if ($params['tag_industry_id']){
-            $templates = $industry = (new \yii\db\Query())->select('template_id')->from('tu_template_official_tag')->where(['tag_id'=>$params['tag_industry_id']]);
+    public function tagSql(){
+        if ($this->tag_industry_id){
+            $templates = $industry = (new \yii\db\Query())->select('template_id')->from('tu_template_official_tag')->where(['tag_id'=>$this->tag_industry_id]);
         }
-        if ($params['tag_style_id']){
-            $templates = $style = (new \yii\db\Query())->select('template_id')->from('tu_template_official_tag')->where(['tag_id'=>$params['tag_style_id']]);
+        if ($this->tag_style_id){
+            $templates = $style = (new \yii\db\Query())->select('template_id')->from('tu_template_official_tag')->where(['tag_id'=>$this->tag_style_id]);
         }
         if ($industry && $style){
             $query = (new \yii\db\Query())->select('u.template_id');
@@ -171,43 +182,51 @@ class TemplateOfficialSearch extends Model
         }
         return $templates_id ;
     }
-
     /**
      * @param $params
      * @return array|bool
      * @throws \yii\db\Exception
      * 后台查询
      */
-    public function searchBackend($params){
-        if (!$params['classify_id']){
-            return false;
+    public function searchBackend(){
+        $template_data = $this->searchCondition();
+        //状态查询
+        if ($this->status){
+            $template_data->andWhere(['status'=>$this->status]);
         }
-        $classify = Classify::findById($params['classify_id']);
+        //分页
+        return $this->paging($template_data);
+    }
+
+    /**
+     * @return bool|ActiveQuery
+     * @throws \yii\db\Exception
+     * 拼接查询条件
+     */
+    public function searchCondition(){
+        if (!$this->product){
+            $this->product = static::DEFAULT_CLASSIFY;
+        }
         //按小分类查询
-        $template_data = TemplateOfficial::find()->where(['product' =>$classify->product]);
+        $template_data = TemplateOfficial::find()->where(['product' =>$this->product]);
         //按价格区间查询
-        if ($params['price'] && array_key_exists($params['price'],$this->prices)){
-            $template_data ->andWhere(($this->prices)[$params['price']]);
+        if ($this->price && array_key_exists($this->price,$this->prices)){
+            $template_data ->andWhere(($this->prices)[$this->price]);
         }
         //按标签类型查询
-        if ($params['tag_style_id'] || $params['tag_industry_id']){
-            $tag_id = $this->tagSql($params);
+        if ($this->tag_style_id || $this->tag_industry_id){
+            $tag_id = $this->tagSql();
             if (!$tag_id){
                 return false;
             }
             $template_data->andWhere(['in','template_id',$tag_id]);
         }
-        //按转态查询
-        if ($params['status']){
-            $template_data ->andWhere(['status'=>$params['status']]);
-        }
-        //按时间或者热度查询
-        if ($params['sort'] && $params['sort'] == 1){
+        //按时间或者热度排序
+        if ($this->sort && $this->sort == 1){
             $template_data ->orderBy(['sort'=>SORT_DESC]);
         }else{
             $template_data ->orderBy(['updated_at'=>SORT_DESC]);
         }
-        //分页
-        return $this->paging($template_data);
+        return $template_data;
     }
 }

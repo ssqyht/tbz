@@ -59,7 +59,7 @@ class TemplateCenterSearch extends Model
             $this->_cacheKey = [
                 __CLASS__,
                 static::class,
-                Category::tableName(),
+                TemplateOfficial::tableName(),
                 Classify::tableName(),
                 $this->scenario,
             ];
