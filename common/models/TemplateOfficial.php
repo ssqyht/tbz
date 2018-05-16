@@ -45,6 +45,8 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     const STATUS_OFFLINE = 10;
     /** @var int 编辑中 */
     const STATUS_EDITING = 5;
+    /** @var string 删除状态 */
+    const STATUS_DELETE = '3';
 
 
     static $frontendFields = [

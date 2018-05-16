@@ -21,7 +21,7 @@ $restUrls = [
             ],
         ],
         [
-            'controller' => ['template'],
+            'controller' => ['templateOfficial', 'templateMember'],
         ],
         // 微信配置
         'GET,POST,OPTIONS wechat/qrcode' => 'wechat/qrcode',

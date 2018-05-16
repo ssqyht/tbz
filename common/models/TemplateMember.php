@@ -36,7 +36,7 @@ class TemplateMember extends \yii\db\ActiveRecord
     const STATUS_TRASH = '7';
 
     /** @var string 删除状态 */
-    const STATUS_DELETE = '5';
+    const STATUS_DELETE = '3';
 
     /**
      * @inheritdoc
