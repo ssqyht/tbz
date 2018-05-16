@@ -77,7 +77,6 @@ class Classify extends \yii\db\ActiveRecord
             [['order_link', 'thumbnail'], 'string', 'max' => 255],
         ];
     }
-
     public function extraFields()
     {
         $data = ['thumbnail' => function() {
@@ -90,8 +89,6 @@ class Classify extends \yii\db\ActiveRecord
         }
         return $data;
     }
-
-
     /**
      * @inheritdoc
      */

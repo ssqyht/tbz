@@ -11,7 +11,7 @@ $restUrls = [
     'modules' => ['v1', 'v2'],
     'rules' => [
         [
-            'controller' => ['user', 'category', 'classify', 'gain-template-cover','message','tag','template-center'],
+            'controller' => ['user', 'category', 'classify', 'gain-template-cover','message','tag','template-official'],
             'extraPatterns' => [
                 'POST,OPTIONS login' => 'login',
                 'POST,OPTIONS bind' => 'bind',
@@ -29,7 +29,6 @@ $restUrls = [
         'doc/index' => 'doc/index',
         'doc/api' => 'doc/api',
         'template-center/classify-search' => 'template-center/classify-search',
-        'template-center/search' => 'template-center/search'
     ],
     'pluralize' => false
 ];
