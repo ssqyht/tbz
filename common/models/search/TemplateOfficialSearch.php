@@ -93,10 +93,13 @@ class TemplateOfficialSearch extends Model
             return false;
         }
         $classify = Classify::findById($params['classify_id']);
+        //按小分类查询
         $template_data = TemplateOfficial::online()->where(['product' =>$classify->product]);
+        //按价格区间查询
         if ($params['price'] && array_key_exists($params['price'],$this->prices)){
             $template_data ->andWhere(($this->prices)[$params['price']]);
         }
+        //按标签类型查询
         if ($params['tag_style_id'] || $params['tag_industry_id']){
             $tag_id = $this->tagSql($params);
             if (!$tag_id){
@@ -104,11 +107,13 @@ class TemplateOfficialSearch extends Model
             }
             $template_data->andWhere(['in','template_id',$tag_id]);
         }
+        //按时间或者热度排序
         if ($params['sort'] && $params['sort'] == 1){
             $template_data ->orderBy(['sort'=>SORT_DESC]);
         }else{
             $template_data ->orderBy(['updated_at'=>SORT_DESC]);
         }
+        //分页
         $result = $this->paging($template_data);
        /*try {
             $result = Yii::$app->dataCache->cache(function () use ($template_data) {
@@ -142,25 +147,21 @@ class TemplateOfficialSearch extends Model
      */
     public function tagSql($params){
         if ($params['tag_industry_id']){
-            $sql1="SELECT template_id from tu_template_official_tag where tag_id =".$params['tag_industry_id'];
+            $templates = $industry = (new \yii\db\Query())->select('template_id')->from('tu_template_official_tag')->where(['tag_id'=>$params['tag_industry_id']]);
         }
         if ($params['tag_style_id']){
-            $sql2="SELECT template_id from tu_template_official_tag where tag_id =".$params['tag_style_id'];
+            $templates = $style = (new \yii\db\Query())->select('template_id')->from('tu_template_official_tag')->where(['tag_id'=>$params['tag_style_id']]);
         }
-        if ($sql1 && $sql2){
-            $sql = 'select template_id from ';
-            $sql.='('.$sql1.') as one inner join ('.$sql2.') as two using(template_id)';
-        }elseif ($params['tag_industry_id']){
-            $sql = $sql1;
-        }elseif ($params['tag_style_id']){
-            $sql = $sql2;
+        if ($industry && $style){
+            $query = (new \yii\db\Query())->select('u.template_id');
+            $templates = $query->from(['u' => $industry])->innerJoin(['s' => $style], 's.template_id = u.template_id');
         }
-        $templates = \Yii::$app->db->createCommand($sql)->queryAll();
+        $templates = $templates->all();
         $templates_id = [];
         foreach ($templates as $value){
             $templates_id [] = $value['template_id'];
         }
-        return $templates_id;
+        return $templates_id ;
     }
 
     /**
@@ -174,10 +175,13 @@ class TemplateOfficialSearch extends Model
             return false;
         }
         $classify = Classify::findById($params['classify_id']);
+        //按小分类查询
         $template_data = TemplateOfficial::find()->where(['product' =>$classify->product]);
+        //按价格区间查询
         if ($params['price'] && array_key_exists($params['price'],$this->prices)){
             $template_data ->andWhere(($this->prices)[$params['price']]);
         }
+        //按标签类型查询
         if ($params['tag_style_id'] || $params['tag_industry_id']){
             $tag_id = $this->tagSql($params);
             if (!$tag_id){
@@ -185,14 +189,17 @@ class TemplateOfficialSearch extends Model
             }
             $template_data->andWhere(['in','template_id',$tag_id]);
         }
+        //按转态查询
         if ($params['status']){
             $template_data ->andWhere(['status'=>$params['status']]);
         }
+        //按时间或者热度查询
         if ($params['sort'] && $params['sort'] == 1){
             $template_data ->orderBy(['sort'=>SORT_DESC]);
         }else{
             $template_data ->orderBy(['updated_at'=>SORT_DESC]);
         }
+        //分页
         return $this->paging($template_data);
     }
 }
