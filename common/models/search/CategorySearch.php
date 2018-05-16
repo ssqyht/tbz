@@ -6,14 +6,11 @@
 namespace common\models\search;
 
 use common\components\traits\CacheDependencyTrait;
+use common\components\vendor\Model;
 use common\models\CacheDependency;
 use common\models\Category;
-use function foo\func;
 use Yii;
 use common\models\Classify;
-use yii\base\Model;
-use yii\caching\DbDependency;
-use yii\caching\ExpressionDependency;
 use yii\db\ActiveQuery;
 
 /**
@@ -25,11 +22,6 @@ use yii\db\ActiveQuery;
 class CategorySearch extends Model
 {
     use CacheDependencyTrait;
-
-    /** @var string 前台开启设计页 */
-    const SCENARIO_FRONTEND = 'frontend';
-    /** @var string 后台查询列表 */
-    const SCENARIO_BACKEND = 'backend';
 
     public $product;
 
