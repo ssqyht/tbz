@@ -29,7 +29,6 @@ class LoginFormTest extends Unit
 
     public function testCorrectLogin()
     {
-        \Yii::$app->request->client = 'tubangzhu_web';
         $model = new LoginForm(['scenario' => LoginForm::SCENARIO_MOBILE]);
         $result = $model->submit([
             'mobile' => '13255553420',

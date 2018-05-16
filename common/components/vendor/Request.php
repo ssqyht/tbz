@@ -59,8 +59,8 @@ class Request extends \yii\web\Request
      */
     public function setHandle($value = '')
     {
-        $handle = empty($value) ?: $this->headers->get('Handle');
-        $this->_handle = $handle == 'backend' ? $handle : 'frontend';
+        $handle = $value ?: $this->headers->get('Handle');
+        $this->_handle = $handle;
     }
 
 }

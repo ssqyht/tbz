@@ -4,7 +4,9 @@ return [
     'basePath' => dirname(__DIR__),
     'components' => [
         'request' => [
-            'enableCsrfCookie' => false
+            'enableCsrfCookie' => false,
+            'client' => 'tubangzhu_web',
+            'handle' => 'backend',
         ]
     ],
 ];
