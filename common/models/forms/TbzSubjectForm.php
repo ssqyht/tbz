@@ -19,13 +19,10 @@ class TbzSubjectForm extends Model
     public $seo_title;
     public $banner;
     public $status;
-    public $background_color;
-    public $font_color;
-    public $font_content;
     public function rules()
     {
         return [
-            [['sort', 'title', 'description', 'seo_keyword', 'seo_description', 'thumbnail', 'seo_title', 'banner', 'status','background_color','font_color','font_content'], 'required'],
+            [['sort', 'title', 'description', 'seo_keyword', 'seo_description', 'thumbnail', 'seo_title', 'banner', 'status'], 'required'],
             ['sort', 'integer'],
             ['title', 'string', 'max' => 150],
             [['description', 'seo_keyword', 'seo_description'], 'string', 'max' => 255],

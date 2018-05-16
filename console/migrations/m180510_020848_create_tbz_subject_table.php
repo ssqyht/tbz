@@ -16,9 +16,6 @@ class m180510_020848_create_tbz_subject_table extends Migration
         $this->createTable($this->table_name, [
             'id' => $this->primaryKey()->unsigned(),
             'title' => $this->string(150)->notNull()->comment('文章标题')->defaultValue(''),
-            'background_color' => $this->string(150)->notNull()->comment('背景颜色')->defaultValue(''),
-            'font_color' => $this->string(150)->notNull()->comment('字体颜色')->defaultValue(''),
-            'font_content' => $this->string(150)->notNull()->comment('字体内容')->defaultValue(''),
             'description' => $this->string(255)->notNull()->comment('专题描述')->defaultValue(''),
             'thumbnail' => $this->string(100)->comment('缩略图')->defaultValue('')->notNull(),
             'banner' => $this->string(60)->comment('专题内页banner图')->defaultValue('')->notNull(),

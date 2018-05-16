@@ -85,6 +85,12 @@ class GainTemplateCoverController extends RestController
      *         type="string"
      *     ),
      *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
      *          in="formData",
      *          name="title",
      *          type="string",
@@ -147,27 +153,6 @@ class GainTemplateCoverController extends RestController
      *          description="排序逆序",
      *          required=true,
      *     ),
-     *       @SWG\Parameter(
-     *          in="formData",
-     *          name="background_color",
-     *          type="string",
-     *          description="背景色",
-     *          required=true,
-     *     ),
-     *       @SWG\Parameter(
-     *          in="formData",
-     *          name="font_color",
-     *          type="string",
-     *          description="字体色",
-     *          required=true,
-     *     ),
-     *     @SWG\Parameter(
-     *          in="formData",
-     *          name="font_content",
-     *          type="string",
-     *          description="字体内容",
-     *          required=true,
-     *     ),
      *     @SWG\Response(
      *          response=200,
      *          description="请求成功",
@@ -209,6 +194,12 @@ class GainTemplateCoverController extends RestController
      *     summary="修改专题模板信息",
      *     @SWG\Parameter(
      *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
      *         in="header",
      *         required=true,
      *         type="string"
@@ -281,27 +272,6 @@ class GainTemplateCoverController extends RestController
      *          name="sort",
      *          type="integer",
      *          description="排序逆序",
-     *          required=true,
-     *     ),
-     *      @SWG\Parameter(
-     *          in="formData",
-     *          name="background_color",
-     *          type="string",
-     *          description="背景色",
-     *          required=true,
-     *     ),
-     *       @SWG\Parameter(
-     *          in="formData",
-     *          name="font_color",
-     *          type="string",
-     *          description="字体色",
-     *          required=true,
-     *     ),
-     *     @SWG\Parameter(
-     *          in="formData",
-     *          name="font_content",
-     *          type="string",
-     *          description="字体内容",
      *          required=true,
      *     ),
      *     @SWG\Response(

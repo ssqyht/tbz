@@ -11,9 +11,6 @@ use common\components\traits\ModelFieldsTrait;
  *
  * @property int $id @SWG\Property(property="id", type="integer", description="")
  * @property string $title 文章标题 @SWG\Property(property="title", type="string", description=" 文章标题")
- * @property string $background_color 背景颜色 @SWG\Property(property="backgroundColor", type="string", description=" 背景颜色")
- * @property string $font_color 字体颜色 @SWG\Property(property="fontColor", type="string", description=" 字体颜色")
- * @property string $font_content 字体内容 @SWG\Property(property="fontContent", type="string", description=" 字体内容")
  * @property string $description 专题描述 @SWG\Property(property="description", type="string", description=" 专题描述")
  * @property string $thumbnail 缩略图 @SWG\Property(property="thumbnail", type="string", description=" 缩略图")
  * @property string $banner 专题内页banner图 @SWG\Property(property="banner", type="string", description=" 专题内页banner图")
@@ -33,7 +30,7 @@ class TbzSubject extends \yii\db\ActiveRecord
     /** @var int 模板专题上线 */
     const STATUS_ONLINE = 20;
 
-    static $frontendFields = ['title', 'description','seo_keyword', 'seo_description','thumbnail', 'seo_title','banner','font_color','font_content','background_color'];
+    static $frontendFields = ['title', 'description','seo_keyword', 'seo_description','thumbnail', 'seo_title','banner'];
 
     /**
      * @inheritdoc
@@ -50,7 +47,7 @@ class TbzSubject extends \yii\db\ActiveRecord
     {
         return [
             [['status', 'sort', 'created_time', 'updated_time'], 'integer'],
-            [['title', 'background_color', 'font_color', 'font_content'], 'string', 'max' => 150],
+            [['title'], 'string', 'max' => 150],
             [['description', 'seo_keyword', 'seo_description'], 'string', 'max' => 255],
             [['thumbnail', 'seo_title'], 'string', 'max' => 100],
             [['banner'], 'string', 'max' => 60],
@@ -65,9 +62,6 @@ class TbzSubject extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'title' => 'Title',
-            'background_color' => 'Background Color',
-            'font_color' => 'Font Color',
-            'font_content' => 'Font Content',
             'description' => 'Description',
             'thumbnail' => 'Thumbnail',
             'banner' => 'Banner',
