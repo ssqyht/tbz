@@ -186,7 +186,7 @@ class TemplateOfficialController extends RestController
      * 新增模板
      *
      * @SWG\POST(
-     *     path="/templateOfficial",
+     *     path="/template-official",
      *     operationId="createTemplateOfficial",
      *     schemes={"http"},
      *     tags={"模板接口"},
@@ -252,7 +252,7 @@ class TemplateOfficialController extends RestController
     /**
      * 保存官方模板
      * @SWG\POST(
-     *     path="/templateOfficial/{templateId}",
+     *     path="/template-official/{templateId}",
      *     operationId="updateTemplateOfficial",
      *     schemes={"http"},
      *     tags={"模板接口"},
@@ -324,7 +324,7 @@ class TemplateOfficialController extends RestController
      * 删除官方模板
      *
      * @SWG\Delete(
-     *     path="/templateOfficial/{templateId}",
+     *     path="/template-official/{templateId}",
      *     operationId="deleteTemplateOfficial",
      *     schemes={"http"},
      *     tags={"模板接口"},

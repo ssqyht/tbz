@@ -172,7 +172,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
      */
     public static function findById($id)
     {
-        return static::active()->andWhere(['id' => $id])->one();
+        return static::active()->andWhere(['template_id' => $id])->one();
     }
 
 }
