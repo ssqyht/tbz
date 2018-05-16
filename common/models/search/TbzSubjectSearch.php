@@ -10,22 +10,30 @@ namespace common\models\search;
 
 use common\models\TbzSubject;
 use yii\data\ActiveDataProvider;
-
+use Yii;
+use common\models\CacheDependency;
 class TbzSubjectSearch extends \yii\base\Model
 {
     /** @var string 前台 */
     const SCENARIO_FRONTEND = 'frontend';
     /** @var string 后台 */
     const SCENARIO_BACKEND = 'backend';
-    const online_status = 1;
-    const underline_status = 0;
+    private $_cacheKey;
+    public $status;
     public function rules()
     {
         return [
-
+            ['status','integer']
         ];
     }
-
+    public function scenarios()
+    {
+        return [
+            static::SCENARIO_DEFAULT => ['status'],
+            static::SCENARIO_BACKEND => ['status'],
+            static::SCENARIO_FRONTEND => []
+        ];
+    }
     /**
      * 查询数据
      * @param $params
@@ -35,7 +43,6 @@ class TbzSubjectSearch extends \yii\base\Model
     public function search($params)
     {
         $this->load($params, '');
-
         switch ($this->scenario) {
             case static::SCENARIO_FRONTEND:
                 return $this->searchFrontend();
@@ -46,27 +53,46 @@ class TbzSubjectSearch extends \yii\base\Model
                 return null;
         }
     }
+
     /**
-     * @param $status
-     * @return array|bool
-     * 查询数据
+     * @return mixed|null
+     * 前端查询模板专题
      */
     public function searchFrontend()
     {
-       /* if (!isset($status) || $status == '') {
-            $status = 1;
-        }*/
-        $cover_data = TbzSubject::find()
-            ->where(['status' => static::online_status]);
+        $cover_data = TbzSubject::online();
         $provider = new ActiveDataProvider([
             'query' => $cover_data,
             'pagination' => [
-                'pageSize' => 10,
+                'pageSize' => 16,
             ],
-            'sort' => [
-                'defaultOrder' => [
-                    'sort' => SORT_DESC,
-                ]
+        ]);
+        try {
+            $result = Yii::$app->dataCache->cache(function () use ($provider) {
+                $result = $provider->getModels();
+                return $result;
+            }, $this->cacheKey, CacheDependency::TEMPLATE_COVER);
+        } catch (\Throwable $e) {
+            $result = null;
+        }
+        return $result;
+    }
+
+    /**
+     * @param $params
+     * @return array|bool
+     * 后台查询模板专题
+     */
+    public function searchBackend(){
+        $cover_data = TbzSubject::sortHot();
+        //根据状态查询模板专题
+        if ($this->status){
+            $cover_data->andWhere(['status'=>$this->status]);
+        }
+        $provider = new ActiveDataProvider([
+            'query' => $cover_data,
+            'pagination' => [
+                'pageSize' => 16,
             ],
         ]);
         $result_data = $provider->getModels();
@@ -76,7 +102,30 @@ class TbzSubjectSearch extends \yii\base\Model
             return false;
         }
     }
-    public function searchBackend(){
-
+    /**
+     * 查询缓存Key
+     * @return array|null
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function getCacheKey()
+    {
+        if ($this->_cacheKey === null) {
+            $this->_cacheKey = [
+                __CLASS__,
+                static::class,
+                TbzSubject::tableName(),
+                TbzSubject::tableName(),
+                $this->scenario,
+            ];
+        }
+        return $this->_cacheKey;
+    }
+    /**
+     * 删除查询缓存
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function removeCache()
+    {
+        Yii::$app->cache->delete($this->cacheKey);
     }
 }

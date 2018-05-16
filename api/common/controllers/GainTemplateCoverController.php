@@ -18,7 +18,7 @@ class GainTemplateCoverController extends RestController
 {
     /**
      * @SWG\Get(
-     *     path="/gain-template-cover/{id}",
+     *     path="/gain-template-cover",
      *     operationId="GetCover",
      *     schemes={"http"},
      *     tags={"专题模板相关接口"},
@@ -33,8 +33,7 @@ class GainTemplateCoverController extends RestController
      *          in="formData",
      *          name="status",
      *          type="integer",
-     *          description="是否上线,1为上线，0线下",
-     *          required=true,
+     *          description="是否上线",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -58,11 +57,13 @@ class GainTemplateCoverController extends RestController
      * @throws NotFoundHttpException
      * @author swz
      */
-    public function actionView()
+    public function actionIndex()
     {
-        $status = \Yii::$app->request->get('id');
-        $tbz_subject = new TbzSubjectSearch();
-        $result_data = $tbz_subject->search($status);
+        $config = [
+            'scenario' => $this->isFrontend() ? TbzSubjectSearch::SCENARIO_FRONTEND : TbzSubjectSearch::SCENARIO_BACKEND
+        ];
+        $tbz_subject = new TbzSubjectSearch($config);
+        $result_data = $tbz_subject->search(\Yii::$app->request->get());
         if ($result_data) {
             return $result_data;
         } else {
@@ -144,6 +145,27 @@ class GainTemplateCoverController extends RestController
      *          name="sort",
      *          type="integer",
      *          description="排序逆序",
+     *          required=true,
+     *     ),
+     *       @SWG\Parameter(
+     *          in="formData",
+     *          name="background_color",
+     *          type="string",
+     *          description="背景色",
+     *          required=true,
+     *     ),
+     *       @SWG\Parameter(
+     *          in="formData",
+     *          name="font_color",
+     *          type="string",
+     *          description="字体色",
+     *          required=true,
+     *     ),
+     *     @SWG\Parameter(
+     *          in="formData",
+     *          name="font_content",
+     *          type="string",
+     *          description="字体内容",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -261,6 +283,27 @@ class GainTemplateCoverController extends RestController
      *          description="排序逆序",
      *          required=true,
      *     ),
+     *      @SWG\Parameter(
+     *          in="formData",
+     *          name="background_color",
+     *          type="string",
+     *          description="背景色",
+     *          required=true,
+     *     ),
+     *       @SWG\Parameter(
+     *          in="formData",
+     *          name="font_color",
+     *          type="string",
+     *          description="字体色",
+     *          required=true,
+     *     ),
+     *     @SWG\Parameter(
+     *          in="formData",
+     *          name="font_content",
+     *          type="string",
+     *          description="字体内容",
+     *          required=true,
+     *     ),
      *     @SWG\Response(
      *          response=200,
      *          description="请求成功",
@@ -278,7 +321,7 @@ class GainTemplateCoverController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return bool|array|\common\components\vendor\Response|\yii\console\Response|Response
+     * @return bool|array|\common\components\vendor\Response|\yii\console\Response
      * @throws BadRequestHttpException
      * @author swz
      */

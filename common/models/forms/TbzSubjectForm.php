@@ -4,9 +4,12 @@ namespace common\models\forms;
 
 use common\models\TbzSubject;
 use yii\base\Model;
-
+use common\components\traits\ModelErrorTrait;;
 class TbzSubjectForm extends Model
 {
+    use ModelErrorTrait;
+    /* @var integer 线下转态 */
+    const UNDERLINE_STATUS = 10;
     public $sort;
     public $title;
     public $description;
@@ -16,11 +19,13 @@ class TbzSubjectForm extends Model
     public $seo_title;
     public $banner;
     public $status;
-
+    public $background_color;
+    public $font_color;
+    public $font_content;
     public function rules()
     {
         return [
-            [['sort', 'title', 'description', 'seo_keyword', 'seo_description', 'thumbnail', 'seo_title', 'banner', 'status'], 'required'],
+            [['sort', 'title', 'description', 'seo_keyword', 'seo_description', 'thumbnail', 'seo_title', 'banner', 'status','background_color','font_color','font_content'], 'required'],
             ['sort', 'integer'],
             ['title', 'string', 'max' => 150],
             [['description', 'seo_keyword', 'seo_description'], 'string', 'max' => 255],
@@ -65,6 +70,7 @@ class TbzSubjectForm extends Model
     public function TbzSubjectUpdate($id)
     {
         if(!$this->validate()){
+            $this->addError('id','修改时id不能为空');
             return false;
         }
         $tbz_subject = TbzSubject::findOne($id);
@@ -88,7 +94,7 @@ class TbzSubjectForm extends Model
         if (!$tbz_subject){
             return false;
         }
-        $tbz_subject->status = 0;
+        $tbz_subject->status = static::UNDERLINE_STATUS;
         if ($tbz_subject ->save(false)){
             return true;
         }else{
