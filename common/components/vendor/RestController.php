@@ -20,6 +20,10 @@ class RestController extends Controller
 
     private $_handle;
 
+    /**
+     * @throws ForbiddenHttpException
+     * @author thanatos <thanatos915@163.com>
+     */
     public function init()
     {
         parent::init();

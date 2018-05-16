@@ -32,6 +32,8 @@ class Code
     const SERVER_NOT_PERMISSION = 10002;
     const SOURCE_NOT_FOUND = 10004;
 
+    const TEMPLATE_FORMAT_ERROR = '60001';
+
     /** @var array common return code */
     public $common = [
         self::SERVER_SUCCESS => '请求成功',
@@ -58,5 +60,8 @@ class Code
         self::USER_MOBILE_EXIST => '手机号已被使用，请联系客服',
     ];
 
+    public $template = [
+        self::TEMPLATE_FORMAT_ERROR => '模板数据格式错误',
+    ];
 
 }

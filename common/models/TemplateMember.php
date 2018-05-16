@@ -27,8 +27,16 @@ use common\components\traits\TimestampTrait;
  */
 class TemplateMember extends \yii\db\ActiveRecord
 {
-
     use TimestampTrait;
+
+    /** @var string 用户模板正常状态 */
+    const STATUS_NORMAL = '10';
+
+    /** @var string 回收站 */
+    const STATUS_TRASH = '7';
+
+    /** @var string 删除状态 */
+    const STATUS_DELETE = '5';
 
     /**
      * @inheritdoc
@@ -76,4 +84,38 @@ class TemplateMember extends \yii\db\ActiveRecord
             'amount_print' => '印刷次数',
         ];
     }
+
+    /**
+     * 按热度排序
+     * @return \yii\db\ActiveQuery
+     */
+    public static function sort()
+    {
+        return static::find()->orderBy(['id' => SORT_DESC]);
+    }
+
+    /**
+     * 查找线上模板
+     * @return \yii\db\ActiveQuery
+     */
+    public static function active()
+    {
+        if (Yii::$app->controller->isFrontend()) {
+            return static::sort();
+        } else {
+            return static::sort()->andWhere(['status' => static::STATUS_NORMAL]);
+        }
+    }
+
+    /**
+     * 根据模板id查询
+     * @param $id
+     * @return TemplateMember|null|\yii\db\ActiveRecord
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function findById($id)
+    {
+        return static::active()->andWhere(['id' => $id])->one();
+    }
+
 }

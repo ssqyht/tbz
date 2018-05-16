@@ -19,6 +19,9 @@ $restUrls = [
                 'GET,OPTIONS classify-search' => 'classify-search',
             ],
         ],
+        [
+            'controller' => ['template'],
+        ],
         // 微信配置
         'GET,POST,OPTIONS wechat/qrcode' => 'wechat/qrcode',
         'POST,OPTIONS wechat/session' => 'wechat/session',

@@ -38,6 +38,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     use ModelErrorTrait;
     use TimestampTrait;
     use ModelFieldsTrait;
+
     const STATUS_ONLINE = 20;
 
     static $frontendFields = [
@@ -58,7 +59,10 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'cooperation_id', 'created_at', 'updated_at', 'content'], 'required'],
+            [['content', 'product', 'title'], 'trim'],
+            ['content', 'default', 'value' => ''],
+            ['cooperation_id', 'default', 'value' => 0],
+            [['user_id', 'cooperation_id'], 'required'],
             [['user_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort'], 'integer'],
             [['content'], 'string'],
             [['title'], 'string', 'max' => 50],
@@ -105,6 +109,12 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             return Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url;
           }
         ];
+        if (Yii::$app->controller->isFrontend()) {
+            $data['content'] = function (){
+                return $this->content;
+            };
+        }
+
         return $data;
     }
 
@@ -133,11 +143,27 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
      * 查找线上模板
+     * @return \yii\db\ActiveQuery
      */
-    public static function online()
+    public static function active()
     {
-        return static::sort()->andWhere(['status' => static::STATUS_ONLINE]);
+        if (Yii::$app->controller->isFrontend()) {
+            return static::sort();
+        } else {
+            return static::sort()->andWhere(['status' => static::STATUS_ONLINE]);
+        }
     }
+
+    /**
+     * 根据模板id查询
+     * @param $id
+     * @return TemplateOfficial|null|\yii\db\ActiveRecord
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function findById($id)
+    {
+        return static::active()->andWhere(['id' => $id])->one();
+    }
+
 }

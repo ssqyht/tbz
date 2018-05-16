@@ -7,6 +7,7 @@ use common\components\traits\CacheDependencyTrait;
 use common\models\CacheDependency;
 use common\models\Category;
 use common\models\TemplateOfficial;
+use common\models\TemplateOfficialTag;
 use Yii;
 use common\models\Classify;
 use yii\base\Model;
@@ -15,10 +16,12 @@ use yii\caching\ExpressionDependency;
 use yii\db\ActiveQuery;
 use yii\data\ActiveDataProvider;
 use common\models\Tag;
+use yii\db\Query;
 
 /**
  * Class TemplateOfficialSearch
  * @property string $cacheKey
+ * @property ActiveQuery $query
  * @package common\models\search
  * @author thanatos <thanatos915@163.com>
  */
@@ -36,51 +39,107 @@ class TemplateOfficialSearch extends Model
     /** @var integer 价格 */
     public $price;
     /** @var integer 风格 */
-    public $tag_style_id;
+    public $style;
     /** @var integer 行业 */
-    public $tag_industry_id;
+    public $industry;
     /** @var integer 热度排序 */
     public $sort;
     /** @var integer 模板转态 */
     public $status;
+
+    private $_query;
+    private $_cacheKey;
+
     /**
      * @return array
      */
     public function rules()
     {
         return [
-            [['product','price','tag_style_id','tag_industry_id','sort','status'], 'integer'],
+            [['product', 'price', 'style', 'industry', 'sort', 'status'], 'integer'],
         ];
     }
+
     /**
      * @return array
      */
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['product','price','tag_style_id','tag_industry_id','sort','status'],
-            static::SCENARIO_BACKEND => ['product','price','tag_style_id','tag_industry_id','sort','status'],
-            static::SCENARIO_FRONTEND => ['product','price','tag_style_id','tag_industry_id','sort']
+            static::SCENARIO_DEFAULT => ['product', 'price', 'style', 'industry', 'sort', 'status'],
+            static::SCENARIO_BACKEND => ['product', 'price', 'style', 'industry', 'sort', 'status'],
+            static::SCENARIO_FRONTEND => ['product', 'price', 'style', 'industry', 'sort']
         ];
     }
+
     /**
      * @param $params
-     * @return array|bool|null|ActiveQuery
-     * @throws \yii\db\Exception
+     * @return null|ActiveDataProvider
+     * @author thanatos <thanatos915@163.com>
      */
     public function search($params)
     {
-        $this->load($params,'');
+        $this->load($params, '');
         switch ($this->scenario) {
             case static::SCENARIO_FRONTEND:
                 return $this->searchFrontend();
             case static::SCENARIO_BACKEND:
             case static::SCENARIO_DEFAULT:
-            return $this->searchBackend();
+                return $this->searchBackend();
             default:
                 return null;
         }
     }
+
+    /**
+     * 价格区间
+     * @var array
+     */
+    public $prices = [
+        1 => ['>=', 'price', 0],
+        2 => ['between', 'price', 100, 500],
+        3 => ['between', 'price', 500, 1000],
+        4 => ['>=', 'price', 1000],
+    ];
+
+    /**
+     * 前端查询
+     * @return ActiveDataProvider
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function searchFrontend()
+    {
+//        try {
+//             $result = Yii::$app->dataCache->cache(function () use ($template_data) {
+        $dataProvider = new ActiveDataProvider([
+            'query' => $this->query,
+        ]);
+        return $dataProvider;
+//             }, $this->cacheKey, CacheDependency::OFFICIAL_TEMPLATE);
+//         } catch (\Throwable $e) {
+//             $result = null;
+//         }
+//        return $result;
+    }
+
+    /**
+     * 后台查询
+     * @return ActiveDataProvider
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function searchBackend()
+    {
+        //状态查询
+        if ($this->status) {
+            $this->query->andWhere(['status' => $this->status]);
+        }
+        //分页
+        $dataProvider = new ActiveDataProvider([
+            'query' => $this->query,
+        ]);
+        return $dataProvider;
+    }
+
 
     /**
      * 删除查询缓存
@@ -111,122 +170,74 @@ class TemplateOfficialSearch extends Model
     }
 
     /**
-     * 价格区间
-     * @var array
-     */
-    public $prices = [
-        1 =>['>=','price',0],
-        2=> ['between','price',100,500],
-        3=> ['between','price',500,1000],
-        4=> ['>=','price',1000],
-    ];
-
-    /**
-     * @param $params
-     * @return array|bool|ActiveQuery
-     * @throws \yii\db\Exception
-     * 前端查询
-     */
-    public function searchFrontend()
-    {
-        //条件查询
-        $template_data = $this->searchCondition();
-        //线上
-        $template_data->andWhere(['status'=> TemplateOfficial::STATUS_ONLINE]);
-        //分页
-        $result = $this->paging($template_data);
-       /*try {
-            $result = Yii::$app->dataCache->cache(function () use ($template_data) {
-               return  $this->paging($template_data);
-            }, $this->cacheKey, CacheDependency::OFFICIAL_TEMPLATE);
-        } catch (\Throwable $e) {
-            $result = null;
-        }*/
-        return $result;
-    }
-    /**
-     * @param $query
-     * @return array
-     * 分页
-     */
-    public function paging($query)
-    {
-        $provider = new ActiveDataProvider([
-            'query' => $query,
-            'pagination' => [
-                'pageSize' => 20,
-            ],
-        ]);
-        return $provider->getModels();
-    }
-    /**
-     * @param $params
-     * @return array
-     * @throws \yii\db\Exception
-     */
-    public function tagSql(){
-        if ($this->tag_industry_id){
-            $templates = $industry = (new \yii\db\Query())->select('template_id')->from('tu_template_official_tag')->where(['tag_id'=>$this->tag_industry_id]);
-        }
-        if ($this->tag_style_id){
-            $templates = $style = (new \yii\db\Query())->select('template_id')->from('tu_template_official_tag')->where(['tag_id'=>$this->tag_style_id]);
-        }
-        if ($industry && $style){
-            $query = (new \yii\db\Query())->select('u.template_id');
-            $templates = $query->from(['u' => $industry])->innerJoin(['s' => $style], 's.template_id = u.template_id');
-        }
-        $templates = $templates->all();
-        $templates_id = [];
-        foreach ($templates as $value){
-            $templates_id [] = $value['template_id'];
-        }
-        return $templates_id ;
-    }
-    /**
-     * @param $params
-     * @return array|bool
-     * @throws \yii\db\Exception
-     * 后台查询
-     */
-    public function searchBackend(){
-        $template_data = $this->searchCondition();
-        //状态查询
-        if ($this->status){
-            $template_data->andWhere(['status'=>$this->status]);
-        }
-        //分页
-        return $this->paging($template_data);
-    }
-
-    /**
-     * @return bool|ActiveQuery
-     * @throws \yii\db\Exception
      * 拼接查询条件
+     * @return bool|ActiveQuery
+     * @author thanatos <thanatos915@163.com>
      */
-    public function searchCondition(){
-        if (!$this->product){
-            $this->product = static::DEFAULT_CLASSIFY;
-        }
-        //按小分类查询
-        $template_data = TemplateOfficial::find()->where(['product' =>$this->product]);
-        //按价格区间查询
-        if ($this->price && array_key_exists($this->price,$this->prices)){
-            $template_data ->andWhere(($this->prices)[$this->price]);
-        }
-        //按标签类型查询
-        if ($this->tag_style_id || $this->tag_industry_id){
-            $tag_id = $this->tagSql();
-            if (!$tag_id){
-                return false;
+    public function getQuery()
+    {
+        if ($this->_query === null) {
+            $query = TemplateOfficial::active();
+            if (!$this->product) {
+                $this->product = static::DEFAULT_CLASSIFY;
             }
-            $template_data->andWhere(['in','template_id',$tag_id]);
+            //按小分类查询
+            $query->where(['product' => $this->product]);
+            //按价格区间查询
+            if ($this->price && array_key_exists($this->price, $this->prices)) {
+                $query->andWhere(($this->prices)[$this->price]);
+            }
+
+            //按标签类型查询
+            if ($this->style || $this->industry) {
+                $tag_id = $this->tagSql();
+                if (!$tag_id) {
+                    return false;
+                }
+                $query->andWhere(['in', 'template_id', $tag_id]);
+            }
+            //按时间或者热度排序
+            if ($this->sort && $this->sort == 1) {
+                $query->orderBy(['sort' => SORT_DESC]);
+            } else {
+                $query->orderBy(['updated_at' => SORT_DESC]);
+            }
+
+            $this->industry = 1;
+            $this->style = 2;
+            // 整合标签筛选
+            /** @var ActiveQuery[] $subQueries */
+            $subQueries = [];
+            if ($this->industry) {
+                $subQueries['industry'] = TemplateOfficialTag::find()->select(['template_id', 'tag_id'])->where(['tag_id' => $this->industry]);
+            }
+
+            if ($this->style) {
+                $subQueries['style'] = TemplateOfficialTag::find()->select(['template_id', 'tag_id'])->where(['tag_id' => $this->style]);
+            }
+
+            /** @var Query $subQuery */
+            $subQuery = (new Query());
+            $oldKey = '';
+            foreach ($subQueries as $k =>$sub) {
+                if (count($subQueries) == 1) {
+                    $subQuery = $sub->select('template_id');
+                } else {
+                    if ($oldKey) {
+                        $subQuery->innerJoin([$k => $sub], $oldKey . '.template_id = '. $k . '.template_id');
+                    } else {
+                        $subQuery->from([$k => $sub])->select($k.'.template_id');
+                        $oldKey = $k;
+                    }
+                }
+            }
+            if ($subQuery) {
+                $query->andWhere(['template_id' => $subQuery]);
+            }
+
+            $this->_query = $query;
         }
-        //按时间或者热度排序
-        if ($this->sort && $this->sort == 1){
-            $template_data ->orderBy(['sort'=>SORT_DESC]);
-        }else{
-            $template_data ->orderBy(['updated_at'=>SORT_DESC]);
-        }
-        return $template_data;
+        return $this->_query;
     }
+
 }

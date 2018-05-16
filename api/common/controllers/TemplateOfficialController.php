@@ -7,6 +7,7 @@
  */
 namespace api\common\controllers;
 use common\components\vendor\RestController;
+use common\models\search\TemplateCenterSearch;
 use common\models\search\TemplateOfficialSearch;
 use common\models\TemplateOfficial;
 use Yii;
@@ -17,6 +18,60 @@ use yii\web\HttpException;
 use yii\rest\Controller;
 class TemplateOfficialController extends RestController
 {
+    /**
+     * @SWG\Get(
+     *     path="/template-official/classify-search",
+     *     operationId="classifySearch",
+     *     schemes={"http"},
+     *     tags={"模板接口"},
+     *     summary="模板中心首页根据分类展示模板信息",
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @SWG\Items(
+     *                      @SWG\Property(
+     *                      property="classify_name",
+     *                      type="array",
+     *                      @SWG\Items(ref="#/definitions/TemplateOfficial")
+     *                  ))
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     * @return \common\models\Category[]|null
+     * @throws NotFoundHttpException
+     */
+    public function actionClassifySearch(){
+        $model = new TemplateCenterSearch();
+        $result = $model->search();
+        if(!$result){
+            throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+        }
+        return $result;
+    }
+
     /**
      * @SWG\Get(
      *     path="/template-official",
@@ -103,6 +158,22 @@ class TemplateOfficialController extends RestController
             return $result;
         }
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+    }
+
+    /**
+     * 查询官方模板数据
+     * @param integer $id
+     * @return array|TemplateOfficial|null|\yii\db\ActiveRecord
+     * @throws NotFoundHttpException
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function actionView($id)
+    {
+        $model = TemplateOfficial::findById($id);
+        if (empty($model)) {
+            throw new NotFoundHttpException('资源不存在', Code::SOURCE_NOT_FOUND);
+        }
+        return $model;
     }
 
     /**
