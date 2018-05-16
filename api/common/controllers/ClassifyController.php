@@ -90,4 +90,73 @@ class ClassifyController extends RestController
             throw new \HttpException(500, Code::SERVER_FAILED);
     }
 
+    /**
+     * @SWG\Get(
+     *     path="/classify/classify-tag",
+     *     operationId="getClassifyTag",
+     *     schemes={"http"},
+     *     tags={"分类查询接口"},
+     *     summary="获取小分类或标签信息",
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @SWG\Items(
+     *                       @SWG\Property(
+     *                           property="classify",
+     *                           type="array",
+     *                           @SWG\Items(
+     *                           )
+     *                       ),
+     *                       @SWG\Property(
+     *                           property="style",
+     *                           type="array",
+     *                           @SWG\Items(
+     *                           )
+     *                       ),
+     *                       @SWG\Property(
+     *                           property="industry",
+     *                           type="array",
+     *                           @SWG\Items(
+     *                           )
+     *                       )
+     *                   )
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     * @return array|bool
+     * @throws NotFoundHttpException
+     */
+    public function actionClassifyTag(){
+        $model = new ClassifySearch();
+        $model->load(Yii::$app->request->get(),'');
+        $result = $model->classifyTag();
+        if ($result){
+            return $result;
+        }
+        throw new NotFoundHttpException($model->getStringErrors(), Code::SOURCE_NOT_FOUND);
+    }
+
 }

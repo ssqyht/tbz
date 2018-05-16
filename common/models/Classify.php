@@ -32,6 +32,7 @@ use yii\helpers\Url;
  * @property int $created_at 创建时间
  * @property int $updated_at 修改时间
  * @property TemplateOfficial[] $templates
+ * @property Tag[] $tags
  */
 class Classify extends \yii\db\ActiveRecord
 {
@@ -50,7 +51,7 @@ class Classify extends \yii\db\ActiveRecord
     const template_official_status = 20;
     /** @var array 公共返回数据 */
     static $frontendFields = [
-        'product', 'name', 'parent_name', 'is_hot', 'is_new', 'order_link',
+        'id','product', 'name', 'parent_name', 'is_hot', 'is_new', 'order_link',
    ];
 
     /**
@@ -173,7 +174,11 @@ class Classify extends \yii\db\ActiveRecord
             ->where(['status'=>static::template_official_status])
             ->orderBy(['sort'=>SORT_ASC]);
     }
-    public function getTag()
+    /**
+     * @return \yii\db\ActiveQuery
+     * 关联tag
+     */
+    public function getTags()
     {
         return $this->hasMany(Tag::class, ['tag_id' => 'tag_id'])
             ->viaTable('tu_tag_relation_classify', ['classify_id' => 'id']);

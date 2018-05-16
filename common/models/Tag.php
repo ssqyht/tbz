@@ -5,7 +5,7 @@ namespace common\models;
 use common\components\traits\ModelErrorTrait;
 use Yii;
 use common\components\traits\TimestampTrait;
-
+use common\components\traits\ModelFieldsTrait;
 /**
  * This is the model class for table "{{%tag}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="Tag"))
@@ -22,6 +22,13 @@ class Tag extends \yii\db\ActiveRecord
 
     use TimestampTrait;
     use ModelErrorTrait;
+    use ModelFieldsTrait;
+    /** @var integer 模板状态 */
+    const template_official_status = 20;
+    /** @var array 公共返回数据 */
+    static $frontendFields = [
+        'tag_id', 'name', 'type',
+    ];
     /**
      * @inheritdoc
      */

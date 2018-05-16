@@ -202,9 +202,6 @@ class TemplateOfficialSearch extends Model
             } else {
                 $query->orderBy(['updated_at' => SORT_DESC]);
             }
-
-            $this->industry = 1;
-            $this->style = 2;
             // 整合标签筛选
             /** @var ActiveQuery[] $subQueries */
             $subQueries = [];

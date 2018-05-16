@@ -12,11 +12,6 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 class TagSearch extends Model
 {
-    /** @var string 前台开启设计页 */
-    const SCENARIO_FRONTEND = 'frontend';
-    /** @var string 后台查询列表 */
-    const SCENARIO_BACKEND = 'backend';
-
     /**
      * @return array|bool
      * 查询所有的tag，按热度排序

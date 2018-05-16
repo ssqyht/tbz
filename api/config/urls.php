@@ -17,6 +17,7 @@ $restUrls = [
                 'POST,OPTIONS bind' => 'bind',
                 'POST,OPTIONS reset-password' => 'reset-password',
                 'GET,OPTIONS classify-search' => 'classify-search',
+                'GET,OPTIONS classify-tag' => 'classify-tag',
             ],
         ],
         [
