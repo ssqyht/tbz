@@ -39,7 +39,13 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     use TimestampTrait;
     use ModelFieldsTrait;
 
+    /** @var int 上线 */
     const STATUS_ONLINE = 20;
+    /** @var int 下线 */
+    const STATUS_OFFLINE = 10;
+    /** @var int 编辑中 */
+    const STATUS_EDITING = 5;
+
 
     static $frontendFields = [
         'template_id', 'user_id', 'title','product','thumbnail_id','created_at','updated_at','price', 'virtual_edit', 'virtual_view', 'virtual_favorite'
@@ -61,17 +67,18 @@ class TemplateOfficial extends \yii\db\ActiveRecord
         return [
             [['content', 'product', 'title'], 'trim'],
             ['content', 'default', 'value' => ''],
-            ['cooperation_id', 'default', 'value' => 0],
+            ['status', 'default', 'value' => static::STATUS_EDITING],
+            [['cooperation_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite'], 'default', 'value' => 0],
+            [['sort', 'status'], 'filter', 'filter' => 'intval'],
             [['user_id', 'cooperation_id'], 'required'],
             [['user_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort'], 'integer'],
             [['content'], 'string'],
             [['title'], 'string', 'max' => 50],
             [['product'], 'string', 'max' => 30],
             [['thumbnail_url'], 'string', 'max' => 255],
-            [['status'], 'string', 'max' => 1],
+            [['status'], 'integer'],
         ];
     }
-
 
     /**
      * @inheritdoc
@@ -106,7 +113,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     {
         $data = [
           'thumbnailUrl' => function(){
-            return Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url;
+            return $this->thumbnail_url ? Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url : '';
           }
         ];
         if (Yii::$app->controller->isFrontend()) {

@@ -5,12 +5,13 @@
 
 namespace common\models\forms;
 
+use common\components\vendor\Model;
 use Yii;
 use common\components\traits\ModelErrorTrait;
 use common\extension\Code;
 use common\models\TemplateMember;
 use common\models\TemplateOfficial;
-use yii\base\Model;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 
 /**
@@ -27,11 +28,6 @@ class TemplateForm extends Model
     const METHOD_SAVE_OFFICIAL = 'official';
     /** @var string 用户模板保存 */
     const METHOD_SAVE_MEMBER = 'member';
-
-    /** @var string 前台保存 */
-    const SCENARIO_FRONTEND = 'frontend';
-    /** @var string 后台保存 */
-    const SCENARIO_BACKEND = 'backend';
 
     /** @var string 保存方式 (用户还是官方) */
     public $method;
@@ -52,8 +48,8 @@ class TemplateForm extends Model
     public function rules()
     {
         return [
+            [['cooperation_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite', 'sort', 'is_diy', 'edit_from', 'is_team'], 'default', 'value' => 0],
             [['method', 'product', 'title'], 'required'],
-            [['virtual_edit', 'virtual_view', 'virtual_favorite', 'sort', 'is_diy', 'edit_from'], 'default', 'value' => 0],
             [['content'], 'default', 'value' => ''],
             ['method', 'default', 'value' => static::METHOD_SAVE_MEMBER],
             [['virtual_edit', 'virtual_view', 'virtual_favorite', 'sort'], 'integer'],
@@ -80,7 +76,7 @@ class TemplateForm extends Model
     {
         return [
             static::SCENARIO_FRONTEND => ['title', 'is_diy', 'edit_from', 'content', 'method', 'template_id'],
-            static::SCENARIO_BACKEND => ['product', 'title', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite', 'sort'],
+            static::SCENARIO_BACKEND => ['method', 'product', 'title', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite', 'sort', 'template_id'],
         ];
     }
 
@@ -93,7 +89,9 @@ class TemplateForm extends Model
         }
 
         // 保存模板数据
-        $this->templateModel->load($this->attributes, '');
+        $data = ArrayHelper::merge($this->getAttributes($this->safeAttributes()), ['user_id' => Yii::$app->user->id]);
+        $data['user_id'] = 1;
+        $this->templateModel->load($data, '');
        if (!$this->templateModel->save()) {
             $this->addErrors($this->templateModel->getErrors());
             return false;
