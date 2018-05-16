@@ -56,7 +56,7 @@ class FileUpload extends Model
     public static function upload($url, $dir = self::DIR_OTHER)
     {
         $model = new static();
-        if ($model->load(['url' => $url, 'dir' => $dir], '') && $result = $model->submit()) {
+        if ($result = $model->submit(['url' => $url, 'dir' => $dir])) {
             return $result;
         } else {
             $model->addErrors($model->getErrors());
@@ -94,10 +94,13 @@ class FileUpload extends Model
 
     /**
      * 上传文件
+     * @param $params
      * @return bool|FileCommon|null
+     * @author thanatos <thanatos915@163.com>
      */
-    public function submit()
+    public function submit($params)
     {
+        $this->load($params, '');
         if (!$this->validate()) {
             return false;
         }
@@ -132,7 +135,7 @@ class FileUpload extends Model
 
         // 添加记录
         $model = new FileCommon();
-        if ($model->load($params, '') && ($fileModel = $model->create())) {
+        if (($fileModel = $model->create($params))) {
             return $fileModel;
         } else {
             $this->addErrors($model->getErrors());

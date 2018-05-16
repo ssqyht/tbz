@@ -25,6 +25,7 @@ class Yii extends \yii\BaseYii
  * @property \common\components\vendor\Sms $sms 验证码类
  * @property \thanatos\oss\Oss $oss Oss
  * @property \common\extension\User $user
+ * @property \common\components\vendor\Request $request
  * @property \yii\web\Response|\yii\console\Response|\common\components\vendor\Response $response The response component. This property is
  * read-only.
  */

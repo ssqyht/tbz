@@ -140,10 +140,9 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        /** @var RestController $controller */
-        $controller = Yii::$app->controller;
+        $request = Yii::$app->request;
         try {
-            $data = JWT::decode($token, $controller->client->public_key, [$controller->client->encryption_algorithm]);
+            $data = JWT::decode($token, $request->client->public_key, [$request->client->encryption_algorithm]);
             if (isset($data->sub)) {
                 return static::findIdentity($data->sub);
             }
@@ -163,12 +162,11 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
     public function generateJwtToken()
     {
         $time = time();
-        /** @var RestController $controller */
-        $controller = Yii::$app->controller;
+        $request = Yii::$app->request;
         // 定义payload属性
         $token = [
             'iss' => 'https://www.tubangzhu.com',
-            'aud' => $controller->client->client_id,
+            'aud' => $request->client->client_id,
             'sub' => $this->id,
             'exp' => $time + static::EXPIRED_TIME,
             'iat' => $time,
@@ -184,13 +182,13 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
         $model = new OauthRefreshToken();
         $model->load([
             'refresh_token' => $refresh_token,
-            'client_id' => Yii::$app->controller->client->client_id,
+            'client_id' => Yii::$app->request->client->client_id,
             'user_id' => $this->id,
             'expires' => $time + static::REFRESH_TIME
         ], '');
         try {
             OauthRefreshToken::getDb()->createCommand()->delete(OauthRefreshToken::tableName(), [
-                'client_id' => Yii::$app->controller->client->client_id,
+                'client_id' => Yii::$app->request->client->client_id,
                 'user_id' => $this->id,
             ])->execute();
         } catch (\Throwable $e) {
@@ -200,7 +198,7 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
             return false;
         }
         $token['data']['refreshToken'] = $refresh_token;
-        return JWT::encode($token, $controller->client->private_key, $controller->client->encryption_algorithm);
+        return JWT::encode($token, $request->client->private_key, $request->client->encryption_algorithm);
     }
 
     /**
@@ -215,11 +213,7 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
         if ($this->salt) {
             if ($this->password == md5(md5($password), $this->salt)) {
                 // 通过后重置新的密码格式
-                try {
-                    $this->password_hash = Yii::$app->security->generatePasswordHash($password);
-                } catch (\Throwable $exception) {
-                    return false;
-                }
+                $this->setPassword($password);
                 return $this->save() ?: false;
             }
         }
@@ -246,6 +240,18 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
 
     public function validateAuthKey($authKey)
     {
+    }
+
+    /**
+     * @param $password
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function setPassword($password)
+    {
+        try {
+            $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+        } catch (\Throwable $exception) {
+        }
     }
 
 }

@@ -76,13 +76,18 @@ class MemberLoginHistory extends \yii\db\ActiveRecord
     {
         $request = Yii::$app->request;
         $model = new static();
+        try {
+            $loginUrl = $request->getAbsoluteUrl();
+        } catch (\Throwable $e) {
+            $loginUrl = '';
+        }
         $model->load([
             'user_id' => Yii::$app->user->id,
             'method' => $method,
-            'ip' => $request->getUserIP(),
+            'ip' => $request->getUserIP() ?: 'localhost',
             'http_user_agent' => $request->userAgent,
             'http_referer' => $request->getReferrer(),
-            'login_url' => $request->getAbsoluteUrl(),
+            'login_url' => $loginUrl,
         ], '');
         if (!$model->validate() || !$model->save()) {
             Yii::error('login_history', $model->getErrors());

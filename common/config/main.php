@@ -13,6 +13,9 @@ return [
             'port' => 6379,
             'database' => 0,
         ],
+        'request' => [
+            'class' => 'common\components\vendor\Request'
+        ],
         'cache' => [
             'class' => 'yii\redis\Cache',
             'defaultDuration' => 43200,

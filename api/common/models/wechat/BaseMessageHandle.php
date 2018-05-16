@@ -27,11 +27,10 @@ class BaseMessageHandle extends MessageHandler
         // 自动登录
         if (Yii::$app->user->isGuest) {
             $model = new LoginForm(['scenario' => LoginForm::SCENARIO_SYSTEM]);
-            $model->load([
+            $model->submit([
                 'oauth_name' => MemberOauth::OAUTH_WECHAT,
                 'oauth_key' => $this->unionid,
-            ], '');
-            $model->submit();
+            ]);
         }
         return parent::beforeHandle();
     }

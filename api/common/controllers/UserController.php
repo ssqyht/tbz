@@ -5,6 +5,8 @@
 
 namespace api\common\controllers;
 
+use common\extension\Code;
+use common\models\forms\LoginForm;
 use common\models\forms\PasswordForm;
 use common\models\Member;
 use Yii;
@@ -18,11 +20,17 @@ class UserController extends RestController
 
     /**
      * 用户账号密码登录
+     * @return array|bool
+     * @throws BadRequestHttpException
      * @author thanatos <thanatos915@163.com>
      */
     public function actionLogin()
     {
-
+        $model = new LoginForm(['scenario' => LoginForm::SCENARIO_MOBILE]);
+        if (!($result = $model->submit(Yii::$app->request->post()))) {
+            throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        }
+        return $result;
     }
 
     /**
@@ -87,7 +95,7 @@ class UserController extends RestController
             throw new ForbiddenHttpException(Yii::t('yii', 'You are not allowed to perform this action.'));
         }
         $model = new RegisterForm(['scenario' => RegisterForm::SCENARIO_BIND]);
-        if ($model->load(Yii::$app->request->post(), '') && ($result = $model->bind())) {
+        if ($result = $model->bind(Yii::$app->request->post())) {
             return Yii::$app->user->identity;
         } else {
             throw new BadRequestHttpException($model->getStringErrors());

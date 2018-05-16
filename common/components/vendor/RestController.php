@@ -31,17 +31,11 @@ class RestController extends Controller
         Yii::setAlias('@oss', Yii::$app->params['ossUrl']);
         // 设置OSS内网图片网址别名
         Yii::setAlias('@ossInternal', Yii::$app->params['ossInternal']);
-        // 处理客户端Client信息
-        if (!Yii::$app->request->isOptions) {
-            $client_id = Yii::$app->request->headers->get('Client');
-            $client = OauthPublicKeys::getClientById($client_id);
-            if (empty($client)) {
-                throw new ForbiddenHttpException('没有权限', Code::SERVER_NOT_PERMISSION);
-            }
-            $this->client = $client;
+
+        if (!Yii::$app->request->isOptions && Yii::$app->request->client === false) {
+            throw new ForbiddenHttpException('没有仅限', Code::SERVER_NOT_PERMISSION);
         }
-        // 处理客户端handle信息
-        $this->setHandle();
+
     }
 
     public function behaviors()
@@ -73,25 +67,6 @@ class RestController extends Controller
                 'class' => 'yii\rest\OptionsAction',
             ]
         ];
-    }
-
-    /**
-     * 判断当前请求是不是前端请求
-     * @return bool
-     * @author thanatos <thanatos915@163.com>
-     */
-    public function isFrontend()
-    {
-        return $this->_handle == 'frontend';
-    }
-
-    /**
-     * @author thanatos <thanatos915@163.com>
-     */
-    protected function setHandle()
-    {
-        $handle = Yii::$app->request->headers->get('Handle');
-        $this->_handle = $handle == 'backend' ? $handle : 'frontend';
     }
 
 }

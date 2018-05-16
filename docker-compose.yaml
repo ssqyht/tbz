@@ -1,9 +1,8 @@
 version: '3'
-
 services:
-# php
   php:
     image: thanatos915/php:alpine
+    container_name: tubangzhu-php
     networks:
       - web
     volumes:
@@ -16,14 +15,14 @@ services:
       PHP_IDE_CONFIG: "serverName=localhost"
 #    command: /bin/sh -c "cd server && composer install && php-fpm"
     depends_on:
-#       - mysql
+      - mysql
       - redis
     links:
-#       - mysql
+      - mysql
       - redis
-#nginx
   nginx:
     image: nginx:alpine
+    container_name: tubangzhu-nginx
     networks:
       - web
     volumes:
@@ -40,23 +39,22 @@ services:
     depends_on:
       - php
 
-# mysql
-  # mysql:
-  #   image: mysql
-  #   restart: always
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: 123456
-  #   ports:
-  #     - "3306:3306"
-  #   volumes:
-  #     - ./../../data:/var/lib/mysql
-  #     - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
-    # networks:
-      # - web
+  mysql:
+    image: mysql:5.6
+    container_name: tubangzhu-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./../../data:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - web
 
-#redis
   redis:
     image: redis:alpine
+    container_name: tubangzhu-redis
     restart: always
     ports:
       - "6379:6379"

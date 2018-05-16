@@ -43,7 +43,7 @@ class RegisterForm extends Model
     public $oauth_name;
 
     const SCENARIO_OAUTH = 'oauth';
-    const SCENARIO_BIND = 'BIND';
+    const SCENARIO_BIND = 'bind';
 
     public function rules()
     {
@@ -90,7 +90,7 @@ class RegisterForm extends Model
     public function scenarios()
     {
         $scenarios = [
-            static::SCENARIO_OAUTH => ['username', 'sex', 'oauth_name', 'oauth_key'],
+            static::SCENARIO_OAUTH => ['username', 'sex', 'oauth_name', 'oauth_key', 'headimgurl'],
             static::SCENARIO_BIND => ['mobile', 'password', 'sms_code'],
         ];
         return ArrayHelper::merge(parent::scenarios(), $scenarios);
@@ -98,10 +98,13 @@ class RegisterForm extends Model
 
     /**
      * 用户注册
+     * @param $params
      * @return bool|Member
+     * @author thanatos <thanatos915@163.com>
      */
-    public function register()
+    public function register($params)
     {
+        $this->load($params, '');
         if (!$this->validate()) {
             return false;
         }
@@ -148,6 +151,7 @@ class RegisterForm extends Model
             return $member;
 
         } catch (\Exception $e) {
+            var_dump(json_decode($e->getMessage()));exit;
             try {
                 $this->addError('', $e->getMessage());
                 $transaction->rollBack();
@@ -160,23 +164,20 @@ class RegisterForm extends Model
 
     /**
      * 绑定手机号
+     * @param array $params
      * @return bool|Member|null|\yii\web\IdentityInterface
      * @author thanatos <thanatos915@163.com>
      */
-    public function bind()
+    public function bind($params)
     {
+        $this->load($params, '');
         if (!$this->validate()) {
             return false;
         }
 
         // 绑定手机号
         $member = Yii::$app->user->identity;
-        try {
-            $member->password_hash = Yii::$app->security->generatePasswordHash($this->sms_code);
-        } catch (\Throwable $e) {
-            $this->addError('server', Code::SERVER_FAILED);
-            return false;
-        }
+        $member->setPassword($this->password);
         $member->mobile = $this->mobile;
         if (!$member->save()) {
             $this->addErrors($member->getErrors());

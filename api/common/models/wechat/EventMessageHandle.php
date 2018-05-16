@@ -71,14 +71,13 @@ class EventMessageHandle extends BaseMessageHandle
         if (Yii::$app->user->isGuest) {
             // 用户注册
             $model = new RegisterForm(['scenario' => RegisterForm::SCENARIO_OAUTH]);
-            $model->load([
+            if (!($member = $model->register([
                 'username' => $this->wechatInfo->nickname,
                 'sex' => (int)$this->wechatInfo->sex,
                 'oauth_name' => MemberOauth::OAUTH_WECHAT,
                 'oauth_key' => $this->wechatInfo->unionid,
                 'headimgurl' => $this->wechatInfo->headimgurl,
-            ], '');
-            if (!$member = $model->register()) {
+            ]))) {
                 return false;
             }
         }

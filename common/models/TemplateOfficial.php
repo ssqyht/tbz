@@ -118,7 +118,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             return $this->thumbnail_url ? Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url : '';
           }
         ];
-        if (Yii::$app->controller->isFrontend()) {
+        if (Yii::$app->request->isFrontend()) {
             $data['content'] = function (){
                 return $this->content;
             };
@@ -157,7 +157,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
      */
     public static function active()
     {
-        if (Yii::$app->controller->isFrontend()) {
+        if (Yii::$app->request->isFrontend()) {
             return static::sort();
         } else {
             return static::sort()->andWhere(['status' => static::STATUS_ONLINE]);
