@@ -24,8 +24,8 @@ class m180510_020848_create_tbz_subject_table extends Migration
             'seo_description' => $this->string(255)->notNull()->comment('SEO描述')->defaultValue(''),
             'status' => $this->tinyInteger(2)->notNull()->comment('是否上线')->defaultValue(20)->unsigned(),
             'sort' => $this->integer(10)->notNull()->comment('排序逆序')->defaultValue(0)->unsigned(),
-            'created_time' => $this->integer(11)->notNull()->comment('创建日期')->defaultValue(0)->unsigned(),
-            'updated_time' => $this->integer(11)->notNull()->comment('修改时间')->defaultValue(0)->unsigned(),
+            'created_at' => $this->integer(11)->notNull()->comment('创建日期')->defaultValue(0)->unsigned(),
+            'updated_at' => $this->integer(11)->notNull()->comment('修改时间')->defaultValue(0)->unsigned(),
         ]);
         $this->addCommentOnTable($this->table_name, '模板封面表');
     }

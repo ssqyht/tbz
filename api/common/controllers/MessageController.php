@@ -21,7 +21,7 @@ class MessageController extends  RestController
 {
     /**
      * @SWG\Get(
-     *     path="/message/{id}",
+     *     path="/message",
      *     operationId="getMessage",
      *     schemes={"http"},
      *     tags={"消息接口"},
@@ -34,10 +34,15 @@ class MessageController extends  RestController
      *     ),
      *      @SWG\Parameter(
      *          in="formData",
-     *          name="id",
+     *          name="status",
      *          type="integer",
-     *          description="是否上线,1为上线，0线下",
-     *          required=true,
+     *          description="消息状态",
+     *     ),
+     *      @SWG\Parameter(
+     *          in="formData",
+     *          name="type",
+     *          type="integer",
+     *          description="消息类型",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -60,11 +65,13 @@ class MessageController extends  RestController
      * @return array|bool
      * @throws NotFoundHttpException
      */
-    public function actionView()
+    public function actionIndex()
     {
-        $status = \Yii::$app->request->get('id');
-        $message = new MessageSearch();
-        $result = $message->Search($status);
+        $config = [
+            'scenario' => $this->isFrontend() ? MessageSearch::SCENARIO_FRONTEND : MessageSearch::SCENARIO_BACKEND
+        ];
+        $message = new MessageSearch($config);
+        $result = $message->search(\Yii::$app->request->get());
         if ($result) {
             return $result;
         }

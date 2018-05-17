@@ -46,7 +46,7 @@ class TbzSubject extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['status', 'sort', 'created_time', 'updated_time'], 'integer'],
+            [['status', 'sort', 'created_at', 'updated_at'], 'integer'],
             [['title'], 'string', 'max' => 150],
             [['description', 'seo_keyword', 'seo_description'], 'string', 'max' => 255],
             [['thumbnail', 'seo_title'], 'string', 'max' => 100],
@@ -70,8 +70,8 @@ class TbzSubject extends \yii\db\ActiveRecord
             'seo_description' => 'Seo Description',
             'status' => 'Status',
             'sort' => 'Sort',
-            'created_time' => 'Created Time',
-            'updated_time' => 'Updated Time',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
         ];
     }
     /**

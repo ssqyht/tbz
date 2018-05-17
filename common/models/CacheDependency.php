@@ -18,6 +18,8 @@ class CacheDependency extends \yii\db\ActiveRecord
     const CLASSIFY_SEARCH_TEMPLATE = 'classify_search_template';
     const OFFICIAL_TEMPLATE = 'official_template';
     const TEMPLATE_COVER = 'template_cover';
+    const MESSAGE= 'message';
+    const FOLDER='folder';
     /**
      * @inheritdoc
      */

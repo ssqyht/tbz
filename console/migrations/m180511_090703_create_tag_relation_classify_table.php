@@ -17,8 +17,8 @@ class m180511_090703_create_tag_relation_classify_table extends Migration
             'id' => $this->primaryKey()->unsigned(),
             'tag_id' => $this->integer(10)->notNull()->comment('tag表id')->defaultValue(0)->unsigned(),
             'classify_id' =>$this->integer(10)->notNull()->comment('classify表id')->defaultValue(0)->unsigned(),
-            'created_time' => $this->integer(11)->notNull()->comment('创建日期')->defaultValue(0)->unsigned(),
-            'updated_time' => $this->integer(11)->notNull()->comment('修改时间')->defaultValue(0)->unsigned(),
+            'created_at' => $this->integer(11)->notNull()->comment('创建日期')->defaultValue(0)->unsigned(),
+            'updated_at' => $this->integer(11)->notNull()->comment('修改时间')->defaultValue(0)->unsigned(),
         ]);
         $this->addCommentOnTable($this->table_name, 'tag和classify关联表');
     }

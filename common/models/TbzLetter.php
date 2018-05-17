@@ -4,7 +4,7 @@ namespace common\models;
 
 use Yii;
 use common\components\traits\TimestampTrait;
-
+use common\components\traits\ModelFieldsTrait;
 /**
  * This is the model class for table "{{%tbz_letter}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="TbzLetter"))
@@ -24,7 +24,11 @@ class TbzLetter extends \yii\db\ActiveRecord
 {
 
     use TimestampTrait;
+    use ModelFieldsTrait;
+    /** @var int 消息状态 */
+    const STATUS_ONLINE = 20;
 
+    static $frontendFields = ['title', 'subtitle','description', 'type','user_id'];
     /**
      * @inheritdoc
      */
@@ -39,7 +43,7 @@ class TbzLetter extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['type', 'status', 'sort', 'user_id', 'created_time', 'updated_time'], 'integer'],
+            [['type', 'status', 'sort', 'user_id', 'created_at', 'updated_at'], 'integer'],
             [['title'], 'string', 'max' => 50],
             [['subtitle'], 'string', 'max' => 200],
             [['description'], 'string', 'max' => 500],
@@ -60,8 +64,37 @@ class TbzLetter extends \yii\db\ActiveRecord
             'status' => 'Status',
             'sort' => 'Sort',
             'user_id' => 'User ID',
-            'created_time' => 'Created Time',
-            'updated_time' => 'Updated Time',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
         ];
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public static function sortTime(){
+        {
+            return TbzLetter::find()->orderBy(['updated_at' => SORT_DESC]);
+        }
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public static function online()
+    {
+        return static::sortTime()->andWhere(['status' => static::STATUS_ONLINE]);
+    }
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * 更新缓存
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        // 更新缓存
+        if ($changedAttributes) {
+            Yii::$app->dataCache->updateCache(static::class);
+        }
+        parent::afterSave($insert, $changedAttributes);
     }
 }

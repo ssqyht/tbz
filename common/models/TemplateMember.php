@@ -52,7 +52,7 @@ class TemplateMember extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['open_id', 'user_id', 'folder_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'edit_from', 'amount_print'], 'integer'],
+            [['open_id', 'user_id', 'folder_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'edit_from', 'amount_print','team_id'], 'integer'],
             [['user_id', 'cooperation_id', 'created_at', 'updated_at'], 'required'],
             [['title'], 'string', 'max' => 50],
             [['product'], 'string', 'max' => 30],
@@ -82,6 +82,7 @@ class TemplateMember extends \yii\db\ActiveRecord
             'is_diy' => '是否是自定义模板',
             'edit_from' => '编辑来源官方模板id',
             'amount_print' => '印刷次数',
+            'team_id' => '团队id'
         ];
     }
 

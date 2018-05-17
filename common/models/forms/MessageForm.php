@@ -83,7 +83,7 @@ class MessageForm extends Model
         if (!$message){
             $this->addError('id','该消息不存在');
         }
-        $message->status = 0;
+        $message->status = 5;
         if ($message->save(false)){
             return true;
         }

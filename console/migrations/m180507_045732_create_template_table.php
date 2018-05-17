@@ -72,6 +72,7 @@ class m180507_045732_create_template_table extends Migration
             'is_diy' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('是否是自定义模板'),
             'edit_from' => $this->integer(11)->unsigned()->notNull()->defaultValue(0)->comment('编辑来源官方模板id'),
             'amount_print' => $this->integer(10)->unsigned()->notNull()->defaultValue(0)->comment('印刷次数'),
+            'team_id' => $this->integer(11)->unsigned()->notNull()->comment('团队id'),
         ]);
         $this->addCommentOnTable($this->member, '用户模板信息表');
 
