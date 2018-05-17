@@ -158,9 +158,9 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     public static function active()
     {
         if (Yii::$app->request->isFrontend()) {
-            return static::sort();
-        } else {
             return static::sort()->andWhere(['status' => static::STATUS_ONLINE]);
+        } else {
+            return static::sort();
         }
     }
 
