@@ -16,12 +16,14 @@ $restUrls = [
                 'POST,OPTIONS login' => 'login',
                 'POST,OPTIONS bind' => 'bind',
                 'POST,OPTIONS reset-password' => 'reset-password',
-                'GET,OPTIONS classify-search' => 'classify-search',
                 'GET,OPTIONS classify-tag' => 'classify-tag',
             ],
         ],
         [
             'controller' => ['template-official', 'template-member'],
+            'extraPatterns' => [
+                'GET,OPTIONS classify-search' => 'classify-search',
+            ]
         ],
         // 微信配置
         'GET,POST,OPTIONS wechat/qrcode' => 'wechat/qrcode',

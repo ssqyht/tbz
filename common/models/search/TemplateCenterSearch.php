@@ -44,9 +44,9 @@ class TemplateCenterSearch extends Model
             }]);
         // 查询数据 使用缓存
         try {
-//            $result = Yii::$app->dataCache->cache(function () use ($classify_recommend) {
+            $result = Yii::$app->dataCache->cache(function () use ($classify_recommend) {
                 return $result = $classify_recommend->all();
-//            }, $this->cacheKey, CacheDependency::CLASSIFY_SEARCH_TEMPLATE);
+            }, $this->cacheKey, CacheDependency::CLASSIFY_SEARCH_TEMPLATE);
         } catch (\Throwable $e) {
             $result = null;
         }
