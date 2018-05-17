@@ -62,10 +62,13 @@ class FileCommon extends \yii\db\ActiveRecord
 
     /**
      * 上传图片
-     * @return bool|FileCommon
+     * @param $params
+     * @return bool|FileCommon|null
+     * @author thanatos <thanatos915@163.com>
      */
-    public function create()
+    public function create($params)
     {
+        $this->load($params, '');
         if (!$this->validate()) {
             return false;
         }

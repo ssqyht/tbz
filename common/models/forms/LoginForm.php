@@ -5,6 +5,7 @@
 
 namespace common\models\forms;
 
+use common\components\traits\ModelErrorTrait;
 use common\models\Member;
 use common\models\MemberLoginHistory;
 use common\models\OauthRefreshToken;
@@ -22,6 +23,8 @@ use yii\helpers\ArrayHelper;
  */
 class LoginForm extends Model
 {
+    use ModelErrorTrait;
+
     /** @var string 第三方授权登录 */
     const SCENARIO_OAUTH = 'oauth';
     /** @var string 手机号登录 */
@@ -57,11 +60,13 @@ class LoginForm extends Model
 
     /**
      * 统一登录入口
+     * @param $params
      * @return array|bool
      * @author thanatos <thanatos915@163.com>
      */
-    public function submit()
+    public function submit($params)
     {
+        $this->load($params, '');
         if (!$this->validate()) {
             return false;
         }

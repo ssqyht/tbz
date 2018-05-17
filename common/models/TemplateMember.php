@@ -36,7 +36,7 @@ class TemplateMember extends \yii\db\ActiveRecord
     const STATUS_TRASH = '7';
 
     /** @var string 删除状态 */
-    const STATUS_DELETE = '5';
+    const STATUS_DELETE = '3';
 
     /**
      * @inheritdoc
@@ -101,7 +101,7 @@ class TemplateMember extends \yii\db\ActiveRecord
      */
     public static function active()
     {
-        if (Yii::$app->controller->isFrontend()) {
+        if (Yii::$app->request->isFrontend()) {
             return static::sort();
         } else {
             return static::sort()->andWhere(['status' => static::STATUS_NORMAL]);

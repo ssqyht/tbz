@@ -28,8 +28,11 @@ class Code
 
     const SERVER_FAILED = -1;
     const SERVER_SUCCESS = 0;
+    /** @var int 验证失败 */
     const SERVER_UNAUTHORIZED = 10001;
+    /** @var int 没有权限 */
     const SERVER_NOT_PERMISSION = 10002;
+    /** @var int 资源不存在 */
     const SOURCE_NOT_FOUND = 10004;
 
     const TEMPLATE_FORMAT_ERROR = '60001';
@@ -40,6 +43,7 @@ class Code
         self::SERVER_FAILED => '系统繁忙, 请稍候再试',
         self::SERVER_UNAUTHORIZED => '验证失败',
         self::SOURCE_NOT_FOUND => '资源不存在',
+        self::SERVER_NOT_PERMISSION => '没有权限'
     ];
 
     /** @var array system return code */
@@ -47,7 +51,6 @@ class Code
         self::FILE_NOT_EXIST => '文件不存在',
         self::FILE_EXTENSION_NOT_ALLOW => '不允许的文件类型',
         self::DIR_NOT_EXIST => '目录不存在',
-        self::SERVER_NOT_PERMISSION => '没有权限'
     ];
 
     /** @var array user return code */

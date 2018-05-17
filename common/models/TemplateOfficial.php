@@ -45,6 +45,8 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     const STATUS_OFFLINE = 10;
     /** @var int 编辑中 */
     const STATUS_EDITING = 5;
+    /** @var string 删除状态 */
+    const STATUS_DELETE = '3';
 
 
     static $frontendFields = [
@@ -116,7 +118,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             return $this->thumbnail_url ? Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url : '';
           }
         ];
-        if (Yii::$app->controller->isFrontend()) {
+        if (Yii::$app->request->isFrontend()) {
             $data['content'] = function (){
                 return $this->content;
             };
@@ -155,7 +157,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
      */
     public static function active()
     {
-        if (Yii::$app->controller->isFrontend()) {
+        if (Yii::$app->request->isFrontend()) {
             return static::sort();
         } else {
             return static::sort()->andWhere(['status' => static::STATUS_ONLINE]);
@@ -170,7 +172,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
      */
     public static function findById($id)
     {
-        return static::active()->andWhere(['id' => $id])->one();
+        return static::active()->andWhere(['template_id' => $id])->one();
     }
 
 }

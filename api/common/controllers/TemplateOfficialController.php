@@ -182,6 +182,196 @@ class TemplateOfficialController extends RestController
         return $model;
     }
 
+    /**
+     * 新增模板
+     *
+     * @SWG\POST(
+     *     path="/template-official",
+     *     operationId="createTemplateOfficial",
+     *     schemes={"http"},
+     *     tags={"模板接口"},
+     *     summary="新增官方模板",
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="body",
+     *         in="body",
+     *         required=true,
+     *         @SWG\Schema(ref="#/definitions/TemplateOfficial")
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @SWG\Items(
+     *                      @SWG\Property(
+     *                      property="classify_name",
+     *                      type="array",
+     *                      @SWG\Items(ref="#/definitions/TemplateOfficial")
+     *                  ))
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     *
+     * @return bool|\common\models\TemplateMember|\common\models\TemplateOfficial
+     * @throws BadRequestHttpException
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function actionCreate()
+    {
+        $model = new TemplateForm();
+        $data = ArrayHelper::merge(Yii::$app->request->post(), ['method' => TemplateForm::METHOD_SAVE_OFFICIAL]);
+        if (!($result = $model->submit($data))) {
+            throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * 保存官方模板
+     * @SWG\POST(
+     *     path="/template-official/{templateId}",
+     *     operationId="updateTemplateOfficial",
+     *     schemes={"http"},
+     *     tags={"模板接口"},
+     *     summary="保存官方模板",
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *        name="templateId",
+     *        in="path",
+     *        required=true,
+     *        type="integer"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="body",
+     *         in="body",
+     *         required=true,
+     *         @SWG\Schema(ref="#/definitions/TemplateOfficial")
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @SWG\Items(
+     *                      @SWG\Property(
+     *                      property="classify_name",
+     *                      type="array",
+     *                      @SWG\Items(ref="#/definitions/TemplateOfficial")
+     *                  ))
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     *
+     * @param $id
+     * @return bool|\common\models\TemplateMember|\common\models\TemplateOfficial
+     * @throws BadRequestHttpException
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function actionUpdate($id)
+    {
+        $model = new TemplateForm();
+        $data = ArrayHelper::merge(Yii::$app->request->post(), ['template_id' => $id, 'method' => TemplateForm::METHOD_SAVE_OFFICIAL]);
+        if (!($result = $model->submit($data))) {
+            throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        }
+        return $result;
+    }
+
+    /**
+     * 删除官方模板
+     *
+     * @SWG\Delete(
+     *     path="/template-official/{templateId}",
+     *     operationId="deleteTemplateOfficial",
+     *     schemes={"http"},
+     *     tags={"模板接口"},
+     *     summary="删除官方模板",
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *        name="templateId",
+     *        in="path",
+     *        required=true,
+     *        type="integer"
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     *
+     *
+     * @param integer $id
+     * @throws BadRequestHttpException
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function actionDelete($id)
+    {
+        $model = new TemplateForm();
+        $data = ['template_id' => $id, 'method' => TemplateForm::METHOD_SAVE_OFFICIAL, 'status' => TemplateOfficial::STATUS_DELETE];
+        if (!($result = $model->submit($data))) {
+            throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        }
+    }
 
 
 }

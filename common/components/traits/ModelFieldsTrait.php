@@ -18,10 +18,10 @@ trait ModelFieldsTrait
      */
     public function fields()
     {
-        $controller = Yii::$app->controller;
+        $request = Yii::$app->request;
         $fields = parent::fields();
 
-        if ($controller->isFrontend())
+        if ($request->isFrontend())
             $fields = self::$frontendFields;
 
         // 整合其它值

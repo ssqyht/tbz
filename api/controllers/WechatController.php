@@ -10,18 +10,9 @@ namespace api\controllers;
 
 
 use api\common\models\wechat\EventMessageHandle;
-use common\components\traits\FuncTrait;
-use common\extension\Code;
-use common\models\forms\LoginForm;
-use common\models\MemberAccessToken;
-use common\models\MemberOauth;
 use Yii;
-use yii\helpers\ArrayHelper;
-use yii\helpers\Json;
 use yii\rest\Controller;
-use yii\web\BadRequestHttpException;
 use yii\web\Response;
-use yii\web\UnauthorizedHttpException;
 
 class WechatController extends Controller
 {

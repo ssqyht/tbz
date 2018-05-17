@@ -148,11 +148,10 @@ class WechatController extends RestController
 
 
             $model = new LoginForm(['scenario' => LoginForm::SCENARIO_OAUTH]);
-            $model->load([
+            if ($result = $model->submit([
                 'oauth_name' => MemberOauth::OAUTH_WECHAT,
                 'oauth_key' => $unionid,
-            ], '');
-            if ($result = $model->submit()) {
+            ])) {
                 Yii::$app->cache->delete($cacheKey);
                 return $result;
             } else {
