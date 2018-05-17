@@ -43,12 +43,12 @@ class ClassifySearch extends Model
      */
     public function search($params)
     {
+        $this->load($params, '');
+
         $query = Classify::find();
         $dataProvider = new ActiveDataProvider([
             'query' => $query
         ]);
-
-        $this->load($params, '');
 
         $query->andFilterWhere([
             'category' => $this->category,
