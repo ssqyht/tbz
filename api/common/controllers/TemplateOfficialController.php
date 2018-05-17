@@ -155,10 +155,7 @@ class TemplateOfficialController extends RestController
      */
     public function actionIndex()
     {
-        $config = [
-            'scenario' => $this->isFrontend() ? TemplateOfficialSearch::SCENARIO_FRONTEND : TemplateOfficialSearch::SCENARIO_BACKEND
-        ];
-        $model = new TemplateOfficialSearch($config);
+        $model = new TemplateOfficialSearch();
         $result = $model->search(Yii::$app->request->get());
         if ($result) {
             return $result;

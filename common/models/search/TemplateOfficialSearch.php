@@ -4,18 +4,14 @@
 namespace common\models\search;
 
 use common\components\traits\CacheDependencyTrait;
-use common\models\CacheDependency;
+use common\components\vendor\Model;
 use common\models\Category;
 use common\models\TemplateOfficial;
 use common\models\TemplateOfficialTag;
 use Yii;
 use common\models\Classify;
-use yii\base\Model;
-use yii\caching\DbDependency;
-use yii\caching\ExpressionDependency;
 use yii\db\ActiveQuery;
 use yii\data\ActiveDataProvider;
-use common\models\Tag;
 use yii\db\Query;
 
 /**

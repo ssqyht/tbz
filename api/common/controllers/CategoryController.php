@@ -51,10 +51,7 @@ class CategoryController extends RestController
      */
     public function actionIndex()
     {
-        $config = [
-            'scenario' => $this->isFrontend() ? CategorySearch::SCENARIO_FRONTEND : CategorySearch::SCENARIO_BACKEND
-        ];
-        $model = new CategorySearch($config);
+        $model = new CategorySearch();
         $result = $model->search(Yii::$app->request->get());
         return $result;
     }
