@@ -109,6 +109,19 @@ class ClassifyController extends RestController
      *         required=true,
      *         type="string"
      *     ),
+     *      @SWG\Parameter(
+     *          in="query",
+     *          name="category",
+     *          type="integer",
+     *          description="大分类的id",
+     *          required=true,
+     *     ),
+     *      @SWG\Parameter(
+     *          in="query",
+     *          name="classify",
+     *          type="integer",
+     *          description="小分类的classify_id",
+     *     ),
      *     @SWG\Response(
      *          response=200,
      *          description="请求成功",
