@@ -34,16 +34,6 @@ class m180510_140232_create_cache_dependency_table extends Migration
         ]);
         $this->addCommentOnTable($this->group, '数据缓存分组表');
 
-        // 添加系统缓存依赖记录
-        $this->getDb()->createCommand()->batchInsert($this->tableName, ['cache_name', 'cache_title', 'updated_at'], [
-            ['cache_name' => 'official_classify', 'cache_title' => '官方分类缓存', 'updated_at' => time()]
-        ])->execute();
-
-        $this->getDb()->createCommand()->batchInsert($this->group, ['table_name', 'cache_name'], [
-            ['table_name' => 'tu_category', 'official_classify'],
-            ['table_name' => 'tu_classify', 'official_classify']
-        ])->execute();
-
     }
 
     /**

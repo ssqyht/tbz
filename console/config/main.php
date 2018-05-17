@@ -32,6 +32,9 @@ return [
                 ],
             ],
         ],
+        'request' => [
+            'class' => 'yii\console\Request',
+        ],
         'dbMigrateDdy' => [
             'class' => 'yii\db\Connection',
             'enableSchemaCache' => true,

@@ -53,7 +53,7 @@ class GainTemplateCoverController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return array|\common\components\vendor\Response|\yii\console\Response|Response
+     * @return array|\common\components\vendor\Response|\yii\console\Response
      * @throws NotFoundHttpException
      * @author swz
      */
