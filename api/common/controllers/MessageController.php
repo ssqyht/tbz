@@ -67,10 +67,7 @@ class MessageController extends  RestController
      */
     public function actionIndex()
     {
-        $config = [
-            'scenario' => \Yii::$app->request->isFrontend() ? MessageSearch::SCENARIO_FRONTEND : MessageSearch::SCENARIO_BACKEND
-        ];
-        $message = new MessageSearch($config);
+        $message = new MessageSearch();
         $result = $message->search(\Yii::$app->request->get());
         if ($result) {
             return $result;

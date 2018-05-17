@@ -7,15 +7,11 @@
  */
 namespace common\models\search;
 use common\models\TbzLetter;
-use yii\base\Model;
+use common\components\vendor\Model;
 use yii\data\ActiveDataProvider;
 use common\models\CacheDependency;
 class MessageSearch extends Model
 {
-    /** @var string 前台 */
-    const SCENARIO_FRONTEND = 'frontend';
-    /** @var string 后台 */
-    const SCENARIO_BACKEND = 'backend';
     public $_query;
     public $status;
     public $type;
