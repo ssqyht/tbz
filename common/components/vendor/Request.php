@@ -60,7 +60,7 @@ class Request extends \yii\web\Request
     public function setHandle($value = '')
     {
         $handle = $value ?: $this->headers->get('Handle');
-        $this->_handle = $handle;
+        $this->_handle = $handle == 'backend' ? $handle : 'frontend';
     }
 
 }
