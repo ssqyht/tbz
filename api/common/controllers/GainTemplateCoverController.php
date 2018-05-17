@@ -60,7 +60,7 @@ class GainTemplateCoverController extends RestController
     public function actionIndex()
     {
         $config = [
-            'scenario' => $this->isFrontend() ? TbzSubjectSearch::SCENARIO_FRONTEND : TbzSubjectSearch::SCENARIO_BACKEND
+            'scenario' => Yii::$app->request->isFrontend() ? TbzSubjectSearch::SCENARIO_FRONTEND : TbzSubjectSearch::SCENARIO_BACKEND
         ];
         $tbz_subject = new TbzSubjectSearch($config);
         $result_data = $tbz_subject->search(\Yii::$app->request->get());

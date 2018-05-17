@@ -20,6 +20,7 @@ class CacheDependency extends \yii\db\ActiveRecord
     const TEMPLATE_COVER = 'template_cover';
     const MESSAGE= 'message';
     const FOLDER='folder';
+    const TEMPLATE_MEMBER = 'template_member_search';
     /**
      * @inheritdoc
      */

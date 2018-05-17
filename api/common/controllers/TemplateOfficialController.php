@@ -150,13 +150,13 @@ class TemplateOfficialController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return array|bool|null|\yii\db\ActiveQuery
+     * @return null|\yii\data\ActiveDataProvider
      * @throws NotFoundHttpException
      */
     public function actionIndex()
     {
         $config = [
-            'scenario' => $this->isFrontend() ? TemplateOfficialSearch::SCENARIO_FRONTEND : TemplateOfficialSearch::SCENARIO_BACKEND
+            'scenario' => Yii::$app->request->isFrontend() ? TemplateOfficialSearch::SCENARIO_FRONTEND : TemplateOfficialSearch::SCENARIO_BACKEND
         ];
         $model = new TemplateOfficialSearch($config);
         $result = $model->search(Yii::$app->request->get());

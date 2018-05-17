@@ -4,7 +4,7 @@ namespace common\models;
 
 use Yii;
 use common\components\traits\TimestampTrait;
-
+use common\components\traits\ModelFieldsTrait;
 /**
  * This is the model class for table "{{%template_member}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="TemplateMember"))
@@ -28,6 +28,7 @@ use common\components\traits\TimestampTrait;
 class TemplateMember extends \yii\db\ActiveRecord
 {
     use TimestampTrait;
+    use ModelFieldsTrait;
 
     /** @var string 用户模板正常状态 */
     const STATUS_NORMAL = '10';
@@ -37,7 +38,10 @@ class TemplateMember extends \yii\db\ActiveRecord
 
     /** @var string 删除状态 */
     const STATUS_DELETE = '3';
-
+    /**
+     * @var array 前端页面返回参数
+     */
+    static $frontendFields = ['template_id', 'open_id','folder_id', 'title','product', 'thumbnail_url','thumbnail_id','status','is_diy','edit_from','amount_print','team_id'];
     /**
      * @inheritdoc
      */
@@ -92,7 +96,7 @@ class TemplateMember extends \yii\db\ActiveRecord
      */
     public static function sort()
     {
-        return static::find()->orderBy(['id' => SORT_DESC]);
+        return static::find()->orderBy(['template_id' => SORT_DESC]);
     }
 
     /**
@@ -116,7 +120,21 @@ class TemplateMember extends \yii\db\ActiveRecord
      */
     public static function findById($id)
     {
-        return static::active()->andWhere(['id' => $id])->one();
+        return static::active()->andWhere(['template_id' => $id])->one();
+    }
+
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * 更新缓存
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        // 更新缓存
+        if ($changedAttributes) {
+            Yii::$app->dataCache->updateCache(static::class);
+        }
+        parent::afterSave($insert, $changedAttributes);
     }
 
 }

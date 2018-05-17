@@ -116,6 +116,7 @@ class MessageSearch extends Model
                 TbzLetter::tableName(),
                 TbzLetter::tableName(),
                 $this->scenario,
+                $this->attributes,
             ];
         }
         return $this->_cacheKey;

@@ -11,7 +11,7 @@ $restUrls = [
     'modules' => ['v1', 'v2'],
     'rules' => [
         [
-            'controller' => ['user', 'category', 'classify', 'gain-template-cover','message','tag','template-official','folder'],
+            'controller' => ['user', 'category', 'classify', 'gain-template-cover','message','tag','folder'],
             'extraPatterns' => [
                 'POST,OPTIONS login' => 'login',
                 'POST,OPTIONS bind' => 'bind',
@@ -21,7 +21,7 @@ $restUrls = [
             ],
         ],
         [
-            'controller' => ['templateOfficial', 'templateMember'],
+            'controller' => ['template-official', 'template-member'],
         ],
         // 微信配置
         'GET,POST,OPTIONS wechat/qrcode' => 'wechat/qrcode',
