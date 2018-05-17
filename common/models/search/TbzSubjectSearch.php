@@ -8,16 +8,13 @@
 
 namespace common\models\search;
 
+use common\components\vendor\Model;
 use common\models\TbzSubject;
 use yii\data\ActiveDataProvider;
 use Yii;
 use common\models\CacheDependency;
-class TbzSubjectSearch extends \yii\base\Model
+class TbzSubjectSearch extends Model
 {
-    /** @var string 前台 */
-    const SCENARIO_FRONTEND = 'frontend';
-    /** @var string 后台 */
-    const SCENARIO_BACKEND = 'backend';
     private $_cacheKey;
     public $status;
     public function rules()
