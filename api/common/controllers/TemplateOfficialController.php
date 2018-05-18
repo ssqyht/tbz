@@ -28,7 +28,7 @@ class TemplateOfficialController extends RestController
      *     path="/template-official/classify-search",
      *     operationId="classifySearch",
      *     schemes={"http"},
-     *     tags={"模板接口"},
+     *     tags={"模板相关接口"},
      *     summary="模板中心首页根据分类展示模板信息",
      *     @SWG\Parameter(
      *         name="client",
@@ -83,7 +83,7 @@ class TemplateOfficialController extends RestController
      *     path="/template-official",
      *     operationId="getTemplate",
      *     schemes={"http"},
-     *     tags={"官方模板接口"},
+     *     tags={"模板相关接口"},
      *     summary="官方模板查询接口",
      *     @SWG\Parameter(
      *         name="client",
@@ -173,7 +173,7 @@ class TemplateOfficialController extends RestController
      *     path="/template-official/{templateId}",
      *     operationId="getTemplateView",
      *     schemes={"http"},
-     *     tags={"模板接口"},
+     *     tags={"模板相关接口"},
      *     summary="查询官方模板详情",
      *     @SWG\Parameter(
      *         name="client",
@@ -238,7 +238,7 @@ class TemplateOfficialController extends RestController
      *     path="/template-official",
      *     operationId="createTemplateOfficial",
      *     schemes={"http"},
-     *     tags={"模板接口"},
+     *     tags={"模板相关接口"},
      *     summary="新增官方模板",
      *     @SWG\Parameter(
      *         name="client",
@@ -304,7 +304,7 @@ class TemplateOfficialController extends RestController
      *     path="/template-official/{templateId}",
      *     operationId="updateTemplateOfficial",
      *     schemes={"http"},
-     *     tags={"模板接口"},
+     *     tags={"模板相关接口"},
      *     summary="保存官方模板",
      *     @SWG\Parameter(
      *         name="client",
@@ -376,7 +376,7 @@ class TemplateOfficialController extends RestController
      *     path="/template-official/{templateId}",
      *     operationId="deleteTemplateOfficial",
      *     schemes={"http"},
-     *     tags={"模板接口"},
+     *     tags={"模板相关接口"},
      *     summary="删除官方模板",
      *     @SWG\Parameter(
      *         name="client",

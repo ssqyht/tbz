@@ -95,7 +95,7 @@ class ClassifyController extends RestController
      *     path="/classify/classify-tag",
      *     operationId="getClassifyTag",
      *     schemes={"http"},
-     *     tags={"分类查询接口"},
+     *     tags={"分类相关接口"},
      *     summary="获取小分类或标签信息",
      *     @SWG\Parameter(
      *         name="client",

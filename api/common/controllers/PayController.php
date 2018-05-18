@@ -17,6 +17,30 @@ class PayController extends Controller
     public $enableCsrfValidation = false;
     /**
      * 支付宝支付
+     * @SWG\Get(
+     *     path="/pay/alipay",
+     *     operationId="alipay",
+     *     tags={"支付相关"},
+     *     summary="支付宝支付",
+     *     @SWG\Parameter(
+     *         in="query",
+     *         required=true,
+     *         name="order_sn",
+     *         description="订单号",
+     *         type="integer"
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     *
      * @return string
      * @throws NotFoundHttpException
      * @author thanatos <thanatos915@163.com>

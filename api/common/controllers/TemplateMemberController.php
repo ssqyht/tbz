@@ -25,7 +25,7 @@ class TemplateMemberController extends BaseController
      *     path="/Template-member",
      *     operationId="getTemplateMember",
      *     schemes={"http"},
-     *     tags={"个人模板接口"},
+     *     tags={"用户相关接口"},
      *     summary="根据条件查询模板信息",
      *     @SWG\Parameter(
      *         name="client",

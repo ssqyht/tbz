@@ -22,7 +22,7 @@ class TagController extends RestController
      *     path="/tag",
      *     operationId="getTag",
      *     schemes={"http"},
-     *     tags={"Tag接口"},
+     *     tags={"分类相关接口"},
      *     summary="获取Tag信息",
      *     @SWG\Parameter(
      *         name="client",
@@ -65,7 +65,7 @@ class TagController extends RestController
      *     path="/tag",
      *     operationId="addTag",
      *     schemes={"http"},
-     *     tags={"Tag接口"},
+     *     tags={"分类相关接口"},
      *     summary="添加新Tag",
      *     @SWG\Parameter(
      *         name="client",
@@ -127,7 +127,7 @@ class TagController extends RestController
      *     path="/tag/{id}",
      *     operationId="updateTag",
      *     schemes={"http"},
-     *     tags={"Tag接口"},
+     *     tags={"分类相关接口"},
      *     summary="修改tag",
      *     @SWG\Parameter(
      *         name="client",
@@ -202,7 +202,7 @@ class TagController extends RestController
      *     path="/tag/{id}",
      *     operationId="deleteTag",
      *     schemes={"http"},
-     *     tags={"Tag接口"},
+     *     tags={"分类相关接口"},
      *     summary="删除tag",
      *     @SWG\Parameter(
      *         name="client",

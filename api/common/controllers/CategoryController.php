@@ -24,7 +24,7 @@ class CategoryController extends RestController
      * @SWG\Get(
      *     path="/category",
      *     operationId="getCategory",
-     *     tags={"平台相关接口"},
+     *     tags={"分类相关接口"},
      *     summary="查询品类列表",
      *     @SWG\Parameter(
      *         name="client",
@@ -61,7 +61,7 @@ class CategoryController extends RestController
      * @SWG\Post(
      *     path="/category",
      *     operationId="postCategory",
-     *     tags={"平台相关接口"},
+     *     tags={"分类相关接口"},
      *     summary="添加一个品类种类",
      *     @SWG\Parameter(
      *         name="client",
@@ -111,7 +111,7 @@ class CategoryController extends RestController
      * @SWG\Put(
      *     path="/category/{categoryId}",
      *     operationId="putCategory",
-     *     tags={"平台相关接口"},
+     *     tags={"分类相关接口"},
      *     summary="修改一个品类种类",
      *     @SWG\Parameter(
      *        name="categoryId",
@@ -174,7 +174,7 @@ class CategoryController extends RestController
      * @SWG\Delete(
      *     path="/category/{categoryId}",
      *     operationId="deleteCategory",
-     *     tags={"平台相关接口"},
+     *     tags={"分类相关接口"},
      *     summary="修改一个品类种类",
      *     @SWG\Parameter(
      *        name="categoryId",

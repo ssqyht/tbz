@@ -21,7 +21,7 @@ class GainTemplateCoverController extends RestController
      *     path="/gain-template-cover",
      *     operationId="GetCover",
      *     schemes={"http"},
-     *     tags={"专题模板相关接口"},
+     *     tags={"模板相关接口"},
      *     summary="获取专题模板列表信息",
      *     @SWG\Parameter(
      *         name="client",
@@ -73,7 +73,7 @@ class GainTemplateCoverController extends RestController
      *     path="/gain-template-cover",
      *     operationId="AddCover",
      *     schemes={"http"},
-     *     tags={"专题模板相关接口"},
+     *     tags={"模板相关接口"},
      *     summary="添加新的专题模板",
      *     @SWG\Parameter(
      *         name="client",
@@ -187,7 +187,7 @@ class GainTemplateCoverController extends RestController
      *     path="/gain-template-cover/{id}",
      *     operationId="UpdateCover",
      *     schemes={"http"},
-     *     tags={"专题模板相关接口"},
+     *     tags={"模板相关接口"},
      *     summary="修改专题模板信息",
      *     @SWG\Parameter(
      *         name="client",
@@ -307,7 +307,7 @@ class GainTemplateCoverController extends RestController
      *     path="/gain-template-cover/{id}",
      *     operationId="deleteCover",
      *     schemes={"http"},
-     *     tags={"专题模板相关接口"},
+     *     tags={"模板相关接口"},
      *     summary="删除专题模板信息",
      *     @SWG\Parameter(
      *         name="client",
