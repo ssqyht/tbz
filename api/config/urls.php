@@ -30,6 +30,7 @@ $restUrls = [
         ],
         // Pay
         'GET pay/alipay' => 'pay/alipay',
+        'GET,POST pay/alipay-notify' => 'pay/alipay-notify',
         // 微信配置
         'GET,POST,OPTIONS wechat/qrcode' => 'wechat/qrcode',
         'POST,OPTIONS wechat/session' => 'wechat/session',

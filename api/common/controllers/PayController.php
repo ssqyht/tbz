@@ -14,7 +14,7 @@ use yii\web\NotFoundHttpException;
 
 class PayController extends Controller
 {
-
+    public $enableCsrfValidation = false;
     /**
      * 支付宝支付
      * @return string
@@ -62,7 +62,7 @@ class PayController extends Controller
                 $data = [
                     'trade_no' => $trade_no,
                     'order_amount' => $total_amount,
-                    'payment_name' => Order::PAYMENT_NAME_ALIPAY
+                    'payment_name' => Order::PAYMENT_NAME_ALIPAY,
                 ];
                 // 处理支付回调
                 if ($order->doSuccess($data)) {

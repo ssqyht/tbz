@@ -23,7 +23,7 @@ use yii\helpers\ArrayHelper;
  * @property string $order_amount 订单价格 @SWG\Property(property="orderAmount", type="string", description=" 订单价格")
  * @property int $order_status 订单状态 @SWG\Property(property="orderStatus", type="integer", description=" 订单状态")
  * @property int $payment_time 支付时间 @SWG\Property(property="paymentTime", type="integer", description=" 支付时间")
- * @property string $payment_code 支付方式 @SWG\Property(property="paymentCode", type="string", description=" 支付方式")
+ * @property string $payment_name 支付方式 @SWG\Property(property="paymentName", type="string", description=" 支付方式")
  * @property string $trade_sn 第三方支付接口交易号 @SWG\Property(property="tradeSn", type="string", description=" 第三方支付接口交易号")
  * @property int $order_from 订单来源 @SWG\Property(property="orderFrom", type="integer", description=" 订单来源")
  * @property int $created_at 创建时间 @SWG\Property(property="createdAt", type="integer", description=" 创建时间")
@@ -180,7 +180,6 @@ class Order extends \yii\db\ActiveRecord
             $this->payment_time = time();
             if (!$this->save())
                 throw new Exception('Save Order Error:' . $this->getStringErrors());
-
             // 执行关联类型表的支付成功动作
             if ($this->purpose && method_exists($this->purpose, 'doSuccess')) {
                 $this->purpose->doSuccess();
@@ -235,7 +234,7 @@ class Order extends \yii\db\ActiveRecord
         switch ($this->order_purpose) {
             // 图币充值
             case static::PURPOSE_RECHARGE:
-                return $this->hasOne(MemberCoinRecharge::class, ['purpose_id' => 'id']);
+                return $this->hasOne(MemberCoinRecharge::class, ['id' => 'purpose_id']);
                 break;
         }
     }

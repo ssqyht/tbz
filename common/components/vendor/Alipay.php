@@ -8,6 +8,7 @@ namespace common\components\vendor;
 use Yansongda\Pay\Pay;
 use Yii;
 use yii\base\Component;
+use yii\helpers\Url;
 
 /**
  * Class Alipay
@@ -30,6 +31,14 @@ class Alipay extends Component
     /** @var \Yansongda\Pay\Gateways\Alipay */
     private $_alipay;
 
+    public function init()
+    {
+        parent::init();
+        if (empty($this->notify_url))
+            $this->notify_url =  Url::to(Yii::$app->controller->module->id . '/pay/alipay-notify', true);
+
+    }
+
     /**
      * 支付宝支付
      * @return \Yansongda\Pay\Gateways\Alipay
@@ -45,6 +54,7 @@ class Alipay extends Component
                 'ali_public_key' => $this->ali_public_key,
                 'private_key' => $this->private_key,
                 'log' => $this->log,
+                'charset' => 'urf-8',
                 'mode' => 'dev'
             ]);
         }
@@ -56,11 +66,12 @@ class Alipay extends Component
         if ($this->_log === null) {
             if ($this->mode == 'dev') {
                 $this->_log = [
-                    'file' => Yii::getAlias('@runtime') . '/logs/alipay.log'
+                    'file' => Yii::getAlias('@runtime') . '/logs/alipay.log',
+                    'level' => 'debug'
                 ];
             }
         }
-        return $this->log;
+        return $this->_log;
     }
 
 }

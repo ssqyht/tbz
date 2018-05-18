@@ -46,6 +46,7 @@ class MemberCoinLog extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            ['remark', 'default', 'value' => ''],
             [['user_id', 'log_type'], 'required'],
             [['user_id', 'amount_coin', 'created_at'], 'integer'],
             [['log_type'], 'string', 'max' => 1],
