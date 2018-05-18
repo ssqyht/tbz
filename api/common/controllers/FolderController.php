@@ -1,34 +1,47 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: IT07
+ * User: swz
  * Date: 2018/5/11
- * Time: 17:15
+ * Time: 11:34
  */
 
 namespace api\common\controllers;
 
-use common\components\vendor\RestController;
-use common\models\search\TagSearch;
-use common\models\Tag;
+use common\models\forms\FolderForm;
+use common\models\search\FolderSearch;
+use common\models\TbzLetter;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
+use common\components\vendor\RestController;
 use yii\web\BadRequestHttpException;
-
-class TagController extends RestController
+use yii\web\HttpException;
+use yii\helpers\ArrayHelper;
+class FolderController extends RestController
 {
     /**
      * @SWG\Get(
-     *     path="/tag",
-     *     operationId="getTag",
+     *     path="/folder",
+     *     operationId="getFolder",
      *     schemes={"http"},
-     *     tags={"分类相关接口"},
-     *     summary="获取Tag信息",
+     *     tags={"文件夹接口"},
+     *     summary="获取文件夹信息",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
      *         required=true,
      *         type="string"
+     *     ),
+     *      @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string"
+     *     ),
+     *      @SWG\Parameter(
+     *          in="query",
+     *          name="status",
+     *          type="integer",
+     *          description="文件夹状态(后台可以根据状态查询,10为正常，7为回收站，3为删除)",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -38,7 +51,7 @@ class TagController extends RestController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(ref="#/definitions/Tag")
+     *                  @SWG\Items(ref="#/definitions/Folder")
      *              )
      *          )
      *     ),
@@ -48,25 +61,26 @@ class TagController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return $result
+     * @return array|bool
      * @throws NotFoundHttpException
      */
     public function actionIndex()
     {
-        $tag_search = new TagSearch();
-        if ($result = $tag_search->search()) {
+        $folder = new FolderSearch();
+        $data = ArrayHelper::merge(\Yii::$app->request->get(), ['method' => FolderSearch::TEMPLATE_FOLDER]);
+        $result = $folder->search($data);
+        if ($result) {
             return $result;
         }
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
     }
-
     /**
      * @SWG\Post(
-     *     path="/tag",
-     *     operationId="addTag",
+     *     path="/folder",
+     *     operationId="addFolder",
      *     schemes={"http"},
-     *     tags={"分类相关接口"},
-     *     summary="添加新Tag",
+     *     tags={"文件夹接口"},
+     *     summary="创建文件夹",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
@@ -77,21 +91,14 @@ class TagController extends RestController
      *          in="formData",
      *          name="name",
      *          type="string",
-     *          description="标签名",
+     *          description="文件夹名称",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
-     *          name="type",
-     *          type="integer",
-     *          description="标签类型",
-     *          required=true,
-     *     ),
-     *     @SWG\Parameter(
-     *          in="formData",
-     *          name="sort",
-     *          type="integer",
-     *          description="热度",
+     *          name="color",
+     *          type="string",
+     *          description="颜色",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -101,7 +108,7 @@ class TagController extends RestController
      *          @SWG\Schema(
      *              @SWG\Property(
      *                  property="data",
-     *                  ref="#/definitions/Tag"
+     *                  ref="#/definitions/Folder"
      *              )
      *          )
      *     ),
@@ -111,26 +118,26 @@ class TagController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return tag
+     * @return bool
      * @throws BadRequestHttpException
      */
     public function actionCreate()
     {
-        $create_data = \Yii::$app->request->post();
-        $tag = new Tag();
-        if ($tag->load($create_data, '') && ($tag->save())) {
-            return $tag;
+        $create_data = ArrayHelper::merge(\Yii::$app->request->post(), ['method' => FolderForm::TEMPLATE_FOLDER]);
+        $message = new FolderForm();
+        if ($message->load($create_data, '') && ($result = $message->addFolder())) {
+            return $result;
         }
-        throw new BadRequestHttpException($tag->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        throw new BadRequestHttpException($message->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }
 
     /**
      * @SWG\Put(
-     *     path="/tag/{id}",
-     *     operationId="updateTag",
+     *     path="/folder/{folder_id}",
+     *     operationId="updateFolder",
      *     schemes={"http"},
-     *     tags={"分类相关接口"},
-     *     summary="修改tag",
+     *     tags={"文件夹接口"},
+     *     summary="修改文件夹信息",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
@@ -139,30 +146,23 @@ class TagController extends RestController
      *     ),
      *     @SWG\Parameter(
      *          in="path",
-     *          name="id",
+     *          name="folder_id",
      *          type="integer",
-     *          description="tag的id",
+     *          description="文件夹id",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="name",
      *          type="string",
-     *          description="tag名称",
+     *          description="文件夹名称",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
-     *          name="type",
-     *          type="integer",
-     *          description="tag类型(0为已弃用，1为风格，2为行业)",
-     *          required=true,
-     *     ),
-     *      @SWG\Parameter(
-     *          in="formData",
-     *          name="sort",
-     *          type="integer",
-     *          description="排序逆序",
+     *          name="color",
+     *          type="string",
+     *          description="颜色",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -172,7 +172,7 @@ class TagController extends RestController
      *          @SWG\Schema(
      *              @SWG\Property(
      *                  property="data",
-     *                  ref="#/definitions/Tag"
+     *                  ref="#/definitions/TbzLetter"
      *              )
      *          )
      *     ),
@@ -183,30 +183,26 @@ class TagController extends RestController
      *     ),
      * )
      * @param $id
-     * @return Tag|null
+     * @return bool|TbzLetter|null
      * @throws BadRequestHttpException
-     * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
     {
-        $update_data = \Yii::$app->request->post();
-        $tag = Tag::findOne($id);
-        if (!$tag) {
-            throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+        $update_data = ArrayHelper::merge(\Yii::$app->request->post(), ['method' => FolderForm::TEMPLATE_FOLDER]);
+        $folder = new FolderForm();
+        if ($folder->load($update_data, '') && ($result = $folder->updateFolder($id))) {
+            return $result;
         }
-        if ($tag->load($update_data, '') && $tag->save()) {
-            return $tag;
-        }
-        throw new BadRequestHttpException($tag->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        throw new BadRequestHttpException($folder->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }
 
     /**
      * @SWG\Delete(
-     *     path="/tag/{id}",
-     *     operationId="deleteTag",
+     *     path="/folder/{delete_id}",
+     *     operationId="deleteFolder",
      *     schemes={"http"},
-     *     tags={"分类相关接口"},
-     *     summary="删除tag",
+     *     tags={"文件夹接口"},
+     *     summary="文件夹到回收站",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
@@ -215,14 +211,15 @@ class TagController extends RestController
      *     ),
      *     @SWG\Parameter(
      *          in="path",
-     *          name="id",
+     *          name="folder_id",
      *          type="integer",
-     *          description="tag的id",
+     *          description="文件夹id",
      *          required=true,
      *     ),
      *     @SWG\Response(
      *          response=200,
      *          description="请求成功",
+     *          ref="true",
      *     ),
      *     @SWG\Response(
      *          response="default",
@@ -232,19 +229,14 @@ class TagController extends RestController
      * )
      * @param $id
      * @return bool
-     * @throws BadRequestHttpException
-     * @throws NotFoundHttpException
+     * @throws HttpException
      */
     public function actionDelete($id)
     {
-        $tag = Tag::findOne($id);
-        if (!$id) {
-            throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
-        }
-        $tag->type = 0;
-        if ($tag->save()) {
+        $folder = new FolderForm();
+        if ($folder->load(['method'=>FolderForm::TEMPLATE_FOLDER], '') && $folder->deleteFolder($id)) {
             return true;
         }
-        throw new BadRequestHttpException($tag->getStringErrors(), Code::SERVER_FAILED);
+        throw new HttpException(500, $folder->getStringErrors(), Code::SERVER_FAILED);
     }
 }

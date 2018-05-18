@@ -42,13 +42,14 @@ class TemplateForm extends Model
     public $is_diy;
     public $edit_from;
     public $content;
-
+    public $folder_id;
+    public $team_id;
     public $_templateModel;
 
     public function rules()
     {
         return [
-            [['cooperation_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite', 'sort', 'is_diy', 'edit_from', 'is_team'], 'default', 'value' => 0],
+            [['cooperation_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite', 'sort', 'is_diy', 'edit_from', 'is_team','folder_id','team_id'], 'default', 'value' => 0],
             [['method', 'product', 'title'], 'required'],
             [['content'], 'default', 'value' => ''],
             ['method', 'default', 'value' => static::METHOD_SAVE_MEMBER],
@@ -75,8 +76,8 @@ class TemplateForm extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_FRONTEND => ['title', 'is_diy', 'edit_from', 'content', 'method', 'template_id'],
-            static::SCENARIO_BACKEND => ['method', 'product', 'title', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite', 'sort', 'template_id'],
+            static::SCENARIO_FRONTEND => ['title', 'is_diy', 'edit_from', 'content', 'method', 'template_id','folder_id','team_id'],
+            static::SCENARIO_BACKEND => ['method', 'product', 'title', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite', 'sort', 'template_id','folder_id','team_id'],
         ];
     }
 

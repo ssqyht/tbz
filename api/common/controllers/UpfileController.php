@@ -1,36 +1,38 @@
 <?php
 /**
- * @user: thanatos <thanatos915@163.com>
+ * Created by PhpStorm.
+ * User: IT07
+ * Date: 2018/5/17
+ * Time: 21:49
  */
 
 namespace api\common\controllers;
 
-use common\models\forms\TemplateForm;
-use common\models\search\TemplateMemberSearch;
+use common\models\forms\UpfileForm;
+use common\models\search\UpfileSearch;
 use common\models\TemplateMember;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
 use common\models\forms\BasicOperationForm;
 use yii\web\BadRequestHttpException;
 use yii\helpers\ArrayHelper;
-
-class TemplateMemberController extends BaseController
+use yii\web\HttpException;
+class UpfileController extends BaseController
 {
-
     /**
      * @SWG\Get(
-     *     path="/Template-member",
-     *     operationId="getTemplateMember",
+     *     path="/Upfile",
+     *     operationId="getUpfile",
      *     schemes={"http"},
-     *     tags={"用户相关接口"},
-     *     summary="根据条件查询模板信息",
+     *     tags={"素材接口"},
+     *     summary="根据条件查询素材",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
      *         required=true,
      *         type="string"
      *     ),
-     *     @SWG\Parameter(
+     *       @SWG\Parameter(
      *         name="Handle",
      *         in="header",
      *         type="string"
@@ -39,7 +41,7 @@ class TemplateMemberController extends BaseController
      *          in="query",
      *          name="status",
      *          type="integer",
-     *          description="模板状态,10正常,7回收站,3删除",
+     *          description="素材状态,10正常，7回收站，3删除",
      *     ),
      *      @SWG\Parameter(
      *          in="query",
@@ -51,13 +53,7 @@ class TemplateMemberController extends BaseController
      *          in="query",
      *          name="folder",
      *          type="integer",
-     *          description="所在文件夹的id,默认显示默认文件的内容",
-     *     ),
-     *      @SWG\Parameter(
-     *          in="query",
-     *          name="product",
-     *          type="string",
-     *          description="小分类",
+     *          description="所在文件夹的id",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -67,7 +63,7 @@ class TemplateMemberController extends BaseController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(ref="#/definitions/TemplateMember")
+     *                  @SWG\Items(ref="#/definitions/Upfile")
      *              )
      *          )
      *     ),
@@ -82,21 +78,23 @@ class TemplateMemberController extends BaseController
      */
     public function actionIndex()
     {
-        $template_member = new TemplateMemberSearch();
-        $result = $template_member->search(\Yii::$app->request->get());
+        //\Yii::$app->cache->flush();die;
+        $up_file = new UpfileSearch();
+        $result = $up_file->search(\Yii::$app->request->get());
         if ($result) {
             return $result;
         }
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
     }
+
     /**
-     * 新增模板
+     * 新增素材
      * @SWG\POST(
-     *     path="/template-member",
-     *     operationId="addTemplateMember",
+     *     path="/upfile",
+     *     operationId="addUpfile",
      *     schemes={"http"},
-     *     tags={"个人模板接口"},
-     *     summary="新增个人模板",
+     *     tags={"素材接口"},
+     *     summary="新增素材",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
@@ -104,15 +102,10 @@ class TemplateMemberController extends BaseController
      *         type="string"
      *     ),
      *     @SWG\Parameter(
-     *         name="Handle",
-     *         in="header",
-     *         type="string"
-     *     ),
-     *     @SWG\Parameter(
      *         name="body",
      *         in="body",
      *         required=true,
-     *         @SWG\Schema(ref="#/definitions/TemplateMember")
+     *         @SWG\Schema(ref="#/definitions/Upfile")
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -126,7 +119,7 @@ class TemplateMemberController extends BaseController
      *                      @SWG\Property(
      *                      property="classify_name",
      *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/TemplateMember")
+     *                      @SWG\Items(ref="#/definitions/Upfile")
      *                  ))
      *              )
      *          )
@@ -137,27 +130,27 @@ class TemplateMemberController extends BaseController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return bool|\common\models\TemplateMember|\common\models\TemplateOfficial
+     * @return bool|\common\models\Upfile
      * @throws BadRequestHttpException
      */
     public function actionCreate()
     {
-        $model = new TemplateForm();
-        $data = ArrayHelper::merge(\Yii::$app->request->post(), ['method' => TemplateForm::METHOD_SAVE_MEMBER]);
-        if (!($result = $model->submit($data))) {
-            throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        $create_data = \Yii::$app->request->post();
+        $model = new UpfileForm();
+        if ($model->load($create_data, '') && ($result = $model->addUpfile())) {
+            return $result;
         }
-        return $result;
+        throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }
 
     /**
-     * 保存官方模板
+     * 编辑素材
      * @SWG\Put(
-     *     path="/template-member/{templateId}",
-     *     operationId="updateTemplateMember",
+     *     path="/upfile/{id}",
+     *     operationId="updateUpfile",
      *     schemes={"http"},
-     *     tags={"个人模板接口"},
-     *     summary="编辑个人模板",
+     *     tags={"素材接口"},
+     *     summary="编辑素材",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
@@ -165,12 +158,7 @@ class TemplateMemberController extends BaseController
      *         type="string"
      *     ),
      *     @SWG\Parameter(
-     *         name="Handle",
-     *         in="header",
-     *         type="string"
-     *     ),
-     *     @SWG\Parameter(
-     *        name="templateId",
+     *        name="id",
      *        in="path",
      *        required=true,
      *        type="integer"
@@ -179,7 +167,7 @@ class TemplateMemberController extends BaseController
      *         name="body",
      *         in="body",
      *         required=true,
-     *         @SWG\Schema(ref="#/definitions/TemplateMember")
+     *         @SWG\Schema(ref="#/definitions/Upfile")
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -193,7 +181,7 @@ class TemplateMemberController extends BaseController
      *                      @SWG\Property(
      *                      property="classify_name",
      *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/TemplateMember")
+     *                      @SWG\Items(ref="#/definitions/Upfile")
      *                  ))
      *              )
      *          )
@@ -206,27 +194,26 @@ class TemplateMemberController extends BaseController
      * )
      *
      * @param $id
-     * @return bool|\common\models\TemplateMember|\common\models\TemplateOfficial
+     * @return bool|TemplateMember|\common\models\TemplateOfficial
      * @throws BadRequestHttpException
      */
     public function actionUpdate($id)
     {
-        $model = new TemplateForm();
-        $data = ArrayHelper::merge(\Yii::$app->request->post(), ['template_id' => $id, 'method' => TemplateForm::METHOD_SAVE_MEMBER]);
-        //return $data;
-        if (!($result = $model->submit($data))) {
-            throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        $update_data = \Yii::$app->request->post();
+        $model = new UpfileForm();
+        if ($model->load($update_data, '') && ($result = $model->updateUpfile($id))) {
+            return $result;
         }
-        return $result;
+        throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }
 
     /**
      * @SWG\Delete(
-     *     path="/template-member/{templateId}",
-     *     operationId="deleteTemplateMember",
+     *     path="/upfile/{id}",
+     *     operationId="deleteTemplateUpfile",
      *     schemes={"http"},
-     *     tags={"个人模板接口"},
-     *     summary="删除个人模板",
+     *     tags={"素材接口"},
+     *     summary="把素材放进回收站",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
@@ -239,7 +226,7 @@ class TemplateMemberController extends BaseController
      *         type="string"
      *     ),
      *     @SWG\Parameter(
-     *        name="templateId",
+     *        name="id",
      *        in="path",
      *        required=true,
      *        type="integer"
@@ -255,28 +242,26 @@ class TemplateMemberController extends BaseController
      *          ref="$/responses/Error",
      *     ),
      * )
-     *
-     *
-     * @param integer $id
-     * @throws BadRequestHttpException
-     * @author thanatos <thanatos915@163.com>
+     * @param $id
+     * @return bool
+     * @throws HttpException
      */
     public function actionDelete($id)
     {
-        $model = new TemplateForm();
-        $data = ['template_id' => $id, 'method' => TemplateForm::METHOD_SAVE_MEMBER, 'status' => TemplateMember::STATUS_DELETE];
-        if (!($result = $model->submit($data))) {
-            throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        $message = new UpfileForm();
+        if ($result = $message->deleteUpfile($id)) {
+            return $result;
         }
+        throw new HttpException(500, $message->getStringErrors(), Code::SERVER_FAILED);
     }
 
     /**
      * @SWG\POST(
-     *     path="/template-member/template-operation",
-     *     operationId="templateMemberOperation",
+     *     path="/upfile/upfile-operation",
+     *     operationId="templateUpfileOperation",
      *     schemes={"http"},
-     *     tags={"个人模板接口"},
-     *     summary="个人模板的常规操作(单个重命名，删除，到回收站、还原、个人转团队、移动到文件夹)",
+     *     tags={"素材接口"},
+     *     summary="素材的常规操作(单个重命名，删除，到回收站、还原、个人转团队、移动到文件夹)",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
@@ -294,7 +279,7 @@ class TemplateMemberController extends BaseController
      *          in="formData",
      *          name="ids",
      *          type="array",
-     *          description="模板的唯一标识template_id的值，单操作时为integer，多操作时为template_id组成的数组",
+     *          description="素材的唯一标识，单操作时为integer，多操作时为数组",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
@@ -326,18 +311,17 @@ class TemplateMemberController extends BaseController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return bool
+     * @return bool|null
      * @throws BadRequestHttpException
      * @throws \yii\db\Exception
      */
-    public function actionTemplateOperation()
+    public function actionUpfileOperation()
     {
         $model = new BasicOperationForm();
-        $data = ArrayHelper::merge(\Yii::$app->request->post(), ['method' => BasicOperationForm::TEMPLATE_MEMBER]);
+        $data = ArrayHelper::merge(\Yii::$app->request->post(), ['method' => BasicOperationForm::UPFILE]);
         if ($result = $model->operation($data)) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }
-
 }

@@ -21,6 +21,7 @@ class CacheDependency extends \yii\db\ActiveRecord
     const MESSAGE= 'message';
     const FOLDER='folder';
     const TEMPLATE_MEMBER = 'template_member_search';
+    const UPFILE = 'upfile';
     /**
      * @inheritdoc
      */

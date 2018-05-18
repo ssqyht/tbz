@@ -12,6 +12,8 @@ use common\components\traits\ModelErrorTrait;;
 class MessageForm extends Model
 {
     use ModelErrorTrait;
+    /** @var int 到回收站状态 */
+    const RECYCLE_BIN_STATUS = 7;
     public $title;
     public $description;
     public $type;
@@ -83,7 +85,7 @@ class MessageForm extends Model
         if (!$message){
             $this->addError('id','该消息不存在');
         }
-        $message->status = 5;
+        $message->status = static::RECYCLE_BIN_STATUS;
         if ($message->save(false)){
             return true;
         }

@@ -53,12 +53,11 @@ class TemplateMember extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['open_id', 'user_id', 'folder_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'edit_from', 'amount_print','team_id'], 'integer'],
-            [['user_id', 'cooperation_id', 'created_at', 'updated_at'], 'required'],
+            [['open_id', 'user_id', 'folder_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'edit_from', 'amount_print','team_id','status', 'is_diy'], 'integer'],
+            [['user_id'], 'required'],
             [['title'], 'string', 'max' => 50],
             [['product'], 'string', 'max' => 30],
             [['thumbnail_url'], 'string', 'max' => 255],
-            [['status', 'is_diy'], 'string', 'max' => 1],
         ];
     }
 
