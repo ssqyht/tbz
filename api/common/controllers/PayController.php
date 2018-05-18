@@ -60,7 +60,7 @@ class PayController extends Controller
                     throw new Exception('out_trade_no not exist');
                 }
                 $data = [
-                    'trade_no' => $trade_no,
+                    'trade_sn' => $trade_no,
                     'order_amount' => $total_amount,
                     'payment_name' => Order::PAYMENT_NAME_ALIPAY,
                 ];

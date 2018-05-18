@@ -75,7 +75,7 @@ class Order extends \yii\db\ActiveRecord
             static::SCENARIO_ADMIN => ArrayHelper::merge($scenarios[static::SCENARIO_DEFAULT], [
                 'admin_id', 'admin_name', 'remark', 'order_status'
             ]),
-            static::SCENARIO_VERIFY => ['order_amount', 'trade_sn', 'payment_name']
+            static::SCENARIO_VERIFY => ['order_amount', 'trade_sn', 'payment_name', 'trade_sn']
         ]);
     }
 
@@ -158,6 +158,12 @@ class Order extends \yii\db\ActiveRecord
         return $this;
     }
 
+    /**
+     * 支付成功处理回调
+     * @param $params
+     * @return bool
+     * @author thanatos <thanatos915@163.com>
+     */
     public function doSuccess($params)
     {
         $this->load($params, '');
@@ -207,8 +213,7 @@ class Order extends \yii\db\ActiveRecord
         $model = new OrderLog();
         $model->attributes = $this->getAttributes($this->safeAttributes());
         $model->order_id = $this->order_id;
-        $model->save();
-        if (!$this->save()) {
+        if (!$model->save()) {
             $this->addErrors($model->getErrors());
             return false;
         }

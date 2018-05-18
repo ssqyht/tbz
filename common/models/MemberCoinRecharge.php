@@ -100,14 +100,6 @@ class MemberCoinRecharge extends \yii\db\ActiveRecord
      */
     public function doSuccess()
     {
-        $member = Member::findIdentity($this->user_id);
-
-        $member->coin += $this->amount_coin;
-
-        // 增加图币
-        if (!$member->save())
-            throw new Exception('Update Coin Error:'. $member->getStringErrors());
-
         // 保存订单
         $this->status = Order::STATUS_READY_PAY;
         if (!$this->save())
