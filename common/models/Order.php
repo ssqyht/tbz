@@ -6,6 +6,7 @@ use common\components\traits\ModelErrorTrait;
 use common\components\traits\ModelFieldsTrait;
 use Yii;
 use common\components\traits\TimestampTrait;
+use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -27,6 +28,7 @@ use yii\helpers\ArrayHelper;
  * @property int $order_from 订单来源 @SWG\Property(property="orderFrom", type="integer", description=" 订单来源")
  * @property int $created_at 创建时间 @SWG\Property(property="createdAt", type="integer", description=" 创建时间")
  * @property int $updated_at 修改时间 @SWG\Property(property="updatedAt", type="integer", description=" 修改时间")
+ * @property MemberCoinRecharge $purpose
  */
 class Order extends \yii\db\ActiveRecord
 {
@@ -51,6 +53,12 @@ class Order extends \yii\db\ActiveRecord
 
     /** @var string 后台修改订单 */
     const SCENARIO_ADMIN = 'admin';
+    const SCENARIO_VERIFY = 'verify';
+
+    /** @var string 支付宝 */
+    const PAYMENT_NAME_ALIPAY = 'alipay';
+    /** @var string 支付宝 */
+    const PAYMENT_NAME_WECHAT = 'wechat';
 
     /**
      * @inheritdoc
@@ -67,6 +75,7 @@ class Order extends \yii\db\ActiveRecord
             static::SCENARIO_ADMIN => ArrayHelper::merge($scenarios[static::SCENARIO_DEFAULT], [
                 'admin_id', 'admin_name', 'remark', 'order_status'
             ]),
+            static::SCENARIO_VERIFY => ['order_amount', 'trade_sn', 'payment_name']
         ]);
     }
 
@@ -77,13 +86,15 @@ class Order extends \yii\db\ActiveRecord
     {
         return [
             [['order_sn', 'user_id', 'order_purpose', 'purpose_id'], 'required'],
+            ['order_status', 'default', 'value' => static::STATUS_NOT_PAY, ],
             [['order_sn', 'user_id', 'purpose_id', 'payment_time', 'created_at', 'updated_at', 'admin_id'], 'integer'],
             [['goods_amount', 'discount', 'order_amount'], 'number'],
             [['order_purpose', 'order_status', 'order_from'], 'number'],
-            [['payment_code'], 'string', 'max' => 20],
+            [['payment_name'], 'string', 'max' => 20],
             [['trade_sn'], 'string', 'max' => 50],
             [['order_purpose'], 'unique', 'targetAttribute' => ['order_purpose', 'purpose_id']],
-            [['admin_name', 'remark'], 'string']
+            [['admin_name', 'remark'], 'string'],
+            [['order_amount', 'trade_sn', 'payment_name'], 'required', 'on' => static::SCENARIO_VERIFY],
         ];
     }
 
@@ -103,12 +114,17 @@ class Order extends \yii\db\ActiveRecord
             'order_amount' => '订单价格',
             'order_status' => '订单状态',
             'payment_time' => '支付时间',
-            'payment_code' => '支付方式',
+            'payment_name' => '支付方式',
             'trade_sn' => '第三方支付接口交易号',
             'order_from' => '订单来源',
             'created_at' => '创建时间',
             'updated_at' => '修改时间',
         ];
+    }
+
+    public static function findByOrderSn($order_sn)
+    {
+        return static::findOne(['order_sn' => $order_sn]);
     }
 
 
@@ -142,15 +158,44 @@ class Order extends \yii\db\ActiveRecord
         return $this;
     }
 
-    public function doSuccess()
+    public function doSuccess($params)
     {
-        if ($this->order_status == static::STATUS_READY_PAY) {
-            switch ($this->order_purpose) {
-                // 充值图币订单
-                case static::PURPOSE_RECHARGE:
-
-            }
+        $this->load($params, '');
+        if (!$this->validate()) {
+            return false;
         }
+        // 钱数不正确
+        if ($this->isAttributeChanged('order_amount')) {
+            $this->addError('order_amount', '支付金额不正确');
+            return false;
+        }
+
+        if ($this->order_status != static::STATUS_NOT_PAY) {
+            return true;
+        }
+
+        $transaction = static::getDb()->beginTransaction();
+        try {
+            $this->order_status = static::STATUS_READY_PAY;
+            $this->payment_time = time();
+            if (!$this->save())
+                throw new Exception('Save Order Error:' . $this->getStringErrors());
+
+            // 执行关联类型表的支付成功动作
+            if ($this->purpose && method_exists($this->purpose, 'doSuccess')) {
+                $this->purpose->doSuccess();
+            }
+
+            $transaction->commit();
+            return true;
+        } catch (\Throwable $e) {
+            try {
+                $transaction->rollBack();
+            } catch (\Throwable $exception) {}
+            Yii::error($e->getMessage(), 'Order');
+            return false;
+        }
+
     }
 
     /**
@@ -181,6 +226,17 @@ class Order extends \yii\db\ActiveRecord
         switch (Yii::$app->request->client) {
             case 'tubangzhu_web':
                 $this->order_from = Order::ORDER_FROM_WEB;
+        }
+    }
+
+
+    public function getPurpose()
+    {
+        switch ($this->order_purpose) {
+            // 图币充值
+            case static::PURPOSE_RECHARGE:
+                return $this->hasOne(MemberCoinRecharge::class, ['purpose_id' => 'id']);
+                break;
         }
     }
 

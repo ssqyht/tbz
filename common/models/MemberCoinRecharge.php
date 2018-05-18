@@ -69,7 +69,7 @@ class MemberCoinRecharge extends \yii\db\ActiveRecord
     {
         $scenarios = parent::scenarios();
         return ArrayHelper::merge($scenarios, [
-            static::SCENARIO_MEMBER => ['amount_coin', 'user_id', 'amount_money'],
+            static::SCENARIO_MEMBER => ['amount_coin', 'user_id', 'amount_money', 'status'],
             static::SCENARIO_ADMIN => ['amount_coin', 'user_id', 'amount_money', 'admin_id', 'admin_name', 'remark', 'status'],
         ]);
     }
@@ -93,40 +93,30 @@ class MemberCoinRecharge extends \yii\db\ActiveRecord
     }
 
     /**
-     * 支付成功后增加图币
+     * 支付成功回调
+     * @return $this
+     * @throws Exception
      * @author thanatos <thanatos915@163.com>
      */
     public function doSuccess()
     {
-        if ($this->status == static::STATUS_READY_PAY) {
-            // 开启事务
-            $transaction = static::getDb()->beginTransaction();
-            try {
-                $member = Member::findIdentity($this->user_id);
-                if (empty($member))
-                    throw new Exception('Update Coin Error');
+        $member = Member::findIdentity($this->user_id);
 
-                $member->coin += $this->amount_coin;
+        $member->coin += $this->amount_coin;
 
-                // 增加图币
-                if (!$member->save())
-                    throw new Exception('Update Coin Error');
+        // 增加图币
+        if (!$member->save())
+            throw new Exception('Update Coin Error:'. $member->getStringErrors());
 
-                // 保存订单
-                if (!$this->save())
-                    throw new Exception('Update Recharge Error');
-                $transaction->commit();
-            } catch (\Throwable $exception) {
-                // 回滚事务
-                $message = $exception->getMessage();
-                Yii::error($message, 'Order');
-                $this->addError('status', $message);
-                try {
-                    $transaction->rollBack();
-                } catch (\Throwable $e) {}
-            }
-        }
-        return false;
+        // 保存订单
+        $this->status = Order::STATUS_READY_PAY;
+        if (!$this->save())
+            throw new Exception('Update Recharge Error:' . $this->getStringErrors());
+
+        // 生成充值记录
+        $this->saveCoinLog();
+
+        return $this;
     }
 
     /**

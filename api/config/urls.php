@@ -28,6 +28,8 @@ $restUrls = [
         [
             'controller' => ['member-recharge']
         ],
+        // Pay
+        'GET pay/alipay' => 'pay/alipay',
         // 微信配置
         'GET,POST,OPTIONS wechat/qrcode' => 'wechat/qrcode',
         'POST,OPTIONS wechat/session' => 'wechat/session',

@@ -14,6 +14,11 @@ return [
         'sms' => [
             'app_key' => '23376936',
             'app_secret' => '811551fb042fdbb50a40fb3c134dac0d',
+        ],
+        'alipay' => [
+            'app_id' => '2016091500515260',
+            'ali_public_key' => '',
+            'private_key' => '',
         ]
     ],
 ];

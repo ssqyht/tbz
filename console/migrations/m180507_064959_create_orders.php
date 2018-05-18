@@ -9,7 +9,6 @@ class m180507_064959_create_orders extends Migration
 {
 
     public $order = '{{%order}}';
-    public $pay = '{{%order_pay}}';
 
     /**
      * {@inheritdoc}
@@ -28,7 +27,7 @@ class m180507_064959_create_orders extends Migration
             'order_amount' => $this->decimal(8,2)->notNull()->defaultValue('0.00')->comment('订单价格'),
             'order_status' => $this->tinyInteger(1)->notNull()->defaultValue(10)->comment('订单状态'),
             'payment_time' => $this->integer(10)->unsigned()->notNull()->defaultValue(0)->comment('支付时间'),
-            'payment_code' => $this->string(20)->notNull()->defaultValue('')->comment('支付方式'),
+            'payment_name' => $this->string(20)->notNull()->defaultValue('')->comment('支付方式'),
             'trade_sn' => $this->string(50)->notNull()->defaultValue('')->comment('第三方支付接口交易号'),
             'order_from' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(1)->comment('订单来源'),
             'created_at' => $this->integer(10)->unsigned()->notNull()->comment('创建时间'),
@@ -40,22 +39,13 @@ class m180507_064959_create_orders extends Migration
         $this->createIndex('idx-user_id', $this->order, 'user_id');
         $this->createIndex('idx-order_status', $this->order, 'order_status');
         $this->createIndex('idx-order_from', $this->order, 'order_from');
-
-        // order_pay
-        $this->createTable($this->pay, [
-            'pay_id' => $this->primaryKey(11)->unsigned(),
-            'pay_sn' => $this->string(32)->notNull()->comment('支付单号'),
-            'user_id' => $this->integer(11)->unsigned()->notNull()->comment('用户id'),
-            'status' => $this->tinyInteger(1)->unsigned()->notNull()->comment('支付状态'),
-        ]);
-        $this->addCommentOnTable($this->pay, '支付记录');
-        $this->createIndex('idx-pay_sn', $this->pay, 'pay_sn');
     }
     /**
      * {@inheritdoc}
      */
     public function safeDown()
     {
+        $this->dropTable($this->order);
     }
 
     /*

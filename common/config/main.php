@@ -54,5 +54,9 @@ return [
             'class' => 'yii\rbac\DbManager',
              'cache' => 'cache',
         ],
+        // Alipay
+        'alipay' => [
+            'class' => 'common\components\vendor\Alipay',
+        ]
     ],
 ];
