@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "52981dfca5b35abeba0a116df241ea64",
+    "content-hash": "1c530658fec532b3b3437de88a5886bf",
     "packages": [
         {
             "name": "aliyuncs/oss-sdk-php",
@@ -728,6 +728,47 @@
                 "image processing"
             ],
             "time": "2017-05-16T10:31:22+00:00"
+        },
+        {
+            "name": "izyue/yii2-alipay",
+            "version": "0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/liulipeng/yii2-alipay.git",
+                "reference": "fd37894a65aca0341c2b7a14fd09581612baf874"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://files.phpcomposer.com/files/liulipeng/yii2-alipay/fd37894a65aca0341c2b7a14fd09581612baf874.zip",
+                "reference": "fd37894a65aca0341c2b7a14fd09581612baf874",
+                "shasum": ""
+            },
+            "require": {
+                "yiisoft/yii2": "~2.0.4"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "izyue\\alipay\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "刘李鹏",
+                    "email": "liu.lipeng@icloud.com"
+                }
+            ],
+            "description": "alipay for  Yii2",
+            "keywords": [
+                "alipay",
+                "yii2",
+                "支付宝"
+            ],
+            "time": "2016-07-04T06:55:10+00:00"
         },
         {
             "name": "monolog/monolog",

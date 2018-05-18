@@ -6,6 +6,7 @@
 namespace api\common\controllers;
 
 
+use common\components\traits\OrderTrait;
 use Yii;
 use common\components\vendor\RestController;
 use yii\web\BadRequestHttpException;

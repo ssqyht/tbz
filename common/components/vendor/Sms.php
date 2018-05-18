@@ -174,7 +174,7 @@ class Sms extends Model
      */
     private function generateCode($length = 6)
     {
-        if (YII_ENV_DEV) {
+        if (!YII_ENV_PROD) {
             return 111111;
         }
         $code = '';

@@ -29,5 +29,9 @@ return [
             // for the mailer to send real emails.
             'useFileTransport' => true,
         ],
+        'sms' => [
+            'app_key' => '23376936',
+            'app_secret' => '811551fb042fdbb50a40fb3c134dac0d',
+        ],
     ],
 ];

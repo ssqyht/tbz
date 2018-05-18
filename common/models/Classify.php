@@ -49,10 +49,6 @@ class Classify extends \yii\db\ActiveRecord
     const IS_RECOMMEND = 1;
     /** @var integer 模板状态 */
     const template_official_status = 20;
-    /** @var array 公共返回数据 */
-    static $frontendFields = [
-        'id','product', 'name', 'parent_name', 'is_hot', 'is_new', 'order_link',
-   ];
 
     /**
      * @inheritdoc
@@ -78,6 +74,19 @@ class Classify extends \yii\db\ActiveRecord
             [['order_link', 'thumbnail'], 'string', 'max' => 255],
         ];
     }
+
+    /**
+     * 公共返回数据
+     * @return array
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function frontendFields()
+    {
+        return [
+            'id','product', 'name', 'parent_name', 'is_hot', 'is_new', 'order_link',
+        ];
+    }
+
     public function extraFields()
     {
         $data = ['thumbnail' => function() {

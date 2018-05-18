@@ -18,6 +18,7 @@ return [
     ],
     'components' => [
         'request' => [
+            'class' => 'common\components\vendor\Request',
             'csrfParam' => '_csrf-frontend',
             'parsers' => [
                 'application/json' => 'yii\web\JsonParser',

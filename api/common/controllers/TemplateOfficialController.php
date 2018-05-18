@@ -168,6 +168,55 @@ class TemplateOfficialController extends RestController
 
     /**
      * 查询官方模板数据
+     *
+     * @SWG\Get(
+     *     path="/template-official/{templateId}",
+     *     operationId="getTemplateView",
+     *     schemes={"http"},
+     *     tags={"模板接口"},
+     *     summary="查询官方模板详情",
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *        name="templateId",
+     *        in="path",
+     *        required=true,
+     *        type="integer"
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @SWG\Items(
+     *                      @SWG\Property(
+     *                      property="classify_name",
+     *                      type="array",
+     *                      @SWG\Items(ref="#/definitions/TemplateOfficial")
+     *                  ))
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     *
      * @param integer $id
      * @return array|TemplateOfficial|null|\yii\db\ActiveRecord
      * @throws NotFoundHttpException

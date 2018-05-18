@@ -7,5 +7,6 @@ return [
         'created_at' => '1526485169',
         'updated_at' => '1526485336',
         'mobile' => '13255553420',
+        'coin' => 0,
     ],
 ];

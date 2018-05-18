@@ -19,8 +19,7 @@ class m180507_064959_create_orders extends Migration
         // order
         $this->createTable($this->order, [
             'order_id' => $this->primaryKey(11)->unsigned(),
-            'pay_sn' => $this->string(32)->notNull()->defaultValue('')->comment('支付单号'),
-            'order_sn' => $this->bigInteger(20)->notNull()->comment('订单号'),
+            'order_sn' => $this->bigInteger(20)->unsigned()->notNull()->comment('订单号'),
             'user_id' => $this->integer(11)->unsigned()->notNull()->comment('用户id'),
             'order_purpose' => $this->tinyInteger(1)->unsigned()->notNull()->comment('订单类型'),
             'purpose_id' => $this->integer(11)->unsigned()->notNull()->comment('订单类型对应id'),
@@ -28,8 +27,10 @@ class m180507_064959_create_orders extends Migration
             'discount' => $this->decimal(8,2)->notNull()->defaultValue('0.00')->comment('折扣价格'),
             'order_amount' => $this->decimal(8,2)->notNull()->defaultValue('0.00')->comment('订单价格'),
             'order_status' => $this->tinyInteger(1)->notNull()->defaultValue(10)->comment('订单状态'),
-            'payment_time' => $this->integer(10)->notNull()->defaultValue(0)->comment('支付时间'),
-            'order_from' => $this->tinyInteger(1)->notNull()->defaultValue(1)->comment('订单来源'),
+            'payment_time' => $this->integer(10)->unsigned()->notNull()->defaultValue(0)->comment('支付时间'),
+            'payment_code' => $this->string(20)->notNull()->defaultValue('')->comment('支付方式'),
+            'trade_sn' => $this->string(50)->notNull()->defaultValue('')->comment('第三方支付接口交易号'),
+            'order_from' => $this->tinyInteger(1)->unsigned()->notNull()->defaultValue(1)->comment('订单来源'),
             'created_at' => $this->integer(10)->unsigned()->notNull()->comment('创建时间'),
             'updated_at' => $this->integer(10)->unsigned()->notNull()->comment('修改时间'),
         ]);
@@ -49,7 +50,6 @@ class m180507_064959_create_orders extends Migration
         ]);
         $this->addCommentOnTable($this->pay, '支付记录');
         $this->createIndex('idx-pay_sn', $this->pay, 'pay_sn');
-
     }
     /**
      * {@inheritdoc}

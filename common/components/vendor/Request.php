@@ -5,15 +5,13 @@
 
 namespace common\components\vendor;
 
-use common\extension\Code;
-use Yii;
 use common\models\OauthPublicKeys;
-use yii\web\ForbiddenHttpException;
 
 
 /**
  * Class Request
  * @property OauthPublicKeys|false|null $client
+ * @property string $handle
  * @package common\components\vendor
  * @author thanatos <thanatos915@163.com>
  */

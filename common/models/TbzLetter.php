@@ -28,7 +28,6 @@ class TbzLetter extends \yii\db\ActiveRecord
     /** @var int 消息状态 */
     const STATUS_ONLINE = 20;
 
-    static $frontendFields = ['title', 'subtitle','description', 'type','user_id'];
     /**
      * @inheritdoc
      */
@@ -68,6 +67,12 @@ class TbzLetter extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
         ];
     }
+
+    public function frontendFields()
+    {
+        return ['title', 'subtitle','description', 'type','user_id'];
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

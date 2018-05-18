@@ -48,11 +48,6 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     /** @var string 删除状态 */
     const STATUS_DELETE = '3';
 
-
-    static $frontendFields = [
-        'template_id', 'user_id', 'title','product','thumbnail_id','created_at','updated_at','price', 'virtual_edit', 'virtual_view', 'virtual_favorite'
-    ];
-
     /**
      * @inheritdoc
      */
@@ -108,6 +103,13 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             'amount_buy' => '购买量',
             'sort' => '排序',
             'content' => '模板数据',
+        ];
+    }
+
+    public function frontendFields()
+    {
+        return [
+            'template_id', 'user_id', 'title','product','thumbnail_id','created_at','updated_at','price', 'virtual_edit', 'virtual_view', 'virtual_favorite'
         ];
     }
 

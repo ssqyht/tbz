@@ -27,7 +27,7 @@ class BaseController extends RestController
         }
 
         if (Yii::$app->user->isGuest) {
-//            throw new ForbiddenHttpException('没有权限', Code::SERVER_NOT_PERMISSION);
+            throw new ForbiddenHttpException('没有权限', Code::SERVER_NOT_PERMISSION);
         }
 
         return true;

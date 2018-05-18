@@ -38,10 +38,7 @@ class TemplateMember extends \yii\db\ActiveRecord
 
     /** @var string 删除状态 */
     const STATUS_DELETE = '3';
-    /**
-     * @var array 前端页面返回参数
-     */
-    static $frontendFields = ['template_id', 'open_id','folder_id', 'title','product', 'thumbnail_url','thumbnail_id','status','is_diy','edit_from','amount_print','team_id'];
+
     /**
      * @inheritdoc
      */
@@ -88,6 +85,11 @@ class TemplateMember extends \yii\db\ActiveRecord
             'amount_print' => '印刷次数',
             'team_id' => '团队id'
         ];
+    }
+
+    public function frontendFields()
+    {
+        return ['template_id', 'open_id','folder_id', 'title','product', 'thumbnail_url','thumbnail_id','status','is_diy','edit_from','amount_print','team_id'];
     }
 
     /**

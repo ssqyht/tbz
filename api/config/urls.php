@@ -20,10 +20,13 @@ $restUrls = [
             ],
         ],
         [
-            'controller' => ['template-official', 'template-member'],
+            'controller' => ['template-official', 'template-member',],
             'extraPatterns' => [
                 'GET,OPTIONS classify-search' => 'classify-search',
             ]
+        ],
+        [
+            'controller' => ['member-recharge']
         ],
         // 微信配置
         'GET,POST,OPTIONS wechat/qrcode' => 'wechat/qrcode',

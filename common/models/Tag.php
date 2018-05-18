@@ -25,10 +25,7 @@ class Tag extends \yii\db\ActiveRecord
     use ModelFieldsTrait;
     /** @var integer 模板状态 */
     const template_official_status = 20;
-    /** @var array 公共返回数据 */
-    static $frontendFields = [
-        'tag_id', 'name', 'type',
-    ];
+
     /**
      * @inheritdoc
      */
@@ -63,4 +60,12 @@ class Tag extends \yii\db\ActiveRecord
             'created_at' => 'Created At',
         ];
     }
+
+    public function frontendFields()
+    {
+        return [
+            'tag_id', 'name', 'type',
+        ];
+    }
+
 }

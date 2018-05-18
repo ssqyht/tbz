@@ -21,14 +21,19 @@ trait ModelFieldsTrait
         $request = Yii::$app->request;
         $fields = parent::fields();
 
-        if ($request->isFrontend())
-            $fields = self::$frontendFields;
+        if ($request->isFrontend() && $this->frontendFields())
+            $fields = $this->frontendFields();
 
         // 整合其它值
         foreach ($this->extraFields() as $field => $definition) {
             $fields[$field] = $definition;
         }
         return $this->filterName($fields);
+    }
+
+    public function frontendFields()
+    {
+        return [];
     }
 
     /**

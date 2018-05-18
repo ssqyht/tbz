@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\traits\ModelErrorTrait;
 use common\components\traits\ModelFieldsTrait;
 use common\components\traits\TimestampTrait;
 use common\components\validators\MobileValidator;
@@ -32,7 +33,7 @@ use yii\web\IdentityInterface;
  */
 class Member extends \yii\db\ActiveRecord implements IdentityInterface
 {
-
+    use ModelErrorTrait;
     use TimestampTrait;
     use ModelFieldsTrait;
 
@@ -52,10 +53,6 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
     const EXPIRED_TIME = 3600 * 5;
     // token 刷新时间 15天
     const REFRESH_TIME = 3600 * 24 * 15;
-
-    static $frontendFields = [
-        'id', 'username', 'mobile', 'sex', 'coin'
-    ];
 
     /**
      * 用于接口返回
@@ -112,6 +109,13 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
             'password' => 'password',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+        ];
+    }
+
+    public function frontendFields()
+    {
+        return [
+            'id', 'username', 'mobile', 'sex', 'coin'
         ];
     }
 

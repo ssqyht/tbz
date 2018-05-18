@@ -40,4 +40,14 @@ class LoginFormTest extends Unit
         expect($result['mobile'])->equals('13255553420');
     }
 
+    public function testNotCorrectLogin()
+    {
+        $model = new LoginForm(['scenario' => LoginForm::SCENARIO_MOBILE]);
+        $result = $model->submit([
+            'mobile' => 'test',
+            'password' => 'test',
+        ]);
+        expect($result)->false();
+    }
+
 }

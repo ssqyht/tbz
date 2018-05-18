@@ -30,8 +30,6 @@ class TbzSubject extends \yii\db\ActiveRecord
     /** @var int 模板专题上线 */
     const STATUS_ONLINE = 20;
 
-    static $frontendFields = ['title', 'description','seo_keyword', 'seo_description','thumbnail', 'seo_title','banner'];
-
     /**
      * @inheritdoc
      */
@@ -74,6 +72,12 @@ class TbzSubject extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
         ];
     }
+
+    public function frontendFields()
+    {
+        return ['title', 'description','seo_keyword', 'seo_description','thumbnail', 'seo_title','banner'];
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */

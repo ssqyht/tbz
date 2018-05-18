@@ -25,8 +25,6 @@ class Category extends \yii\db\ActiveRecord
     use TimestampTrait;
     use ModelFieldsTrait;
 
-    static $frontendFields = ['name', 'class_name', 'product', 'sort'];
-
     /**
      * @inheritdoc
      */
@@ -63,6 +61,11 @@ class Category extends \yii\db\ActiveRecord
             'product' => '品类唯一标识',
             'sort' => '品类排序',
         ];
+    }
+
+    public function frontendFields()
+    {
+        return ['name', 'class_name', 'product', 'sort'];
     }
 
     public function extraFields()
