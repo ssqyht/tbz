@@ -201,7 +201,7 @@ class MigrateTableController extends Controller
         $db = Yii::$app->dbMigrateDdy;
         $query = (new Query())
             ->from('com_template_product')
-            ->where('coopId = 0 and status = 1 and name != parentName');
+            ->where('coopId = 0 and status = 1 and name != parentName and product = parentProduct');
 
         $list = $query->all($db);
         $data = [];
@@ -227,15 +227,14 @@ class MigrateTableController extends Controller
         }
         Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
 
-
         $parentList = Classify::findAll(['pid' => 0]);
-        $data = [];
         foreach ($parentList as $k => $parent) {
             $query = (new Query())
                 ->from('com_template_product')
                 ->where('coopId = 0 and status = 1 and parentName = "'. $parent->name . '"');
 
             $list = $query->all($db);
+            $data = [];
             foreach ($list as $key => $model) {
                 $category = $this->getCategory($model['type']);
                 if ($category) {
@@ -266,9 +265,9 @@ class MigrateTableController extends Controller
                     ];
                 }
             }
+            Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
 
         }
-        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
 
 
         // 插入没有子分类的值
@@ -311,7 +310,6 @@ class MigrateTableController extends Controller
         }
 
         Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
-
         // 更新文件引用
         /** @var Classify[] $models */
         $models = Classify::find()->all();
@@ -328,7 +326,6 @@ class MigrateTableController extends Controller
             }
         }
         FileUsedRecord::getDb()->createCommand()->batchInsert(FileUsedRecord::tableName(), ['user_id', 'file_id', 'purpose', 'purpose_id', 'created_at'], $data)->execute();
-
         $this->stdout('迁移成功数' . "\n", Console::FG_GREEN);
 
     }

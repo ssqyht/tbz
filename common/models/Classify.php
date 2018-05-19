@@ -78,7 +78,7 @@ class Classify extends \yii\db\ActiveRecord
     public function frontendFields()
     {
         return [
-            'classify_id','name', 'parent_name', 'is_hot', 'is_new', 'order_link',
+            'classify_id','name', 'is_hot', 'is_new', 'order_link',
         ];
     }
 

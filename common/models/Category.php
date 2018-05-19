@@ -94,7 +94,7 @@ class Category extends \yii\db\ActiveRecord
      */
     public function getClassifies()
     {
-        return $this->hasMany(Classify::class, ['category' => 'id']);
+        return $this->hasMany(Classify::class, ['category_id' => 'id']);
     }
 
     /**
