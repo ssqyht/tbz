@@ -79,7 +79,7 @@ class Classify extends \yii\db\ActiveRecord
     public function frontendFields()
     {
         return [
-            'id','product', 'name', 'parent_name', 'is_hot', 'is_new', 'order_link',
+            'classify_id','name', 'parent_name', 'is_hot', 'is_new', 'order_link',
         ];
     }
 
@@ -166,7 +166,7 @@ class Classify extends \yii\db\ActiveRecord
 
     public static function findById($id)
     {
-        return static::findOne(['id' => $id]);
+        return static::findOne(['classify_id' => $id]);
     }
 
     /**
@@ -187,6 +187,6 @@ class Classify extends \yii\db\ActiveRecord
     public function getTags()
     {
         return $this->hasMany(Tag::class, ['tag_id' => 'tag_id'])
-            ->viaTable(TagRelationClassify::tableName(), ['classify_id' => 'id']);
+            ->viaTable(TagRelationClassify::tableName(), ['classify_id' => 'classify_id']);
     }
 }

@@ -65,15 +65,28 @@ class ClassifySearch extends Model
         $result = [];
         if ($this->category && !$this->classify){
             //获取小分类
-            $classify_data = Classify::online()->andWhere(['category'=>$this->category])->all();
+            if ($this->category == 1){
+                $classify_data = Classify::online()->andWhere(['is_recommend'=>1])->all();
+            }else{
+                $classify_data = Classify::online()->andWhere(['category_id'=>$this->category])->all();
+            }
+            if (!$classify_data){
+                return false;
+            }
             $result['classify'] = $classify_data;
             //查询标签
-            $tags = $this->searchTag($classify_data[0]->id);
+            $tags = $this->searchTag($classify_data[0]->classify_id);
+            if (!$tags){
+                $tags = ['style'=>[],'industry'=>[]];
+            }
             $result = array_merge($result,$tags);
             return $result;
         }elseif ($this->classify){
             //获取tag标签信息
             $result = $this->searchTag($this->classify);
+            if ($result){
+                $result['classify'] = [];
+            }
             return $result;
         }else{
             $this->addError('','category或classify不能为空');
@@ -83,16 +96,24 @@ class ClassifySearch extends Model
 
     /**
      * @param $classify
-     * @return array
-     * @author thanatos <thanatos915@163.com>
+     * @return array|bool
      */
     public function searchTag($classify){
         $classify = Classify::findById($classify);
         //关联表查询标签数据
         $tags_data = $classify->tags;
+        if (!$tags_data){
+            return false;
+        }
         $tags = [];
+        $tags['style'] = [];
+        $tags['industry'] = [];
         foreach ($tags_data as $value){
-            $tags[$this->tag_style[$value->type]] = $value;
+            if ($value->type == 1){
+                $tags['style'] = $value;
+            }else{
+                $tags['industry'] = $value;
+            }
         }
         return $tags;
     }
