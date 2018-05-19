@@ -29,7 +29,8 @@ class TemplateOfficialSearch extends Model
     const SCENARIO_FRONTEND = 'frontend';
     /** @var string 后台查询列表 */
     const SCENARIO_BACKEND = 'backend';
-    const DEFAULT_CLASSIFY = 'mingpian';
+    /** @var int 默认小分类为名片 */
+    const DEFAULT_CLASSIFY = 1;
     /** @var string 小分类 */
     public $product;
     /** @var integer 价格 */
@@ -178,19 +179,10 @@ class TemplateOfficialSearch extends Model
                 $this->product = static::DEFAULT_CLASSIFY;
             }
             //按小分类查询
-            $query->where(['product' => $this->product]);
+            $query->where(['classify_id' => $this->product]);
             //按价格区间查询
             if ($this->price && array_key_exists($this->price, $this->prices)) {
                 $query->andWhere(($this->prices)[$this->price]);
-            }
-
-            //按标签类型查询
-            if ($this->style || $this->industry) {
-                $tag_id = $this->tagSql();
-                if (!$tag_id) {
-                    return false;
-                }
-                $query->andWhere(['in', 'template_id', $tag_id]);
             }
             //按时间或者热度排序
             if ($this->sort && $this->sort == 1) {
@@ -224,7 +216,7 @@ class TemplateOfficialSearch extends Model
                     }
                 }
             }
-            if ($subQuery) {
+             if ($subQuery && $subQueries) {
                 $query->andWhere(['template_id' => $subQuery]);
             }
 

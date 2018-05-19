@@ -62,7 +62,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     public function rules1()
     {
         return [
-            [['content', 'product', 'title'], 'trim'],
+            [['content', 'title'], 'trim'],
             [['user_id', 'cooperation_id'], 'required'],
             [['user_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort'], 'integer'],
             [['content'], 'string'],
@@ -120,7 +120,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     public function frontendFields()
     {
         return [
-            'template_id', 'user_id', 'title','product','thumbnail_id','created_at','updated_at','price', 'virtual_edit', 'virtual_view', 'virtual_favorite'
+            'template_id', 'user_id', 'title','classify_id','thumbnail_id','created_at','updated_at','price', 'virtual_edit', 'virtual_view', 'virtual_favorite'
         ];
     }
 
