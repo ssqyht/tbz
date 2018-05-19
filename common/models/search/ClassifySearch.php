@@ -80,14 +80,16 @@ class ClassifySearch extends Model
             return false;
         }
     }
+
     /**
-     * @param $classify_id
+     * @param $classify
      * @return array
+     * @author thanatos <thanatos915@163.com>
      */
-    public function searchTag($classify_id){
-        $classify = Classify::findOne($classify_id);
+    public function searchTag($classify){
+        $classify = Classify::findById($classify);
         //关联表查询标签数据
-        $tags_data = $classify ->tags;
+        $tags_data = $classify->tags;
         $tags = [];
         foreach ($tags_data as $value){
             $tags[$this->tag_style[$value->type]] = $value;

@@ -175,7 +175,7 @@ class Classify extends \yii\db\ActiveRecord
 
     /**
      * @return \yii\db\ActiveQuery
-     * 关联TemplateOfficial
+     * @author thanatos <thanatos915@163.com>
      */
     public function getTemplates()
     {
@@ -183,13 +183,14 @@ class Classify extends \yii\db\ActiveRecord
             ->where(['status'=>static::template_official_status])
             ->orderBy(['sort'=>SORT_ASC]);
     }
+
     /**
      * @return \yii\db\ActiveQuery
-     * 关联tag
+     * @author thanatos <thanatos915@163.com>
      */
     public function getTags()
     {
         return $this->hasMany(Tag::class, ['tag_id' => 'tag_id'])
-            ->viaTable('tu_tag_relation_classify', ['classify_id' => 'id']);
+            ->viaTable(TagRelationClassify::tableName(), ['classify_id' => 'id']);
     }
 }
