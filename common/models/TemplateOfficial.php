@@ -15,8 +15,8 @@ use yii\helpers\Url;
  * @property int $template_id @SWG\Property(property="templateId", type="integer", description="")
  * @property int $user_id 用户id @SWG\Property(property="userId", type="integer", description=" 用户id")
  * @property int $cooperation_id 商户id @SWG\Property(property="cooperationId", type="integer", description=" 商户id")
+ * @property int $classify_id 分类id @SWG\Property(property="classifyId", type="integer", description=" 分类id")
  * @property string $title 模板标题 @SWG\Property(property="title", type="string", description=" 模板标题")
- * @property string $product 模板分类 @SWG\Property(property="product", type="string", description=" 模板分类")
  * @property string $thumbnail_url 模板缩略图 @SWG\Property(property="thumbnailUrl", type="string", description=" 模板缩略图")
  * @property int $thumbnail_id 模板id @SWG\Property(property="thumbnailId", type="integer", description=" 模板id")
  * @property int $status 状态 @SWG\Property(property="status", type="integer", description=" 状态")
@@ -59,14 +59,10 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules1()
     {
         return [
             [['content', 'product', 'title'], 'trim'],
-            ['content', 'default', 'value' => ''],
-            ['status', 'default', 'value' => static::STATUS_EDITING],
-            [['cooperation_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite'], 'default', 'value' => 0],
-            [['sort', 'status'], 'filter', 'filter' => 'intval'],
             [['user_id', 'cooperation_id'], 'required'],
             [['user_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort'], 'integer'],
             [['content'], 'string'],
@@ -74,6 +70,21 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             [['product'], 'string', 'max' => 30],
             [['thumbnail_url'], 'string', 'max' => 255],
             [['status'], 'integer'],
+        ];
+    }
+    public function rules()
+    {
+        return [
+            [['content', 'title'], 'trim'],
+            ['content', 'default', 'value' => ''],
+            ['status', 'default', 'value' => static::STATUS_EDITING],
+            [['cooperation_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite'], 'default', 'value' => 0],
+            [['sort', 'status', 'classify_id'], 'filter', 'filter' => 'intval'],
+            [['user_id', 'cooperation_id', 'created_at', 'updated_at', 'content'], 'required'],
+            [['user_id', 'cooperation_id', 'classify_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort', 'status'], 'integer'],
+            [['content'], 'string'],
+            [['title'], 'string', 'max' => 50],
+            [['thumbnail_url'], 'string', 'max' => 255],
         ];
     }
 
@@ -86,8 +97,8 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             'template_id' => 'Template ID',
             'user_id' => '用户id',
             'cooperation_id' => '商户id',
+            'classify_id' => '分类id',
             'title' => '模板标题',
-            'product' => '模板分类',
             'thumbnail_url' => '模板缩略图',
             'thumbnail_id' => '模板id',
             'status' => '状态',

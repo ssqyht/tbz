@@ -31,6 +31,6 @@ class m180509_121804_create_oauth_refresh_token_table extends Migration
      */
     public function safeDown()
     {
-        $this->dropTable('oauth_refresh_token');
+        $this->dropTable($this->tableName);
     }
 }

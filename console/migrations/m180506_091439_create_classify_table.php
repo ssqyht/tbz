@@ -15,10 +15,9 @@ class m180506_091439_create_classify_table extends Migration
     public function safeUp()
     {
         $this->createTable($this->tableName, [
-            'id' => $this->primaryKey(11)->unsigned(),
-            'product' => $this->string(30)->notNull()->comment('模板分类标识'),
-            'parent_product' => $this->string(30)->notNull()->defaultValue('')->comment('父分类'),
-            'category' => $this->string(30)->notNull()->comment('所属品类标识'),
+            'classify_id' => $this->primaryKey(11)->unsigned(),
+            'category_id' => $this->integer(11)->unsigned()->notNull()->comment('所属品类id'),
+            'pid' => $this->integer(11)->unsigned()->notNull()->defaultValue(0)->comment('父分类id'),
             'name' => $this->string(10)->notNull()->comment('分类名称'),
             'parent_name' => $this->string(10)->notNull()->comment('父分类名称'),
             'default_price' => $this->smallInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('默认价格'),
@@ -36,8 +35,8 @@ class m180506_091439_create_classify_table extends Migration
             'updated_at' => $this->integer(10)->notNull()->comment('修改时间')
         ]);
         $this->addCommentOnTable($this->tableName, '分类信息表');
-        $this->createIndex('idx-product', $this->tableName, 'product');
-        $this->createIndex('idx-category', $this->tableName, 'category');
+        $this->createIndex('idx-pid', $this->tableName, 'pid');
+        $this->createIndex('idx-category_id', $this->tableName, 'category_id');
 
 
     }

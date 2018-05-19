@@ -51,5 +51,6 @@ class m180517_125412_create_member_coin_recharge_table extends Migration
     public function safeDown()
     {
         $this->dropTable($this->tableName);
+        $this->dropTable($this->logName);
     }
 }
