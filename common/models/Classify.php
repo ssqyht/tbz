@@ -16,7 +16,6 @@ use yii\helpers\Url;
  * @property int $category_id 所属品类id @SWG\Property(property="categoryId", type="integer", description=" 所属品类id")
  * @property int $pid 父分类id @SWG\Property(property="pid", type="integer", description=" 父分类id")
  * @property string $name 分类名称 @SWG\Property(property="name", type="string", description=" 分类名称")
- * @property string $parent_name 父分类名称 @SWG\Property(property="parentName", type="string", description=" 父分类名称")
  * @property int $default_price 默认价格 @SWG\Property(property="defaultPrice", type="integer", description=" 默认价格")
  * @property int $is_hot 是否是热门 @SWG\Property(property="isHot", type="integer", description=" 是否是热门")
  * @property int $is_new 是否是新上 @SWG\Property(property="isNew", type="integer", description=" 是否是新上")
@@ -62,11 +61,11 @@ class Classify extends \yii\db\ActiveRecord
     {
         return [
             [['category_id', 'pid', 'is_hot', 'is_new', 'is_open', 'status', 'is_recommend'], 'filter', 'filter' => 'intval'],
-            [['category_id', 'name', 'parent_name', 'default_edit', 'created_at', 'updated_at'], 'required'],
+            [['category_id', 'name', 'default_edit', 'created_at', 'updated_at'], 'required'],
             ['status', 'default', 'value' => 10],
             [['default_price', 'thumbnail_id', 'sort', 'status','created_at', 'updated_at', 'category_id', 'pid', 'is_host', 'is_new', 'is_recommend', 'status'], 'integer'],
             [['default_edit'], 'string'],
-            [['name', 'parent_name'], 'string', 'max' => 10],
+            [['name',], 'string', 'max' => 15],
             [['order_link', 'thumbnail'], 'string', 'max' => 255],
         ];
     }

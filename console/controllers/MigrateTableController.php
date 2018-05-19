@@ -194,17 +194,92 @@ class MigrateTableController extends Controller
      */
     public function actionProduct()
     {
+
+        // 清空表
+        Classify::getDb()->createCommand()->delete(Classify::tableName())->execute();
+
         $db = Yii::$app->dbMigrateDdy;
         $query = (new Query())
             ->from('com_template_product')
-            ->where(['coopId' => 0, 'status' => 1]);
+            ->where('coopId = 0 and status = 1 and name != parentName');
+
+        $list = $query->all($db);
+        $data = [];
+        foreach ($list as $key => $model) {
+            $data[] = [
+                'category_id' => 0,
+                'pid' => 0,
+                'name' => $model['parentName'],
+                'default_price' => 0,
+                'is_hot' => 0,
+                'is_new' => 0,
+                'default_edit' => '',
+                'order_link' => '',
+                'thumbnail' => '',
+                'thumbnail_id' => 0,
+                'sort' => 0,
+                'is_open' => 0,
+                'status' => 20,
+                'is_recommend' => 0,
+                'created_at' => time(),
+                'updated_at' => time(),
+            ];
+        }
+        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
+
+
+        $parentList = Classify::findAll(['pid' => 0]);
+        $data = [];
+        foreach ($parentList as $k => $parent) {
+            $query = (new Query())
+                ->from('com_template_product')
+                ->where('coopId = 0 and status = 1 and parentName = "'. $parent->name . '"');
+
+            $list = $query->all($db);
+            foreach ($list as $key => $model) {
+                $category = $this->getCategory($model['type']);
+                if ($category) {
+                    // 上传文件
+                    $imageUrl = Yii::$app->params['image_url'] . '/uploads' . $model['thumbnail'];
+                    if ($result = FileUpload::upload($imageUrl, FileUpload::DIR_OTHER)) {
+                        $thumbnail_id = $result->file_id ?: 0;
+                        $thumbnail = $result->path ?: '';
+                    }
+
+                    $data[] = [
+                        'category_id' => $category,
+                        'pid' => $parent->classify_id,
+                        'name' => $model['name'],
+                        'default_price' => $model['defaultPrice'],
+                        'is_hot' => $model['recommend'] == 1 ? 1 : 0,
+                        'is_new' => $model['recommend'] == 2 ? 1 : 0,
+                        'default_edit' => $model['editConfig'],
+                        'order_link' => $model['goodsLink'] ?: '',
+                        'thumbnail' => $thumbnail ?: '',
+                        'thumbnail_id' => $thumbnail_id ?: 0,
+                        'sort' => $model['sort'] ?: 0,
+                        'is_open' => $model['isOpen'],
+                        'is_recommend' => (int)$model['recommend2'] ? 1 : 0,
+                        'status' => 20,
+                        'created_at' => time(),
+                        'updated_at' => time(),
+                    ];
+                }
+            }
+
+        }
+        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
+
+
+        // 插入没有子分类的值
+        $query = (new Query())
+            ->from('com_template_product')
+            ->where('coopId = 0 and status = 1 and name = parentName');
 
         $list = $query->all($db);
 
         $data = [];
-        $sum = 0;
         foreach ($list as $key => $model) {
-            $sum++;
             $category = $this->getCategory($model['type']);
             if ($category) {
                 // 上传文件
@@ -215,46 +290,46 @@ class MigrateTableController extends Controller
                 }
 
                 $data[] = [
-                    'product' => strtolower($model['product']),
-                    'parent_product' => strtolower($model['parentProduct']),
-                    'category' => $category,
+                    'category_id' => $category,
+                    'pid' => 0,
                     'name' => $model['name'],
-                    'parent_name' => $model['parentName'],
                     'default_price' => $model['defaultPrice'],
                     'is_hot' => $model['recommend'] == 1 ? 1 : 0,
-                    'is_new' => $model['recommend']  == 2 ? 1 : 0,
+                    'is_new' => $model['recommend'] == 2 ? 1 : 0,
                     'default_edit' => $model['editConfig'],
                     'order_link' => $model['goodsLink'] ?: '',
                     'thumbnail' => $thumbnail ?: '',
-                    'thumbnail_id'  => $thumbnail_id ?: 0,
+                    'thumbnail_id' => $thumbnail_id ?: 0,
                     'sort' => $model['sort'] ?: 0,
                     'is_open' => $model['isOpen'],
-                    'is_recommend' => (int) $model['recommend2'] ? 1 : 0,
+                    'is_recommend' => (int)$model['recommend2'] ? 1 : 0,
                     'status' => 20,
                     'created_at' => time(),
                     'updated_at' => time(),
                 ];
             }
-
         }
 
-        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['product', 'parent_product', 'category', 'name', 'parent_name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
+        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
 
+        // 更新文件引用
         /** @var Classify[] $models */
         $models = Classify::find()->all();
         $data = [];
         foreach ($models as $key => $model) {
-            $data[] = [
-                'user_id' => 1,
-                'file_id' => $model->thumbnail_id,
-                'purpose' => FileUsedRecord::PURPOSE_CLASSIFY,
-                'purpose_id' => $model->id,
-                'created_at' => time(),
-            ];
+            if ($model->thumbnail_id) {
+                $data[] = [
+                    'user_id' => 1,
+                    'file_id' => $model->thumbnail_id,
+                    'purpose' => FileUsedRecord::PURPOSE_CLASSIFY,
+                    'purpose_id' => $model->classify_id,
+                    'created_at' => time(),
+                ];
+            }
         }
         FileUsedRecord::getDb()->createCommand()->batchInsert(FileUsedRecord::tableName(), ['user_id', 'file_id', 'purpose', 'purpose_id', 'created_at'], $data)->execute();
 
-        $this->stdout('迁移成功数: ' . $sum. "\n", Console::FG_GREEN);
+        $this->stdout('迁移成功数' . "\n", Console::FG_GREEN);
 
     }
 

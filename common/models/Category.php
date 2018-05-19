@@ -16,6 +16,7 @@ use common\components\traits\TimestampTrait;
  * @property string $name 品类名称 @SWG\Property(property="name", type="string", description=" 品类名称")
  * @property string $class_name 品类class名 @SWG\Property(property="className", type="string", description=" 品类class名")
  * @property int $sort 品类排序 @SWG\Property(property="sort", type="integer", description=" 品类排序")
+ * @property Classify[] $classifies
  */
 class Category extends \yii\db\ActiveRecord
 {
