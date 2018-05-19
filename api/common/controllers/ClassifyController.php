@@ -11,6 +11,7 @@ use Yii;
 use common\components\vendor\RestController;
 use common\models\search\ClassifySearch;
 use yii\web\BadRequestHttpException;
+use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 
 class ClassifyController extends RestController
@@ -72,7 +73,7 @@ class ClassifyController extends RestController
      * 删除分类
      * @param $id
      * @throws NotFoundHttpException
-     * @throws \HttpException
+     * @throws HttpException
      * @author thanatos <thanatos915@163.com>
      */
     public function actionDelete($id)
@@ -87,7 +88,7 @@ class ClassifyController extends RestController
             $message = $throwable->getMessage();
         }
         if ($message)
-            throw new \HttpException(500, Code::SERVER_FAILED);
+            throw new HttpException(500, Code::SERVER_FAILED);
     }
 
     /**
