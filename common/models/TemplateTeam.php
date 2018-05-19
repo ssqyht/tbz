@@ -4,15 +4,16 @@ namespace common\models;
 
 use Yii;
 use common\components\traits\TimestampTrait;
-use common\components\traits\ModelFieldsTrait;
+
 /**
- * This is the model class for table "{{%template_member}}".
- * @SWG\Definition(type="object", @SWG\Xml(name="TemplateMember"))
+ * This is the model class for table "{{%template_team}}".
+ * @SWG\Definition(type="object", @SWG\Xml(name="TemplateTeam"))
  *
  * @property int $template_id @SWG\Property(property="templateId", type="integer", description="")
  * @property int $classify_id 分类id @SWG\Property(property="classifyId", type="integer", description=" 分类id")
  * @property int $open_id openid @SWG\Property(property="openId", type="integer", description=" openid")
  * @property int $user_id 用户id @SWG\Property(property="userId", type="integer", description=" 用户id")
+ * @property int $team_id 团队id @SWG\Property(property="teamId", type="integer", description=" 团队id")
  * @property int $folder_id 文件夹id @SWG\Property(property="folderId", type="integer", description=" 文件夹id")
  * @property int $cooperation_id 商户id @SWG\Property(property="cooperationId", type="integer", description=" 商户id")
  * @property string $title 模板标题 @SWG\Property(property="title", type="string", description=" 模板标题")
@@ -25,26 +26,17 @@ use common\components\traits\ModelFieldsTrait;
  * @property int $edit_from 编辑来源官方模板id @SWG\Property(property="editFrom", type="integer", description=" 编辑来源官方模板id")
  * @property int $amount_print 印刷次数 @SWG\Property(property="amountPrint", type="integer", description=" 印刷次数")
  */
-class TemplateMember extends \yii\db\ActiveRecord
+class TemplateTeam extends \yii\db\ActiveRecord
 {
+
     use TimestampTrait;
-    use ModelFieldsTrait;
-
-    /** @var string 用户模板正常状态 */
-    const STATUS_NORMAL = '10';
-
-    /** @var string 回收站 */
-    const STATUS_TRASH = '7';
-
-    /** @var string 删除状态 */
-    const STATUS_DELETE = '3';
 
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return '{{%template_member}}';
+        return '{{%template_team}}';
     }
 
     /**
@@ -53,8 +45,8 @@ class TemplateMember extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['classify_id', 'open_id', 'user_id', 'folder_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'edit_from', 'amount_print', 'status', 'is_diy'], 'filter', 'filter' => 'intval'],
-            [['classify_id', 'open_id', 'user_id', 'folder_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'edit_from', 'amount_print', 'status', 'is_diy'], 'integer'],
+            [['classify_id', 'open_id', 'user_id', 'folder_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'edit_from', 'amount_print', 'status', 'is_diy', 'team_id'], 'filter', 'filter' => 'intval'],
+            [['classify_id', 'open_id', 'user_id', 'folder_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'edit_from', 'amount_print', 'status', 'is_diy', 'team_id'], 'integer'],
             [['user_id', 'cooperation_id', 'created_at', 'updated_at'], 'required'],
             [['title'], 'string', 'max' => 50],
             [['thumbnail_url'], 'string', 'max' => 255],
@@ -71,6 +63,7 @@ class TemplateMember extends \yii\db\ActiveRecord
             'classify_id' => '分类id',
             'open_id' => 'openid',
             'user_id' => '用户id',
+            'team_id' => '团队id',
             'folder_id' => '文件夹id',
             'cooperation_id' => '商户id',
             'title' => '模板标题',
@@ -84,57 +77,4 @@ class TemplateMember extends \yii\db\ActiveRecord
             'amount_print' => '印刷次数',
         ];
     }
-
-    public function frontendFields()
-    {
-        return ['template_id', 'open_id','folder_id', 'title','product', 'thumbnail_url','thumbnail_id','status','is_diy','edit_from','amount_print','team_id'];
-    }
-
-    /**
-     * 按热度排序
-     * @return \yii\db\ActiveQuery
-     */
-    public static function sort()
-    {
-        return static::find()->orderBy(['template_id' => SORT_DESC]);
-    }
-
-    /**
-     * 查找线上模板
-     * @return \yii\db\ActiveQuery
-     */
-    public static function active()
-    {
-        if (Yii::$app->request->isFrontend()) {
-            return static::sort();
-        } else {
-            return static::sort()->andWhere(['status' => static::STATUS_NORMAL]);
-        }
-    }
-
-    /**
-     * 根据模板id查询
-     * @param $id
-     * @return TemplateMember|null|\yii\db\ActiveRecord
-     * @author thanatos <thanatos915@163.com>
-     */
-    public static function findById($id)
-    {
-        return static::active()->andWhere(['template_id' => $id])->one();
-    }
-
-    /**
-     * @param bool $insert
-     * @param array $changedAttributes
-     * 更新缓存
-     */
-    public function afterSave($insert, $changedAttributes)
-    {
-        // 更新缓存
-        if ($changedAttributes) {
-            Yii::$app->dataCache->updateCache(static::class);
-        }
-        parent::afterSave($insert, $changedAttributes);
-    }
-
 }
