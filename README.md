@@ -59,4 +59,3 @@ docker-compose up
 ```bash
 ./yii cache flush-schema
 ```
-push test1
