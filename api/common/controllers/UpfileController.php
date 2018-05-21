@@ -267,7 +267,7 @@ class UpfileController extends BaseController
      *         in="header",
      *         required=true,
      *         type="string"
-     *     )
+     *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="type",
@@ -278,7 +278,7 @@ class UpfileController extends BaseController
      *     @SWG\Parameter(
      *          in="formData",
      *          name="ids",
-     *          type="array",
+     *          type="string",
      *          description="素材的唯一标识，单操作时为integer，多操作时为数组",
      *          required=true,
      *     ),

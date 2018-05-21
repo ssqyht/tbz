@@ -282,7 +282,7 @@ class TemplateMemberController extends BaseController
      *         in="header",
      *         required=true,
      *         type="string"
-     *     )
+     *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="type",
@@ -293,7 +293,7 @@ class TemplateMemberController extends BaseController
      *     @SWG\Parameter(
      *          in="formData",
      *          name="ids",
-     *          type="array",
+     *          type="string",
      *          description="模板的唯一标识template_id的值，单操作时为integer，多操作时为template_id组成的数组",
      *          required=true,
      *     ),

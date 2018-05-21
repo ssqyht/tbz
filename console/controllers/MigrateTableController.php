@@ -10,6 +10,7 @@ use common\models\FileUsedRecord;
 use common\models\forms\FileUpload;
 use common\models\Member;
 use common\models\MemberOauth;
+use common\models\Tag;
 use Yii;
 use yii\base\Exception;
 use yii\console\Controller;
@@ -225,13 +226,13 @@ class MigrateTableController extends Controller
                 'updated_at' => time(),
             ];
         }
-        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
+        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status', 'created_at', 'updated_at'], $data)->execute();
 
         $parentList = Classify::findAll(['pid' => 0]);
         foreach ($parentList as $k => $parent) {
             $query = (new Query())
                 ->from('com_template_product')
-                ->where('coopId = 0 and status = 1 and parentName = "'. $parent->name . '"');
+                ->where('coopId = 0 and status = 1 and parentName = "' . $parent->name . '"');
 
             $list = $query->all($db);
             $data = [];
@@ -265,7 +266,7 @@ class MigrateTableController extends Controller
                     ];
                 }
             }
-            Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
+            Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status', 'created_at', 'updated_at'], $data)->execute();
 
         }
 
@@ -309,7 +310,7 @@ class MigrateTableController extends Controller
             }
         }
 
-        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status','created_at', 'updated_at'], $data)->execute();
+        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status', 'created_at', 'updated_at'], $data)->execute();
         // 更新文件引用
         /** @var Classify[] $models */
         $models = Classify::find()->all();
@@ -330,6 +331,75 @@ class MigrateTableController extends Controller
 
     }
 
+    /**
+     * 迁移Tag表
+     * @throws \yii\db\Exception
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function actionTags()
+    {
+        $db = Yii::$app->dbMigrateDdy;
+        Tag::getDb()->createCommand()->delete(Tag::tableName())->execute();
+        $query = (new Query())
+            ->from('com_template_industry')
+            ->where(['coopId' => 0]);
+
+        $list = $query->all($db);
+
+        $data = [];
+        foreach ($list as $key => $model) {
+            $data[] = [
+                'name' => $model['name'],
+                'type' => Tag::TYPE_INDUSTRY,
+                'sort' => 0,
+                'created_at' => time(),
+                'updated_at' => time(),
+            ];
+        }
+
+        Tag::getDb()->createCommand()->batchInsert(Tag::tableName(), ['name', 'type', 'sort', 'created_at', 'updated_at'], $data)->execute();
+
+        $query = (new Query())
+            ->from('com_template_style')
+            ->where(['coopId' => 0]);
+
+        $list = $query->all($db);
+
+        $data = [];
+        foreach ($list as $key => $model) {
+            $data[] = [
+                'name' => $model['name'],
+                'type' => Tag::TYPE_STYLE,
+                'sort' => 0,
+                'created_at' => time(),
+                'updated_at' => time(),
+            ];
+        }
+
+        Tag::getDb()->createCommand()->batchInsert(Tag::tableName(), ['name', 'type', 'sort', 'created_at', 'updated_at'], $data)->execute();
+
+        $query = (new Query())
+            ->from('com_template_function')
+            ->where(['coopId' => 0]);
+
+        $list = $query->all($db);
+
+        $data = [];
+        foreach ($list as $key => $model) {
+            $data[] = [
+                'name' => $model['name'],
+                'type' => Tag::TYPE_FUNCTION,
+                'sort' => 0,
+                'created_at' => time(),
+                'updated_at' => time(),
+            ];
+        }
+
+        Tag::getDb()->createCommand()->batchInsert(Tag::tableName(), ['name', 'type', 'sort', 'created_at', 'updated_at'], $data)->execute();
+
+        $this->stdout('迁移成功' . "\n", Console::FG_GREEN);
+
+    }
 
     public function getPageSize()
     {
@@ -353,7 +423,6 @@ class MigrateTableController extends Controller
                 return 3;
 
         }
-
     }
 
 }

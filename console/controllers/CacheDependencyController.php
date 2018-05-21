@@ -29,7 +29,7 @@ class CacheDependencyController extends Controller
         // 添加系统缓存依赖记录
         $db->createCommand()->batchInsert(CacheDependency::tableName(), ['cache_name', 'cache_title', 'updated_at'], [
             ['cache_name' => 'official_classify', 'cache_title' => '官方分类缓存', 'updated_at' => time()],
-            ['classify_search_template','模板中心页缓存',time()],
+            ['official_hot_recommend','模板中心页热门推荐',time()],
             ['folder','文件夹缓存',time()],
             ['message','消息缓存',time()],
             ['template_cover','模板专题缓存',time()],
@@ -40,8 +40,8 @@ class CacheDependencyController extends Controller
         $db->createCommand()->batchInsert(CacheGroup::tableName(), ['table_name', 'cache_name'], [
             ['table_name' => 'tu_category', 'official_classify'],
             ['table_name' => 'tu_classify', 'official_classify'],
-            ['template_official','classify_search_template'],
-            ['tu_classify','classify_search_template'],
+            ['template_official','official_hot_recommend'],
+            ['tu_classify','official_hot_recommend'],
             ['tu_folder','folder'],
             ['tu_tbz_letter','message'],
             ['tu_tbz_subject','template_cover'],

@@ -39,6 +39,7 @@ class m180507_045732_create_template_table extends Migration
             'virtual_favorite' => $this->integer(11)->unsigned()->notNull()->defaultValue(0)->comment('虚拟收藏量'),
             'amount_buy' => $this->integer(11)->notNull()->unsigned()->defaultValue(0)->comment('购买量'),
             'sort' => $this->smallInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('排序'),
+            'is_recommend' => $this->tinyInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('是否推荐到热门场景'),
             'content' => 'longtext not null default "" COMMENT "模板数据"',
         ]);
         $this->addCommentOnTable($this->official, '官方模板信息表');

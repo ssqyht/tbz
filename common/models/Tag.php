@@ -26,6 +26,13 @@ class Tag extends \yii\db\ActiveRecord
     /** @var integer 模板状态 */
     const template_official_status = 20;
 
+    /** @var int 行业 */
+    const TYPE_INDUSTRY = 2;
+    /** @var int 风格 */
+    const TYPE_STYLE = 1;
+    /** @var int 功能 */
+    const TYPE_FUNCTION = 3;
+
     /**
      * @inheritdoc
      */
@@ -64,7 +71,7 @@ class Tag extends \yii\db\ActiveRecord
     public function frontendFields()
     {
         return [
-            'tag_id', 'name', 'type',
+            'tag_id', 'name',
         ];
     }
 

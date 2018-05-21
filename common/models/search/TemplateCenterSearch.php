@@ -10,6 +10,7 @@ use common\models\TemplateOfficial;
 use Yii;
 use common\models\Classify;
 use yii\base\Model;
+use yii\db\ActiveQuery;
 
 /**
  * Class TemplateCenterSearch
@@ -39,14 +40,15 @@ class TemplateCenterSearch extends Model
     {
         $classify_recommend = Classify::online()
             ->andWhere(['is_recommend' => Classify::IS_RECOMMEND])
-            ->with(['templates' => function ($query) {
-                $query->limit(12);
+            ->with(['templates' => function($query){
+                /** @var $query ActiveQuery */
+                $query->andWhere(['is_recommend' => TemplateOfficial::IS_RECOMMEND]);
             }]);
         // 查询数据 使用缓存
         try {
             $result = Yii::$app->dataCache->cache(function () use ($classify_recommend) {
                 return $result = $classify_recommend->all();
-            }, $this->cacheKey, CacheDependency::CLASSIFY_SEARCH_TEMPLATE);
+            }, $this->cacheKey, CacheDependency::OFFICIAL_HOT_RECOMMEND);
         } catch (\Throwable $e) {
             $result = null;
         }

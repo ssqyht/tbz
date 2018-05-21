@@ -48,6 +48,9 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     /** @var string 删除状态 */
     const STATUS_DELETE = '3';
 
+    /** @var int 推荐到热门场景 */
+    const IS_RECOMMEND = 1;
+
     /**
      * @inheritdoc
      */

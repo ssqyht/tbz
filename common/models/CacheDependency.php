@@ -15,7 +15,7 @@ use Yii;
 class CacheDependency extends \yii\db\ActiveRecord
 {
     const OFFICIAL_CLASSIFY = 'official_classify';
-    const CLASSIFY_SEARCH_TEMPLATE = 'classify_search_template';
+    const OFFICIAL_HOT_RECOMMEND = 'official_hot_recommend';
     const OFFICIAL_TEMPLATE = 'official_template';
     const TEMPLATE_COVER = 'template_cover';
     const MESSAGE= 'message';

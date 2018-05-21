@@ -29,6 +29,7 @@ use yii\helpers\Url;
  * @property int $is_recommend 是否推荐到热门场景 @SWG\Property(property="isRecommend", type="integer", description=" 是否推荐到热门场景")
  * @property int $created_at 创建时间 @SWG\Property(property="createdAt", type="integer", description=" 创建时间")
  * @property int $updated_at 修改时间 @SWG\Property(property="updatedAt", type="integer", description=" 修改时间")
+ * @property Tag[] $tags
  */
 class Classify extends \yii\db\ActiveRecord
 {
@@ -44,7 +45,7 @@ class Classify extends \yii\db\ActiveRecord
     /** @var int 推荐到热门场景 */
     const IS_RECOMMEND = 1;
     /** @var integer 模板状态 */
-    const template_official_status = 20;
+    const TEMPLATE_OFFICIAL_STATUS = 20;
 
     /**
      * @inheritdoc
@@ -175,8 +176,8 @@ class Classify extends \yii\db\ActiveRecord
     public function getTemplates()
     {
         return $this->hasMany(TemplateOfficial::class, ['classify_id' => 'classify_id'])
-            ->where(['status'=>static::template_official_status])
-            ->orderBy(['sort'=>SORT_ASC]);
+            ->where(['status' => static::TEMPLATE_OFFICIAL_STATUS])
+            ->orderBy(['sort' => SORT_ASC]);
     }
 
     /**
