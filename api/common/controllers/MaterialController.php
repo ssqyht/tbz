@@ -70,7 +70,7 @@ class MaterialController extends BaseController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(ref="#/definitions/Upfile")
+     *                  @SWG\Items(ref="#/definitions/MaterialMember")
      *              )
      *          )
      *     ),

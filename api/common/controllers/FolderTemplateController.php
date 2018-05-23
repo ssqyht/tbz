@@ -57,7 +57,7 @@ class FolderTemplateController extends RestController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(ref="#/definitions/Folder")
+     *                  @SWG\Items(ref="#/definitions/FolderTemplateMember")
      *              )
      *          )
      *     ),
@@ -127,7 +127,7 @@ class FolderTemplateController extends RestController
      *          @SWG\Schema(
      *              @SWG\Property(
      *                  property="data",
-     *                  ref="#/definitions/Folder"
+     *                  ref="#/definitions/FolderTemplateMember"
      *              )
      *          )
      *     ),
@@ -203,7 +203,7 @@ class FolderTemplateController extends RestController
      *          @SWG\Schema(
      *              @SWG\Property(
      *                  property="data",
-     *                  ref="#/definitions/TbzLetter"
+     *                  ref="#/definitions/FolderTemplateMember"
      *              )
      *          )
      *     ),
