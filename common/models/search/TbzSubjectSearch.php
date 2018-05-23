@@ -15,8 +15,10 @@ use Yii;
 use common\models\CacheDependency;
 class TbzSubjectSearch extends Model
 {
-    private $_cacheKey;
     public $status;
+
+    private $_cacheKey;
+
     public function rules()
     {
         return [
@@ -26,7 +28,7 @@ class TbzSubjectSearch extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['status'],
+            static::SCENARIO_DEFAULT => [],
             static::SCENARIO_BACKEND => ['status'],
             static::SCENARIO_FRONTEND => []
         ];
@@ -34,12 +36,15 @@ class TbzSubjectSearch extends Model
     /**
      * 查询数据
      * @param $params
-     * @return TbzSubject[]|null
+     * @return TbzSubject[]|null|bool
      * @author thanatos <thanatos915@163.com>
      */
     public function search($params)
     {
         $this->load($params, '');
+        if (!$this->validate()){
+            return false;
+        }
         switch ($this->scenario) {
             case static::SCENARIO_FRONTEND:
                 return $this->searchFrontend();
@@ -68,7 +73,7 @@ class TbzSubjectSearch extends Model
             $result = Yii::$app->dataCache->cache(function () use ($provider) {
                 $result = $provider->getModels();
                 return $result;
-            }, $this->cacheKey, CacheDependency::TEMPLATE_COVER);
+            }, $this->getcacheKey($provider->getKeys()), CacheDependency::TEMPLATE_COVER);
         } catch (\Throwable $e) {
             $result = null;
         }
@@ -104,15 +109,16 @@ class TbzSubjectSearch extends Model
      * @return array|null
      * @author thanatos <thanatos915@163.com>
      */
-    public function getCacheKey()
+    public function getCacheKey($key)
     {
         if ($this->_cacheKey === null) {
             $this->_cacheKey = [
                 __CLASS__,
                 static::class,
                 TbzSubject::tableName(),
-                TbzSubject::tableName(),
                 $this->scenario,
+                $this->attributes,
+                $key,
             ];
         }
         return $this->_cacheKey;

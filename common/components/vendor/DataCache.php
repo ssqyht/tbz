@@ -42,7 +42,7 @@ class DataCache extends Component
     public function cache(callable $callable, $cacheKey, $dependency, $db = null)
     {
         $this->setDb($db);
-        $result = Yii::$app->cache->get($cacheKey);
+        $result = false/*Yii::$app->cache->get($cacheKey)*/;
         if ($result === false) {
             // 查询数据
             $result = call_user_func($callable, $this);

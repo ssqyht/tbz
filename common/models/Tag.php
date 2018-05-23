@@ -3,9 +3,9 @@
 namespace common\models;
 
 use common\components\traits\ModelErrorTrait;
-use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelFieldsTrait;
+
 /**
  * This is the model class for table "{{%tag}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="Tag"))
@@ -23,8 +23,6 @@ class Tag extends \yii\db\ActiveRecord
     use TimestampTrait;
     use ModelErrorTrait;
     use ModelFieldsTrait;
-    /** @var integer 模板状态 */
-    const template_official_status = 20;
 
     /** @var int 行业 */
     const TYPE_INDUSTRY = 2;
@@ -71,7 +69,7 @@ class Tag extends \yii\db\ActiveRecord
     public function frontendFields()
     {
         return [
-            'tag_id', 'name',
+            'tag_id', 'name', 'type','sort'
         ];
     }
 

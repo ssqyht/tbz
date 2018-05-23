@@ -1,15 +1,15 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: swz
- * Date: 2018/5/11
- * Time: 11:34
+ * User: IT07
+ * Date: 2018/5/22
+ * Time: 10:37
  */
-
 namespace api\common\controllers;
 
-use common\models\forms\FolderForm;
-use common\models\search\FolderSearch;
+use common\models\forms\FolderTemplateForm;
+use common\models\forms\FolderMaterialForm;
+use common\models\search\FolderMaterialSearch;
 use common\models\TbzLetter;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
@@ -17,20 +17,25 @@ use common\components\vendor\RestController;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\helpers\ArrayHelper;
-class FolderController extends RestController
+class FolderMaterialController extends RestController
 {
     /**
      * @SWG\Get(
-     *     path="/folder",
-     *     operationId="getFolder",
+     *     path="/folder-material",
+     *     operationId="getFolderMaterial",
      *     schemes={"http"},
      *     tags={"文件夹接口"},
-     *     summary="获取文件夹信息",
+     *     summary="获取素材文件夹信息",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
      *         required=true,
      *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="team",
+     *         in="header",
+     *         type="integer"
      *     ),
      *      @SWG\Parameter(
      *         name="Handle",
@@ -51,7 +56,7 @@ class FolderController extends RestController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(ref="#/definitions/Folder")
+     *                  @SWG\Items(ref="#/definitions/FolderMaterialMember")
      *              )
      *          )
      *     ),
@@ -66,26 +71,39 @@ class FolderController extends RestController
      */
     public function actionIndex()
     {
-        $folder = new FolderSearch();
-        $data = ArrayHelper::merge(\Yii::$app->request->get(), ['method' => FolderSearch::TEMPLATE_FOLDER]);
+        if ($team_id = \Yii::$app->request->headers->get('team')){
+            //团队
+            $method = ['method' => FolderMaterialSearch::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
+        }else{
+            //个人
+            $method = ['method' => FolderMaterialSearch::MATERIAL_FOLDER_MEMBER];
+        }
+        $folder = new FolderMaterialSearch();
+        $data = ArrayHelper::merge(\Yii::$app->request->get(),$method);
         $result = $folder->search($data);
         if ($result) {
             return $result;
         }
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
     }
+
     /**
      * @SWG\Post(
-     *     path="/folder",
-     *     operationId="addFolder",
+     *     path="/folder-material",
+     *     operationId="addFolderMaterial",
      *     schemes={"http"},
      *     tags={"文件夹接口"},
-     *     summary="创建文件夹",
+     *     summary="创建素材文件夹",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
      *         required=true,
      *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="team",
+     *         in="header",
+     *         type="integer"
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
@@ -108,7 +126,7 @@ class FolderController extends RestController
      *          @SWG\Schema(
      *              @SWG\Property(
      *                  property="data",
-     *                  ref="#/definitions/Folder"
+     *                  ref="#/definitions/FolderMaterialTeam"
      *              )
      *          )
      *     ),
@@ -123,26 +141,38 @@ class FolderController extends RestController
      */
     public function actionCreate()
     {
-        $create_data = ArrayHelper::merge(\Yii::$app->request->post(), ['method' => FolderForm::TEMPLATE_FOLDER]);
-        $message = new FolderForm();
-        if ($message->load($create_data, '') && ($result = $message->addFolder())) {
+        if ($team_id = \Yii::$app->request->headers->get('team')){
+            //团队
+            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
+        }else{
+            //个人
+            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_MEMBER];
+        }
+        $create_data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
+        $model = new FolderMaterialForm();
+        if ($model->load($create_data, '') && ($result = $model->addFolder())) {
             return $result;
         }
-        throw new BadRequestHttpException($message->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }
 
     /**
      * @SWG\Put(
-     *     path="/folder/{folder_id}",
-     *     operationId="updateFolder",
+     *     path="/folder-material/{folder_id}",
+     *     operationId="updateFolderMaterial",
      *     schemes={"http"},
      *     tags={"文件夹接口"},
-     *     summary="修改文件夹信息",
+     *     summary="修改素材文件夹信息",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
      *         required=true,
      *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="team",
+     *         in="header",
+     *         type="integer"
      *     ),
      *     @SWG\Parameter(
      *          in="path",
@@ -172,7 +202,7 @@ class FolderController extends RestController
      *          @SWG\Schema(
      *              @SWG\Property(
      *                  property="data",
-     *                  ref="#/definitions/TbzLetter"
+     *                  ref="#/definitions/FolderMaterialTeam"
      *              )
      *          )
      *     ),
@@ -188,8 +218,15 @@ class FolderController extends RestController
      */
     public function actionUpdate($id)
     {
-        $update_data = ArrayHelper::merge(\Yii::$app->request->post(), ['method' => FolderForm::TEMPLATE_FOLDER]);
-        $folder = new FolderForm();
+        if ($team_id = \Yii::$app->request->headers->get('team')){
+            //团队
+            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
+        }else{
+            //个人
+            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_MEMBER];
+        }
+        $update_data = ArrayHelper::merge(\Yii::$app->request->post(),$method);
+        $folder = new FolderMaterialForm();
         if ($folder->load($update_data, '') && ($result = $folder->updateFolder($id))) {
             return $result;
         }
@@ -198,16 +235,21 @@ class FolderController extends RestController
 
     /**
      * @SWG\Delete(
-     *     path="/folder/{delete_id}",
-     *     operationId="deleteFolder",
+     *     path="/folder-material/{folder_id}",
+     *     operationId="deleteFolderMaterial",
      *     schemes={"http"},
      *     tags={"文件夹接口"},
-     *     summary="文件夹到回收站",
+     *     summary="素材文件夹到回收站",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
      *         required=true,
      *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="team",
+     *         in="header",
+     *         type="integer"
      *     ),
      *     @SWG\Parameter(
      *          in="path",
@@ -233,8 +275,15 @@ class FolderController extends RestController
      */
     public function actionDelete($id)
     {
-        $folder = new FolderForm();
-        if ($folder->load(['method'=>FolderForm::TEMPLATE_FOLDER], '') && $folder->deleteFolder($id)) {
+        if ($team_id = \Yii::$app->request->headers->get('team')){
+            //团队
+            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
+        }else{
+            //个人
+            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_MEMBER];
+        }
+        $folder = new FolderMaterialForm();
+        if ($folder->load($method, '') && $folder->deleteFolder($id)) {
             return true;
         }
         throw new HttpException(500, $folder->getStringErrors(), Code::SERVER_FAILED);

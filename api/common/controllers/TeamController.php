@@ -2,45 +2,45 @@
 /**
  * Created by PhpStorm.
  * User: IT07
- * Date: 2018/5/18
- * Time: 13:40
+ * Date: 2018/5/19
+ * Time: 13:20
  */
+
 namespace api\common\controllers;
 
-use common\models\forms\FolderForm;
-use common\models\search\FolderSearch;
+use common\models\forms\MyFavoriteForm;
+use common\models\MyFavorite;
+use common\models\search\TeamSearch;
 use common\models\TbzLetter;
+use common\models\search\MyFavoriteSearch;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
 use common\components\vendor\RestController;
+use common\models\forms\TeamForm;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
-use yii\helpers\ArrayHelper;
-class MaterialFoldersController extends RestController
+
+class TeamController extends RestController
 {
     /**
      * @SWG\Get(
-     *     path="/material-folders",
-     *     operationId="getMaterialFolder",
+     *     path="/team",
+     *     operationId="getTeam",
      *     schemes={"http"},
-     *     tags={"素材文件夹接口"},
-     *     summary="获取素材文件夹信息",
+     *     tags={"团队接口"},
+     *     summary="获取团队信息",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
      *         required=true,
      *         type="string"
      *     ),
-     *       @SWG\Parameter(
-     *         name="Handle",
-     *         in="header",
-     *         type="string"
-     *     ),
      *      @SWG\Parameter(
      *          in="query",
-     *          name="status",
+     *          name="team_id",
      *          type="integer",
-     *          description="文件夹状态(后台时可以根据此参数查询,10为正常，7为到回收站，3为删除)",
+     *          description="团队的唯一标识team_id",
+     *          required = true,
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -50,7 +50,7 @@ class MaterialFoldersController extends RestController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(ref="#/definitions/MaterialFolders")
+     *                  @SWG\Items(ref="#/definitions/Team")
      *              )
      *          )
      *     ),
@@ -60,27 +60,25 @@ class MaterialFoldersController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return array|bool
+     * @return array|mixed|null
      * @throws NotFoundHttpException
      */
     public function actionIndex()
     {
-        $folder = new FolderSearch();
-        $data = ArrayHelper::merge(\Yii::$app->request->get(), ['method' => FolderSearch::MATERIAL_FOLDER]);
-        $result = $folder->search($data);
+        $model = new TeamSearch();
+        $result = $model->search(\Yii::$app->request->get());
         if ($result) {
             return $result;
         }
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
     }
-
     /**
      * @SWG\Post(
-     *     path="/material-folder",
-     *     operationId="addMaterialFolder",
+     *     path="/team",
+     *     operationId="addTeam",
      *     schemes={"http"},
-     *     tags={"素材文件夹接口"},
-     *     summary="创建素材文件夹",
+     *     tags={"团队接口"},
+     *     summary="添加团队",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
@@ -89,26 +87,19 @@ class MaterialFoldersController extends RestController
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
-     *          name="name",
+     *          name="team_name",
      *          type="string",
-     *          description="文件夹名称",
+     *          description="团队名称",
      *          required=true,
      *     ),
-     *     @SWG\Parameter(
-     *          in="formData",
-     *          name="color",
-     *          type="string",
-     *          description="颜色",
-     *          required=true,
-     *     ),
-     *     @SWG\Response(
+     *      @SWG\Response(
      *          response=200,
      *          description="请求成功",
      *          ref="$/responses/Success",
      *          @SWG\Schema(
      *              @SWG\Property(
      *                  property="data",
-     *                  ref="#/definitions/MaterialFolders"
+     *                  ref="#/definitions/Team"
      *              )
      *          )
      *     ),
@@ -118,26 +109,27 @@ class MaterialFoldersController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return bool
+     * @return bool|\common\models\Team
      * @throws BadRequestHttpException
+     * 创建团队
      */
     public function actionCreate()
     {
-        $create_data = ArrayHelper::merge(\Yii::$app->request->post(), ['method' => FolderForm::MATERIAL_FOLDER]);
-        $message = new FolderForm();
-        if ($message->load($create_data, '') && ($result = $message->addFolder())) {
+        $create_data = \Yii::$app->request->post();
+        $model = new TeamForm();
+        if ($model->load($create_data, '') && ($result = $model->addTeam())) {
             return $result;
         }
-        throw new BadRequestHttpException($message->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }
 
     /**
      * @SWG\Put(
-     *     path="/material-folder/{folder_id}",
-     *     operationId="updateMaterialFolder",
+     *     path="/team/{id}",
+     *     operationId="updateTeam",
      *     schemes={"http"},
-     *     tags={"素材文件夹接口"},
-     *     summary="编辑素材文件夹信息",
+     *     tags={"团队接口"},
+     *     summary="编辑团队",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
@@ -146,33 +138,31 @@ class MaterialFoldersController extends RestController
      *     ),
      *     @SWG\Parameter(
      *          in="path",
-     *          name="folder_id",
+     *          name="id",
      *          type="integer",
-     *          description="文件夹id",
+     *          description="团队唯一标识id",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
-     *          name="name",
+     *          name="team_name",
      *          type="string",
-     *          description="文件夹名称",
-     *          required=true,
+     *          description="团队名称",
      *     ),
-     *     @SWG\Parameter(
+     *      @SWG\Parameter(
      *          in="formData",
-     *          name="color",
+     *          name="team_mark",
      *          type="string",
-     *          description="颜色",
-     *          required=true,
+     *          description="团队头像",
      *     ),
-     *     @SWG\Response(
+     *      @SWG\Response(
      *          response=200,
      *          description="请求成功",
      *          ref="$/responses/Success",
      *          @SWG\Schema(
      *              @SWG\Property(
      *                  property="data",
-     *                  ref="#/definitions/MaterialFolders"
+     *                  ref="#/definitions/Team"
      *              )
      *          )
      *     ),
@@ -183,26 +173,27 @@ class MaterialFoldersController extends RestController
      *     ),
      * )
      * @param $id
-     * @return bool|TbzLetter|null
+     * @return mixed
      * @throws BadRequestHttpException
+     * 编辑团队信息
      */
     public function actionUpdate($id)
     {
-        $update_data = ArrayHelper::merge(\Yii::$app->request->post(), ['method' => FolderForm::MATERIAL_FOLDER]);
-        $folder = new FolderForm();
-        if ($folder->load($update_data, '') && ($result = $folder->updateFolder($id))) {
+        $update_data = \Yii::$app->request->post();
+        $model = new TeamForm();
+        if ($model->load($update_data, '') && ($result = $model->updateTeam($id))) {
             return $result;
         }
-        throw new BadRequestHttpException($folder->getStringErrors(), Code::SERVER_UNAUTHORIZED);
+        throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }
 
     /**
      * @SWG\Delete(
-     *     path="/material-folder/{folder_id}",
-     *     operationId="deleteMaterialFolder",
+     *     path="/team/{id}",
+     *     operationId="deleteTeam",
      *     schemes={"http"},
-     *     tags={"素材文件夹接口"},
-     *     summary="素材文件夹到回收站",
+     *     tags={"团队接口"},
+     *     summary="删除团队",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
@@ -211,14 +202,15 @@ class MaterialFoldersController extends RestController
      *     ),
      *     @SWG\Parameter(
      *          in="path",
-     *          name="folder_id",
+     *          name="id",
      *          type="integer",
-     *          description="文件夹id",
+     *          description="团队唯一标识id",
      *          required=true,
      *     ),
-     *     @SWG\Response(
+     *      @SWG\Response(
      *          response=200,
      *          description="请求成功",
+     *          ref="$/responses/Success",
      *     ),
      *     @SWG\Response(
      *          response="default",
@@ -229,13 +221,14 @@ class MaterialFoldersController extends RestController
      * @param $id
      * @return bool
      * @throws HttpException
+     * 删除团队
      */
     public function actionDelete($id)
     {
-        $folder = new FolderForm();
-        if ($folder->load(['method'=>FolderForm::MATERIAL_FOLDER], '') && $folder->deleteFolder($id)) {
+        $model = new TeamForm();
+        if ($model->deleteTeam($id)) {
             return true;
         }
-        throw new HttpException(500, $folder->getStringErrors(), Code::SERVER_FAILED);
+        throw new HttpException(500, $model->getStringErrors(), Code::SERVER_FAILED);
     }
 }

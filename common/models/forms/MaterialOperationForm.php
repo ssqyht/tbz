@@ -2,24 +2,25 @@
 /**
  * Created by PhpStorm.
  * User: IT07
- * Date: 2018/5/17
- * Time: 15:57
+ * Date: 2018/5/22
+ * Time: 9:34
  */
-
 namespace common\models\forms;
 
 use common\components\traits\ModelErrorTrait;
-use common\models\MaterialFolders;
-use common\models\TemplateMember;
-use common\models\Upfile;
-use common\models\Folder;
-class BasicOperationForm extends \yii\base\Model
+use common\models\FolderMaterialMember;
+use common\models\FolderMaterialTeam;
+use common\models\MaterialMember;
+use common\models\MaterialTeam;
+class MaterialOperationForm extends \yii\base\Model
 {
     use ModelErrorTrait;
-    /** @var string 素材管理 */
-    const UPFILE = 'upfile';
-    /** @var string 个人模板管理 */
-    const TEMPLATE_MEMBER = 'template_member';
+    /** @var string 个人素材管理 */
+    const MATERIAL_MEMBER = 'material_member';
+    /** @var string 团队素材管理 */
+    const MATERIAL_TEAM = 'material_team';
+
+
     /* @var integer  重命名 */
     const RENAME = 1;
     /* @var integer  移动到文件夹 */
@@ -30,8 +31,16 @@ class BasicOperationForm extends \yii\base\Model
     const DELETE = 4;
     /* @var integer  还原 */
     const REDUCTION = 5;
-    /* @var integer  还原 */
-    const PERSONAL_TRANSFER_TEAM = 6;
+
+
+    /** @var int 到回收站 */
+    const STATUS_TRASH = 7;
+    /** @var int 删除 */
+    const STATUS_DELETE = 3;
+    /** @var int 还原 */
+    const STATUS_NORMAL = 10;
+
+
     public $method;
     public $_table;
     public $_user;
@@ -43,13 +52,14 @@ class BasicOperationForm extends \yii\base\Model
     public $folder;
     public $team_id;
     public $type;
+
     public function rules()
     {
         return [
-            [['ids', 'type','method'], 'required'],
+            [['ids', 'type', 'method'], 'required'],
             [['folder', 'team_id'], 'integer'],
             ['name', 'string'],
-            ['method', 'in', 'range' => [static::UPFILE, static::TEMPLATE_MEMBER]],
+            ['method', 'in', 'range' => [static::MATERIAL_MEMBER,static::MATERIAL_TEAM]],
         ];
     }
 
@@ -75,8 +85,6 @@ class BasicOperationForm extends \yii\base\Model
                 return $this->deleteTemplate();
             case static::REDUCTION :
                 return $this->reduction();
-            case static:: PERSONAL_TRANSFER_TEAM:
-                return $this->transferTeam();
             default:
                 return null;
         }
@@ -111,7 +119,7 @@ class BasicOperationForm extends \yii\base\Model
             $this->addError('', '移动到文件夹，文件夹id不能为空');
             return false;
         }
-        if (!$this->isFolder()){
+        if (!$this->isFolder()) {
             $this->addError('', '目标文件夹不存在');
             return false;
         }
@@ -125,7 +133,7 @@ class BasicOperationForm extends \yii\base\Model
      */
     public function recycleBin()
     {
-        return $this->batchProcessing('status', TemplateMember::STATUS_TRASH);
+        return $this->batchProcessing('status', static::STATUS_TRASH);
     }
 
     /**
@@ -135,7 +143,7 @@ class BasicOperationForm extends \yii\base\Model
      */
     public function deleteTemplate()
     {
-        return $this->batchProcessing('status', TemplateMember::STATUS_DELETE);
+        return $this->batchProcessing('status', static::STATUS_DELETE);
     }
 
     /**
@@ -145,20 +153,7 @@ class BasicOperationForm extends \yii\base\Model
      */
     public function reduction()
     {
-        return $this->batchProcessing('status', TemplateMember::STATUS_NORMAL);
-    }
-
-    /**
-     * 个人转团队
-     * @return bool
-     * @throws \yii\db\Exception
-     */
-    public function transferTeam(){
-        if (!$this->team_id) {
-            $this->addError('', '个人转团队，team_id不能为空');
-            return false;
-        }
-        return $this->batchProcessing('team_id',$this->team_id);
+        return $this->batchProcessing('status', static::STATUS_NORMAL);
     }
     /**
      * @return bool
@@ -166,8 +161,8 @@ class BasicOperationForm extends \yii\base\Model
      */
     public function batchProcessing($key, $value)
     {
-        if ($this->table){
-            $result = \Yii::$app->db->createCommand()->update($this->_table, [$key => $value], [ $this->_condition =>$this->ids, 'user_id' => $this->user,'team_id'=>0])
+        if ($this->table) {
+            $result = \Yii::$app->db->createCommand()->update($this->_table, [$key => $value], [$this->_condition => $this->ids])
                 ->execute();
             if ($result) {
                 //更新缓存
@@ -195,43 +190,46 @@ class BasicOperationForm extends \yii\base\Model
      * 根据不同场景获取不同的文件名
      * @return array|bool
      */
-    public function getTable(){
-        if ($this->_table === null){
-            switch ($this->method){
-                case static::UPFILE:
-                    $this->_table = Upfile::tableName();
+    public function getTable()
+    {
+        if ($this->_table === null) {
+            switch ($this->method) {
+                case static::MATERIAL_MEMBER:
+                    //个人素材
+                    $this->_table = MaterialMember::tableName();
                     $this->_condition = 'id';
-                    $this->_tableModel = Upfile::class;
+                    $this->_tableModel = MaterialMember::class;
                     break;
-                case static::TEMPLATE_MEMBER:
-                    $this->_table = TemplateMember::tableName();
-                    $this->_condition = 'template_id';
-                    $this->_tableModel = TemplateMember::class;
+                case static::MATERIAL_TEAM:
+                    //团队素材
+                    $this->_table = MaterialTeam::tableName();
+                    $this->_condition = 'id';
+                    $this->_tableModel = MaterialTeam::class;
                     break;
                 default:
                     $this->_table = false;
                     break;
             }
         }
-        if ($this->_table){
+        if ($this->_table) {
             return true;
         }
         return false;
     }
 
     /**
-     * 判断文件夹是否存在
-     * @param $folder_id
-     * @return bool|Folder|null
+     * 验证文件夹是否存在
+     * @return bool|FolderMaterialMember|FolderMaterialTeam|null
      */
-    public function isFolder(){
-        if ($this->method == static::UPFILE){
-            $is_folder = Folder::findOne(['id'=>$this->folder,'user_id'=>$this->user,'status'=>Folder::STATUS_ONLINE]);
-        }elseif ($this->method == static::TEMPLATE_MEMBER){
-            $is_folder = MaterialFolders::findOne(['id'=>$this->folder,'user_id'=>$this->user,'status'=>Folder::STATUS_ONLINE]);
-        }else{
+    public function isFolder()
+    {
+        if ($this->method == static::MATERIAL_MEMBER) {
+            $is_folder = FolderMaterialMember::findOne(['id' => $this->folder, 'user_id' => $this->user, 'status' => FolderMaterialMember::NORMAL_STATUS]);
+        } elseif ($this->method == static::MATERIAL_TEAM) {
+            $is_folder = FolderMaterialTeam::findOne(['id' => $this->folder, 'team_id' => $this->team_id, 'status' => FolderMaterialTeam::NORMAL_STATUS]);
+        } else {
             $is_folder = false;
         }
-       return $is_folder;
+        return $is_folder;
     }
 }

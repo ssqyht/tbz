@@ -25,7 +25,7 @@ class TbzLetter extends \yii\db\ActiveRecord
 
     use TimestampTrait;
     use ModelFieldsTrait;
-    /** @var int 消息状态 */
+    /** @var int 发布消息状态 */
     const STATUS_ONLINE = 20;
 
     /**
@@ -70,7 +70,7 @@ class TbzLetter extends \yii\db\ActiveRecord
 
     public function frontendFields()
     {
-        return ['title', 'subtitle','description', 'type','user_id'];
+        return ['id','title', 'subtitle','description', 'type','user_id','created_at'];
     }
 
     /**
@@ -78,7 +78,7 @@ class TbzLetter extends \yii\db\ActiveRecord
      */
     public static function sortTime(){
         {
-            return TbzLetter::find()->orderBy(['updated_at' => SORT_DESC]);
+            return TbzLetter::find()->orderBy(['created_at' => SORT_DESC]);
         }
     }
 
@@ -87,7 +87,7 @@ class TbzLetter extends \yii\db\ActiveRecord
      */
     public static function online()
     {
-        return static::sortTime()->andWhere(['status' => static::STATUS_ONLINE]);
+        return static::sortTime()->where(['status' => static::STATUS_ONLINE]);
     }
     /**
      * @param bool $insert

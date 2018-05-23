@@ -6,7 +6,6 @@
  * Time: 17:18
  */
 namespace common\models\search;
-use common\models\Classify;
 use common\models\Tag;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;

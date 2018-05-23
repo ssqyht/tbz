@@ -12,11 +12,12 @@ use yii\data\ActiveDataProvider;
 use common\models\CacheDependency;
 class MessageSearch extends Model
 {
-    public $_query;
     public $status;
     public $type;
-    public $user;
+
     private $_cacheKey;
+    private $_user;
+
     public function rules()
     {
         return [
@@ -29,7 +30,7 @@ class MessageSearch extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['status','type'],
+            static::SCENARIO_DEFAULT => [],
             static::SCENARIO_BACKEND => ['status','type'],
             static::SCENARIO_FRONTEND => []
         ];
@@ -42,6 +43,9 @@ class MessageSearch extends Model
     public function search($params)
     {
         $this->load($params, '');
+        if (!$this->validate()){
+            return false;
+        }
         switch ($this->scenario) {
             case static::SCENARIO_FRONTEND:
                 return $this->searchFrontend();
@@ -57,10 +61,9 @@ class MessageSearch extends Model
      * @return mixed|null 获取前台消息
      */
     public function searchFrontend(){
-        $this->user = 1;
         $tbz_letter =  TbzLetter::online()
-            ->where(['or','user_id',0,$this->user]);
-        $provider = new ActiveDataProvider([
+            ->andWhere(['or','user_id',0,$this->user]);   //查询所有公共消息和当前用户的个人消息
+       $provider = new ActiveDataProvider([
             'query' => $tbz_letter,
             'pagination' => [
                 'pageSize' => 10,
@@ -71,7 +74,7 @@ class MessageSearch extends Model
             $result = \Yii::$app->dataCache->cache(function () use ($provider) {
                 $result_data = $provider->getModels();
                 return $result_data;
-            }, $this->cacheKey, CacheDependency::MESSAGE);
+            }, $this->getcacheKey($provider->getKeys()), CacheDependency::MESSAGE);
         } catch (\Throwable $e) {
             $result = null;
         }
@@ -103,28 +106,31 @@ class MessageSearch extends Model
      * @return array|null
      * @author thanatos <thanatos915@163.com>
      */
-    public function getCacheKey()
+    public function getCacheKey($key)
     {
         if ($this->_cacheKey === null) {
             $this->_cacheKey = [
                 __CLASS__,
                 static::class,
                 TbzLetter::tableName(),
-                TbzLetter::tableName(),
                 $this->scenario,
                 $this->attributes,
+                $key,
             ];
         }
         return $this->_cacheKey;
     }
+
     /**
      * 获取用户id
+     * @return int|mixed
      */
-   /* public function getUser(){
-        if (!$this->user){
-            $this->user = \Yii::$app->user->id;
+   public function getUser(){
+        if (!$this->_user){
+            $this->_user = 1/*\Yii::$app->user->id*/;
         }
-    }*/
+        return $this->_user;
+    }
 
     /**
      * 删除查询缓存

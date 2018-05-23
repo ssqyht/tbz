@@ -6,8 +6,8 @@ use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelFieldsTrait;
 /**
- * This is the model class for table "{{%upfile}}".
- * @SWG\Definition(type="object", @SWG\Xml(name="Upfile"))
+ * This is the model class for table "{{%material_team}}".
+ * @SWG\Definition(type="object", @SWG\Xml(name="MaterialTeam"))
  *
  * @property int $id @SWG\Property(property="id", type="integer", description="")
  * @property int $source 文件模块来源(1:自主上传源文件,2:询价单提交,3:模板,4:新闻中心,5：商品,6:商品分类,7:虚拟记录,8:编辑器用户图片,9:评价晒图,10:优惠券展示图,11:积分商城的商品图片,12:管理后台独立静态页背景图,13:图帮主用户素材,14:图帮主会员头像上传,15:团队logo素材,16:团队素材,17:合作商,18:合作商模板分类图,19:图帮主秘籍缩略图,20:合作商产品链接logo,21:图帮主专题缩略图,22:社群吐槽缩略图 23:图帮主专题列表缩略图 24:编辑器表单图片) @SWG\Property(property="source", type="integer", description=" 文件模块来源(1:自主上传源文件,2:询价单提交,3:模板,4:新闻中心,5：商品,6:商品分类,7:虚拟记录,8:编辑器用户图片,9:评价晒图,10:优惠券展示图,11:积分商城的商品图片,12:管理后台独立静态页背景图,13:图帮主用户素材,14:图帮主会员头像上传,15:团队logo素材,16:团队素材,17:合作商,18:合作商模板分类图,19:图帮主秘籍缩略图,20:合作商产品链接logo,21:图帮主专题缩略图,22:社群吐槽缩略图 23:图帮主专题列表缩略图 24:编辑器表单图片)")
@@ -26,7 +26,7 @@ use common\components\traits\ModelFieldsTrait;
  * @property int $created_at 创建日期 @SWG\Property(property="createdAt", type="integer", description=" 创建日期")
  * @property int $updated_at 修改时间 @SWG\Property(property="updatedAt", type="integer", description=" 修改时间")
  */
-class Upfile extends \yii\db\ActiveRecord
+class MaterialTeam extends \yii\db\ActiveRecord
 {
 
     use TimestampTrait;
@@ -43,15 +43,16 @@ class Upfile extends \yii\db\ActiveRecord
     /**
      * @var array 前端页面返回参数
      */
-    static $frontendFields = ['title','source', 'sid','folder_id', 'team_id','user_id', 'width','height','size','status','session_id','filename','old_name'];
-    /**
+    static $frontendFields = ['title', 'source', 'sid', 'folder_id', 'team_id', 'user_id', 'width', 'height', 'size', 'status', 'session_id', 'filename', 'old_name'];
+
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return '{{%upfile}}';
+        return '{{%material_team}}';
     }
+
     /**
      * @inheritdoc
      */
@@ -89,7 +90,6 @@ class Upfile extends \yii\db\ActiveRecord
             'updated_at' => 'Updated At',
         ];
     }
-
     /**
      * 排序
      * @return \yii\db\ActiveQuery
@@ -98,6 +98,7 @@ class Upfile extends \yii\db\ActiveRecord
     {
         return static::find()->orderBy(['id' => SORT_DESC]);
     }
+
     /**
      * @param bool $insert
      * @param array $changedAttributes

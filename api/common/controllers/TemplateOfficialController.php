@@ -30,17 +30,19 @@ class TemplateOfficialController extends RestController
      *     schemes={"http"},
      *     tags={"模板相关接口"},
      *     summary="模板中心首页根据分类展示模板信息",
+     *     description="此接口模板中心首页根据是否推荐查询出相应的模板信息，成功返回推荐到热门场景的模板信息，最多展示12个模板",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
      *         name="Handle",
      *         in="header",
-     *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -85,47 +87,49 @@ class TemplateOfficialController extends RestController
      *     schemes={"http"},
      *     tags={"模板相关接口"},
      *     summary="官方模板查询接口",
-     *     @SWG\Parameter(
-     *         name="client",
+     *     description="此接口用于前台模板中心页展示页根据若干查询条件查询出相应的模板信息，成功返回上线的模板信息，后台可根据状态查询对应的模板信息，所有查询条件为空时，默认返回classify_id为1的模板信息",
+     *      @SWG\Parameter(
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
      *         name="Handle",
      *         in="header",
-     *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Parameter(
-     *         in="formData",
+     *         in="query",
      *         name="product",
      *         type="integer",
-     *         description="模板分类",
+     *         description="查询条件，模板小分类的classify_id",
      *     ),
      *      @SWG\Parameter(
-     *         in="formData",
+     *         in="query",
      *         name="price",
      *         type="integer",
-     *         description="模板价格,1-4对应不同价格区间",
+     *         description="查询条件，模板价格,1-4对应不同价格区间，1为大于0图币，2为100-500图币，3为500-1000图币，4为大于1000图币",
      *     ),
      *     @SWG\Parameter(
-     *         in="formData",
-     *         name="tag_style_id",
+     *         in="query",
+     *         name="style",
      *         type="integer",
-     *         description="风格tag_id",
+     *         description="查询条件,风格的tag_id",
      *     ),
      *     @SWG\Parameter(
-     *         in="formData",
-     *         name="tag_industry_id",
+     *         in="query",
+     *         name="industry",
      *         type="integer",
-     *         description="行业tag_id",
+     *         description="查询条件,行业的tag_id",
      *     ),
      *     @SWG\Parameter(
-     *         in="formData",
+     *         in="query",
      *         name="sort",
      *         type="integer",
-     *         description="按热度排序",
+     *         description="查询条件,按热度排序，值为1时按热度降序排序，其他条件按时间降序排序",
      *     ),
      *     @SWG\Response(
      *          response=200,

@@ -101,7 +101,7 @@ class TemplateOfficialSearch extends Model
 
     /**
      * 前端查询
-     * @return ActiveDataProvider
+     * @return ActiveDataProvider|bool
      * @author thanatos <thanatos915@163.com>
      */
     public function searchFrontend()
@@ -111,7 +111,10 @@ class TemplateOfficialSearch extends Model
         $dataProvider = new ActiveDataProvider([
             'query' => $this->query,
         ]);
-        return $dataProvider;
+        if ($dataProvider){
+            return $dataProvider;
+        }
+        return false;
 //             }, $this->cacheKey, CacheDependency::OFFICIAL_TEMPLATE);
 //         } catch (\Throwable $e) {
 //             $result = null;
@@ -121,7 +124,7 @@ class TemplateOfficialSearch extends Model
 
     /**
      * 后台查询
-     * @return ActiveDataProvider
+     * @return ActiveDataProvider|bool
      * @author thanatos <thanatos915@163.com>
      */
     public function searchBackend()
@@ -134,7 +137,10 @@ class TemplateOfficialSearch extends Model
         $dataProvider = new ActiveDataProvider([
             'query' => $this->query,
         ]);
-        return $dataProvider;
+        if ($dataProvider){
+            return $dataProvider;
+        }
+        return false;
     }
 
 

@@ -123,7 +123,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     public function frontendFields()
     {
         return [
-            'template_id', 'user_id', 'title','classify_id','thumbnail_id','created_at','updated_at','price', 'virtual_edit', 'virtual_view', 'virtual_favorite'
+            'template_id', 'user_id', 'title','classify_id','thumbnail_id','price', 'virtual_edit', 'virtual_view', 'virtual_favorite'
         ];
     }
 

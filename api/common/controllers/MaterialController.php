@@ -2,27 +2,29 @@
 /**
  * Created by PhpStorm.
  * User: IT07
- * Date: 2018/5/17
- * Time: 21:49
+ * Date: 2018/5/21
+ * Time: 17:07
  */
 
 namespace api\common\controllers;
 
+use common\models\forms\MaterialForm;
 use common\models\forms\UpfileForm;
-use common\models\search\UpfileSearch;
+use common\models\search\MaterialSearch;
 use common\models\TemplateMember;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
-use common\models\forms\BasicOperationForm;
+use common\models\forms\MaterialOperationForm;
 use yii\web\BadRequestHttpException;
 use yii\helpers\ArrayHelper;
 use yii\web\HttpException;
-class UpfileController extends BaseController
+
+class MaterialController extends BaseController
 {
     /**
      * @SWG\Get(
-     *     path="/Upfile",
-     *     operationId="getUpfile",
+     *     path="/material",
+     *     operationId="getMaterial",
      *     schemes={"http"},
      *     tags={"素材接口"},
      *     summary="根据条件查询素材",
@@ -31,6 +33,11 @@ class UpfileController extends BaseController
      *         in="header",
      *         required=true,
      *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="team",
+     *         in="header",
+     *         type="integer"
      *     ),
      *       @SWG\Parameter(
      *         name="Handle",
@@ -79,8 +86,16 @@ class UpfileController extends BaseController
     public function actionIndex()
     {
         //\Yii::$app->cache->flush();die;
-        $up_file = new UpfileSearch();
-        $result = $up_file->search(\Yii::$app->request->get());
+        $model = new MaterialSearch();
+        if ($team_id = \Yii::$app->request->headers->get('team')) {
+            //团队
+            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
+        } else {
+            //个人
+            $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
+        }
+        $data = ArrayHelper::merge(\Yii::$app->request->get(), $method);
+        $result = $model->search($data);
         if ($result) {
             return $result;
         }
@@ -90,8 +105,8 @@ class UpfileController extends BaseController
     /**
      * 新增素材
      * @SWG\POST(
-     *     path="/upfile",
-     *     operationId="addUpfile",
+     *     path="/material",
+     *     operationId="addMaterial",
      *     schemes={"http"},
      *     tags={"素材接口"},
      *     summary="新增素材",
@@ -102,10 +117,15 @@ class UpfileController extends BaseController
      *         type="string"
      *     ),
      *     @SWG\Parameter(
+     *         name="team",
+     *         in="header",
+     *         type="integer"
+     *     ),
+     *     @SWG\Parameter(
      *         name="body",
      *         in="body",
      *         required=true,
-     *         @SWG\Schema(ref="#/definitions/Upfile")
+     *         @SWG\Schema(ref="#/definitions/MaterialMember")
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -119,7 +139,7 @@ class UpfileController extends BaseController
      *                      @SWG\Property(
      *                      property="classify_name",
      *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/Upfile")
+     *                      @SWG\Items(ref="#/definitions/MaterialMember")
      *                  ))
      *              )
      *          )
@@ -130,14 +150,21 @@ class UpfileController extends BaseController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return bool|\common\models\Upfile
+     * @return bool|\common\models\MaterialMember|\common\models\MaterialTeam
      * @throws BadRequestHttpException
      */
     public function actionCreate()
     {
-        $create_data = \Yii::$app->request->post();
-        $model = new UpfileForm();
-        if ($model->load($create_data, '') && ($result = $model->addUpfile())) {
+        if ($team_id = \Yii::$app->request->headers->get('team')) {
+            //团队
+            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
+        } else {
+            //个人
+            $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
+        }
+        $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
+        $model = new MaterialForm();
+        if ($model->load($data, '') && ($result = $model->addMaterial())) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -146,8 +173,8 @@ class UpfileController extends BaseController
     /**
      * 编辑素材
      * @SWG\Put(
-     *     path="/upfile/{id}",
-     *     operationId="updateUpfile",
+     *     path="/material/{id}",
+     *     operationId="updateMaterial",
      *     schemes={"http"},
      *     tags={"素材接口"},
      *     summary="编辑素材",
@@ -156,6 +183,11 @@ class UpfileController extends BaseController
      *         in="header",
      *         required=true,
      *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="team",
+     *         in="header",
+     *         type="integer"
      *     ),
      *     @SWG\Parameter(
      *        name="id",
@@ -167,7 +199,7 @@ class UpfileController extends BaseController
      *         name="body",
      *         in="body",
      *         required=true,
-     *         @SWG\Schema(ref="#/definitions/Upfile")
+     *         @SWG\Schema(ref="#/definitions/MaterialMember")
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -181,7 +213,7 @@ class UpfileController extends BaseController
      *                      @SWG\Property(
      *                      property="classify_name",
      *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/Upfile")
+     *                      @SWG\Items(ref="#/definitions/MaterialMember")
      *                  ))
      *              )
      *          )
@@ -194,14 +226,21 @@ class UpfileController extends BaseController
      * )
      *
      * @param $id
-     * @return bool|TemplateMember|\common\models\TemplateOfficial
+     * @return bool|\common\models\MaterialMember|\common\models\MaterialTeam|null
      * @throws BadRequestHttpException
      */
     public function actionUpdate($id)
     {
-        $update_data = \Yii::$app->request->post();
-        $model = new UpfileForm();
-        if ($model->load($update_data, '') && ($result = $model->updateUpfile($id))) {
+        if ($team_id = \Yii::$app->request->headers->get('team')) {
+            //团队
+            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
+        } else {
+            //个人
+            $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
+        }
+        $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
+        $model = new MaterialForm();
+        if ($model->load($data, '') && ($result = $model->updateMaterial($id))) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -209,16 +248,21 @@ class UpfileController extends BaseController
 
     /**
      * @SWG\Delete(
-     *     path="/upfile/{id}",
-     *     operationId="deleteTemplateUpfile",
+     *     path="/material/{id}",
+     *     operationId="deleteMaterial",
      *     schemes={"http"},
      *     tags={"素材接口"},
-     *     summary="把素材放进回收站",
+     *     summary="素材放入回收站",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
      *         required=true,
      *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="team",
+     *         in="header",
+     *         type="integer"
      *     ),
      *     @SWG\Parameter(
      *         name="Handle",
@@ -248,20 +292,28 @@ class UpfileController extends BaseController
      */
     public function actionDelete($id)
     {
-        $message = new UpfileForm();
-        if ($result = $message->deleteUpfile($id)) {
+        if ($team_id = \Yii::$app->request->headers->get('team')) {
+            //团队
+            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
+        } else {
+            //个人
+            $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
+        }
+        $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
+        $model = new MaterialForm();
+        if ($model->load($data, '') && ($result = $model->deleteMaterial($id))) {
             return $result;
         }
-        throw new HttpException(500, $message->getStringErrors(), Code::SERVER_FAILED);
+        throw new HttpException(500, $model->getStringErrors(), Code::SERVER_FAILED);
     }
 
     /**
      * @SWG\POST(
-     *     path="/upfile/upfile-operation",
-     *     operationId="templateUpfileOperation",
+     *     path="/material/material-operation",
+     *     operationId="materialOperation",
      *     schemes={"http"},
      *     tags={"素材接口"},
-     *     summary="素材的常规操作(单个重命名，删除，到回收站、还原、个人转团队、移动到文件夹)",
+     *     summary="素材的常规操作(单个重命名，删除，到回收站、还原、移动到文件夹)",
      *     @SWG\Parameter(
      *         name="client",
      *         in="header",
@@ -269,16 +321,21 @@ class UpfileController extends BaseController
      *         type="string"
      *     ),
      *     @SWG\Parameter(
+     *         name="team",
+     *         in="header",
+     *         type="integer"
+     *     ),
+     *     @SWG\Parameter(
      *          in="formData",
      *          name="type",
      *          type="integer",
-     *          description="操作类型,1重命名(单个),2移动到文件夹，3到回收站，4删除，5还原，6个人转团队",
+     *          description="操作类型,1重命名(单个),2移动到文件夹，3到回收站，4删除，5还原",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="ids",
-     *          type="string",
+     *          type="integer",
      *          description="素材的唯一标识，单操作时为integer，多操作时为数组",
      *          required=true,
      *     ),
@@ -293,12 +350,6 @@ class UpfileController extends BaseController
      *          name="folder",
      *          type="integer",
      *          description="文件夹的id,type为2必传",
-     *     ),
-     *     @SWG\Parameter(
-     *          in="formData",
-     *          name="team_id",
-     *          type="integer",
-     *          description="团队id,type为6时必传",
      *     ),
      *      @SWG\Response(
      *          response=200,
@@ -315,10 +366,17 @@ class UpfileController extends BaseController
      * @throws BadRequestHttpException
      * @throws \yii\db\Exception
      */
-    public function actionUpfileOperation()
+    public function actionMaterialOperation()
     {
-        $model = new BasicOperationForm();
-        $data = ArrayHelper::merge(\Yii::$app->request->post(), ['method' => BasicOperationForm::UPFILE]);
+        if ($team_id = \Yii::$app->request->headers->get('team')) {
+            //团队
+            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
+        } else {
+            //个人
+            $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
+        }
+        $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
+        $model = new MaterialOperationForm();
         if ($result = $model->operation($data)) {
             return $result;
         }

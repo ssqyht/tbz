@@ -4,7 +4,7 @@ namespace common\models;
 
 use Yii;
 use common\components\traits\TimestampTrait;
-
+use common\components\traits\ModelFieldsTrait;
 /**
  * This is the model class for table "{{%template_team}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="TemplateTeam"))
@@ -30,6 +30,16 @@ class TemplateTeam extends \yii\db\ActiveRecord
 {
 
     use TimestampTrait;
+    use ModelFieldsTrait;
+
+    /** @var string 模板正常状态 */
+    const STATUS_NORMAL = '10';
+
+    /** @var string 回收站 */
+    const STATUS_TRASH = '7';
+
+    /** @var string 删除状态 */
+    const STATUS_DELETE = '3';
 
     /**
      * @inheritdoc
@@ -76,5 +86,56 @@ class TemplateTeam extends \yii\db\ActiveRecord
             'edit_from' => '编辑来源官方模板id',
             'amount_print' => '印刷次数',
         ];
+    }
+    public function frontendFields()
+    {
+        return ['template_id', 'open_id','folder_id', 'title','classify_id', 'thumbnail_url','thumbnail_id','status','is_diy','edit_from','amount_print','team_id'];
+    }
+
+    /**
+     * 按热度排序
+     * @return \yii\db\ActiveQuery
+     */
+    public static function sort()
+    {
+        return static::find()->orderBy(['template_id' => SORT_DESC]);
+    }
+
+    /**
+     * 查找线上模板
+     * @return \yii\db\ActiveQuery
+     */
+    public static function active()
+    {
+        if (Yii::$app->request->isFrontend()) {
+            return static::sort();
+        } else {
+            return static::sort()->andWhere(['status' => static::STATUS_NORMAL]);
+        }
+    }
+
+    /**
+     * 根据模板id查询
+     * @param $id
+     * @return TemplateMember|null|\yii\db\ActiveRecord
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function findById($id)
+    {
+        return static::active()->andWhere(['template_id' => $id])->one();
+    }
+
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * 更新缓存
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        // 更新缓存
+        if ($changedAttributes) {
+            Yii::$app->dataCache->updateCache(static::class);
+        }
+        parent::afterSave($insert, $changedAttributes);
     }
 }

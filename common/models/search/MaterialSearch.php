@@ -2,29 +2,45 @@
 /**
  * Created by PhpStorm.
  * User: IT07
- * Date: 2018/5/17
- * Time: 9:33
+ * Date: 2018/5/21
+ * Time: 17:09
  */
 namespace common\models\search;
+use common\models\MaterialMember;
+use common\models\MaterialTeam;
+use common\models\TeamMember;
 use common\models\TemplateMember;
 use common\components\vendor\Model;
+use common\models\Upfile;
+use Monolog\Handler\IFTTTHandler;
 use yii\data\ActiveDataProvider;
 use common\models\CacheDependency;
-class TemplateMemberSearch extends Model
+use common\components\traits\ModelErrorTrait;
+class MaterialSearch extends Model
 {
+    use ModelErrorTrait;
+    /** @var string 个人素材 */
+    const MATERIAL_MEMBER = 'material_member';
+    /** @var string 团队素材 */
+    const MATERIAL_TEAM = 'material_team';
+    /** @var int 正常状态 */
+    const NORMAL_STATUS = 10;
     /** @var integer 默认文件夹 */
     CONST DEFAULT_FOLDER = 0;
     public $status;
-    public $product;
     public $folder;
     public $_user;
     public $sort;
+    public $method;
+    public $team_id;
     private $_cacheKey;
     private $_query;
     public function rules()
     {
         return [
-            [['status'],'integer']
+            [['status','folder','team_id'],'integer'],
+            ['method','required'],
+            ['method', 'in', 'range' => [static::MATERIAL_MEMBER, static::MATERIAL_TEAM ]],
         ];
     }
     /**
@@ -33,9 +49,9 @@ class TemplateMemberSearch extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['status','product'],
-            static::SCENARIO_BACKEND => ['status','product'],
-            static::SCENARIO_FRONTEND => ['status','product','folder']
+            static::SCENARIO_DEFAULT => ['status','method'],
+            static::SCENARIO_BACKEND => ['status','method'],
+            static::SCENARIO_FRONTEND => ['status','folder','team_id','method']
         ];
     }
 
@@ -46,6 +62,9 @@ class TemplateMemberSearch extends Model
     public function search($params)
     {
         $this->load($params, '');
+        if (!$this->validate()){
+            return false;
+        }
         switch ($this->scenario) {
             case static::SCENARIO_FRONTEND:
                 return $this->searchFrontend();
@@ -58,12 +77,22 @@ class TemplateMemberSearch extends Model
     }
 
     /**
-     * @return ActiveDataProvider
+     * 前台查询个人或团队素材
+     * @return bool|mixed|null
      */
     public function searchFrontend(){
-        //查询当前用户的模板
-        $this->query->andWhere(['user_id' => $this->user])
-                    ->andWhere(['team_id'=>0]);
+        //查询当前用户的素材
+        if ($this->method == static::MATERIAL_MEMBER){
+            //个人素材查询
+            $this->query->andWhere(['user_id' => $this->user]);
+        }else{
+            //团队素材查询
+            if (!$this->isTeamMember()){
+                $this->addError('','当前用户不属于团队成员');
+                return false;
+            }
+            $this->query->andWhere(['team_id' => $this->team_id]);
+        }
         //按默认文件夹查询
         if (!$this->folder){
             $this->query->andWhere(['folder_id' => static::DEFAULT_FOLDER]);
@@ -79,7 +108,7 @@ class TemplateMemberSearch extends Model
             $result = \Yii::$app->dataCache->cache(function () use ($provider) {
                 $result = $provider->getModels();
                 return $result;
-            }, $this->cacheKey, CacheDependency::TEMPLATE_MEMBER);
+            }, $this->cacheKey, CacheDependency::MATERIAL);
         } catch (\Throwable $e) {
             $result = null;
         }
@@ -128,10 +157,12 @@ class TemplateMemberSearch extends Model
     public function getQuery()
     {
         if ($this->_query === null) {
-            $query = TemplateMember::sort();
-            //按小分类查询
-            if ($this->product) {
-                $query->where(['product' => $this->product]);
+            if ($this->method == static::MATERIAL_MEMBER){
+                //个人素材
+                $query = MaterialMember::sort();
+            }else{
+                //团队素材
+                $query = MaterialTeam::sort();
             }
             //按文件夹查询
             if ($this->folder) {
@@ -141,7 +172,7 @@ class TemplateMemberSearch extends Model
             if ($this->status){
                 $query->andWhere(['status'=>$this->status]);
             }else{
-                $query->andWhere(['status'=>TemplateMember::STATUS_NORMAL]);
+                $query->andWhere(['status'=>static::NORMAL_STATUS]);
             }
             //按时间排序
             if (!$this->sort && $this->sort == 1){
@@ -163,4 +194,15 @@ class TemplateMemberSearch extends Model
         return $this->_user;
     }
 
+    /**
+     * 判断当前用户是否是所要查询团队的成员
+     * @return bool
+     */
+    public function isTeamMember(){
+        $result = TeamMember::findOne(['user_id'=>$this->user,'team_id'=>$this->team_id,'status'=>TeamMember::NORMAL_STATUS]);
+        if ($result){
+            return true;
+        }
+        return false;
+    }
 }

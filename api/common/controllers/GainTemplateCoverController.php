@@ -23,17 +23,25 @@ class GainTemplateCoverController extends RestController
      *     schemes={"http"},
      *     tags={"模板相关接口"},
      *     summary="获取专题模板列表信息",
+     *     description="此接口是查看专题模板信息的接口，前台返回上线模板信息，后台可根据状态值查询专题模板，成功返回专题模板信息，有分页",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *      @SWG\Parameter(
-     *          in="formData",
+     *          in="query",
      *          name="status",
      *          type="integer",
-     *          description="是否上线",
+     *          description="后台查询条件，7为回收站，10为线下，20为线上",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -75,17 +83,19 @@ class GainTemplateCoverController extends RestController
      *     schemes={"http"},
      *     tags={"模板相关接口"},
      *     summary="添加新的专题模板",
+     *     description="此接口是后台管理者添加专题模板的接口，成功返回所添加的专题模板信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
      *         name="Handle",
      *         in="header",
-     *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
@@ -140,14 +150,14 @@ class GainTemplateCoverController extends RestController
      *          in="formData",
      *          name="status",
      *          type="integer",
-     *          description="是否上线",
+     *          description="是否上线，10为线下，20为线上",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="sort",
      *          type="integer",
-     *          description="排序逆序",
+     *          description="热度，值越大热度越高",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -189,23 +199,25 @@ class GainTemplateCoverController extends RestController
      *     schemes={"http"},
      *     tags={"模板相关接口"},
      *     summary="修改专题模板信息",
+     *     description="此接口是后台管理者修改专题模板的接口，成功返回所修改的专题模板信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
      *         name="Handle",
      *         in="header",
-     *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
-     *       @SWG\Parameter(
+     *     @SWG\Parameter(
      *          in="path",
      *          name="id",
      *          type="integer",
-     *          description="模板标识",
+     *          description="所要修改的模板唯一标识id",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
@@ -261,14 +273,14 @@ class GainTemplateCoverController extends RestController
      *          in="formData",
      *          name="status",
      *          type="integer",
-     *          description="是否上线",
+     *          description="是否上线，10为线下，20为线上",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="sort",
      *          type="integer",
-     *          description="排序逆序",
+     *          description="热度，值越大热度越高",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -309,17 +321,25 @@ class GainTemplateCoverController extends RestController
      *     schemes={"http"},
      *     tags={"模板相关接口"},
      *     summary="删除专题模板信息",
+     *     description="此接口是后台管理者删除专题模板的接口，成功返回空字符串",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
-     *       @SWG\Parameter(
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
      *          in="path",
      *          name="id",
      *          type="integer",
-     *          description="模板标识",
+     *          description="所要删除的模板唯一标识id",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -350,7 +370,7 @@ class GainTemplateCoverController extends RestController
     {
         $tbz_subject = new TbzSubjectForm();
         if ($tbz_subject->TbzSubjectDelete($id)) {
-            return true;
+            return '';
         }
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
     }

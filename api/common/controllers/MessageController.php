@@ -26,23 +26,31 @@ class MessageController extends  RestController
      *     schemes={"http"},
      *     tags={"消息接口"},
      *     summary="根据状态获取消息",
+     *     description="此接口是获取消息信息的接口，用来前台用户查看消息或者后台管理者根据查询条件查看信息,成功返回消息信息,有分页",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *      @SWG\Parameter(
-     *          in="formData",
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *      @SWG\Parameter(
+     *          in="query",
      *          name="status",
      *          type="integer",
-     *          description="消息状态",
+     *          description="消息状态,后台查询条件，3为已删除，7为回收站，10为待发布，20为直接发布",
      *     ),
      *      @SWG\Parameter(
-     *          in="formData",
+     *          in="query",
      *          name="type",
      *          type="integer",
-     *          description="消息类型",
+     *          description="消息类型,后台查询条件,1为公共通知，2为活动通知，3为个人消息",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -52,7 +60,7 @@ class MessageController extends  RestController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(ref="#/definitions/TbzLetter")
+     *                  @SWG\Items(ref="#/definitions/TbzLetter"),
      *              )
      *          )
      *     ),
@@ -82,11 +90,19 @@ class MessageController extends  RestController
      *     schemes={"http"},
      *     tags={"消息接口"},
      *     summary="添加新消息",
+     *     description="此接口是添加新消息的接口,用来后台管理者发布消息，成功返回所添加的消息信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
@@ -113,27 +129,27 @@ class MessageController extends  RestController
      *          in="formData",
      *          name="type",
      *          type="integer",
-     *          description="消息类型",
+     *          description="消息类型,1为公共通知，2为活动通知，3为个人消息",
      *          required=true,
      *     ),
      *      @SWG\Parameter(
      *          in="formData",
      *          name="user_id",
      *          type="string",
-     *          description="用户id(消息类型为个人消息时必填)",
+     *          description="接收消息的用户id(消息类型为个人消息时必填，即type值为3时)",
      *     ),
      *       @SWG\Parameter(
      *          in="formData",
      *          name="status",
      *          type="integer",
-     *          description="是否发布（1为待发布，2为已发布)",
+     *          description="是否发布（10为待发布，20为直接发布)",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="sort",
      *          type="integer",
-     *          description="排序逆序",
+     *          description="热度,值越大，热度越高",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -173,17 +189,25 @@ class MessageController extends  RestController
      *     schemes={"http"},
      *     tags={"消息接口"},
      *     summary="修改消息",
+     *     description="此接口是修改消息的接口,用来后台管理者修改消息信息，成功返回所修改的消息信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *      @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Parameter(
      *          in="path",
      *          name="id",
      *          type="integer",
-     *          description="消息id",
+     *          description="所要修改的消息唯一标识id",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
@@ -211,27 +235,27 @@ class MessageController extends  RestController
      *          in="formData",
      *          name="type",
      *          type="integer",
-     *          description="消息类型",
+     *          description="消息类型,1为公共通知，2为活动通知，3为个人消息",
      *          required=true,
      *     ),
      *      @SWG\Parameter(
      *          in="formData",
      *          name="user_id",
      *          type="string",
-     *          description="用户id(消息类型为个人消息时必填)",
+     *          description="接收消息的用户id(消息类型为个人消息时必填，即type值为3时)",
      *     ),
      *       @SWG\Parameter(
      *          in="formData",
      *          name="status",
      *          type="integer",
-     *          description="是否发布（1为待发布，2为已发布)",
+     *          description="是否发布（10为待发布，20为直接发布)",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="sort",
      *          type="integer",
-     *          description="排序逆序",
+     *          description="热度,值越大热度越高",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -272,17 +296,25 @@ class MessageController extends  RestController
      *     schemes={"http"},
      *     tags={"消息接口"},
      *     summary="删除消息",
+     *     description="此接口是删除消息的接口,用来后台管理者删除消息信息，成功返回空字符串",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *      @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Parameter(
      *          in="path",
      *          name="id",
      *          type="integer",
-     *          description="消息id",
+     *          description="所要删除的消息唯一标识id",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -303,7 +335,7 @@ class MessageController extends  RestController
     {
         $message = new MessageForm();
         if ($result = $message->deleteMessage($id)) {
-            return $result;
+            return '';
         }
         throw new HttpException(500, $message->getStringErrors(), Code::SERVER_FAILED);
     }

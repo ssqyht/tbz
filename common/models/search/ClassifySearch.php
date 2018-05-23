@@ -11,6 +11,7 @@ use common\models\Tag;
 use phpDocumentor\Reflection\Types\Object_;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use yii\db\Exception;
 use yii\helpers\ArrayHelper;
 use common\components\traits\ModelErrorTrait;
 

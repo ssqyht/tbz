@@ -8,8 +8,10 @@ use common\components\traits\ModelErrorTrait;;
 class TbzSubjectForm extends Model
 {
     use ModelErrorTrait;
-    /* @var integer 线下转态 */
-    const UNDERLINE_STATUS = 10;
+
+    /* @var integer 回收站状态 */
+    const UNDERLINE_STATUS = 7;
+
     public $sort;
     public $title;
     public $description;

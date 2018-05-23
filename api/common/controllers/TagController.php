@@ -23,12 +23,20 @@ class TagController extends RestController
      *     operationId="getTag",
      *     schemes={"http"},
      *     tags={"分类相关接口"},
-     *     summary="获取Tag信息",
+     *     summary="获取标签信息",
+     *     description="此接口是查看所有tag表(即行业和风格)信息的接口，后台调用，成功返回标签信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -57,7 +65,7 @@ class TagController extends RestController
         if ($result = $tag_search->search()) {
             return $result;
         }
-        throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+        throw new NotFoundHttpException('查询tag表信息失败', Code::SOURCE_NOT_FOUND);
     }
 
     /**
@@ -66,32 +74,40 @@ class TagController extends RestController
      *     operationId="addTag",
      *     schemes={"http"},
      *     tags={"分类相关接口"},
-     *     summary="添加新Tag",
+     *     summary="添加标签",
+     *     description="此接口是用来添加新的风格和行业，后台调用,成功后返回新添加的tag信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="name",
      *          type="string",
-     *          description="标签名",
+     *          description="标签名,例如：商务、互联网",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="type",
      *          type="integer",
-     *          description="标签类型",
+     *          description="标签类型，1为风格(style)，2为行业(industry)",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="sort",
      *          type="integer",
-     *          description="热度",
+     *          description="热度，值越大代表热度越高",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -130,39 +146,46 @@ class TagController extends RestController
      *     operationId="updateTag",
      *     schemes={"http"},
      *     tags={"分类相关接口"},
-     *     summary="修改tag",
+     *     summary="修改标签信息",
+     *     description="此接口是用来修改标签信息的接口，后台调用,成功后返回修改后的tag信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
      *         type="string"
      *     ),
      *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
      *          in="path",
      *          name="id",
      *          type="integer",
-     *          description="tag的id",
+     *          description="所要修改的标签的唯一标识id",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="name",
      *          type="string",
-     *          description="tag名称",
+     *          description="标签名,例如：商务、互联网",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="type",
      *          type="integer",
-     *          description="tag类型(0为已弃用，1为风格，2为行业)",
+     *          description="tag类型(1为风格，2为行业)",
      *          required=true,
      *     ),
      *      @SWG\Parameter(
      *          in="formData",
      *          name="sort",
      *          type="integer",
-     *          description="排序逆序",
+     *          description="热度，值越大代表热度越高",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -206,12 +229,19 @@ class TagController extends RestController
      *     operationId="deleteTag",
      *     schemes={"http"},
      *     tags={"分类相关接口"},
-     *     summary="删除tag",
+     *     summary="删除标签",
+     *     description="此接口是用来删除标签信息的接口，后台调用,成功返回空字符串",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
      *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Parameter(
      *          in="path",
@@ -243,7 +273,7 @@ class TagController extends RestController
         }
         $tag->type = 0;
         if ($tag->save()) {
-            return true;
+            return '';
         }
         throw new BadRequestHttpException($tag->getStringErrors(), Code::SERVER_FAILED);
     }

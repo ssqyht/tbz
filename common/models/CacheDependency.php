@@ -18,10 +18,18 @@ class CacheDependency extends \yii\db\ActiveRecord
     const OFFICIAL_HOT_RECOMMEND = 'official_hot_recommend';
     const OFFICIAL_TEMPLATE = 'official_template';
     const TEMPLATE_COVER = 'template_cover';
-    const MESSAGE= 'message';
-    const FOLDER='folder';
-    const TEMPLATE_MEMBER = 'template_member_search';
-    const UPFILE = 'upfile';
+    /** @var string 消息缓存 */
+    const MESSAGE = 'message';
+    /** @var string 素材文件夹缓存 */
+    const FOLDER_MATERIAL ='folder_material';
+    /** @var string 模板文件夹缓存 */
+    const FOLDER_TEMPLATE = 'folder_template';
+    /** @var string 个人、团队模板缓存 */
+    const TEMPLATE_USER = 'template_user_search';
+    /** @var string 素材缓存 */
+    const MATERIAL = 'material';
+    /** @var string 收藏缓存 */
+    const MY_FAVORITE = 'my_favorite';
     /**
      * @inheritdoc
      */

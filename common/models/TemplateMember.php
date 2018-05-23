@@ -87,7 +87,7 @@ class TemplateMember extends \yii\db\ActiveRecord
 
     public function frontendFields()
     {
-        return ['template_id', 'open_id','folder_id', 'title','product', 'thumbnail_url','thumbnail_id','status','is_diy','edit_from','amount_print','team_id'];
+        return ['template_id', 'open_id','folder_id', 'title','classify_id', 'thumbnail_url','thumbnail_id','status','is_diy','edit_from','amount_print'];
     }
 
     /**

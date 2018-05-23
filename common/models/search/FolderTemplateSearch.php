@@ -10,28 +10,35 @@ namespace common\models\search;
 
 use common\models\Folder;
 use common\components\vendor\Model;
+use common\models\FolderTemplateMember;
+use common\models\FolderTemplateTeam;
 use common\models\MaterialFolders;
 use yii\data\ActiveDataProvider;
 use common\models\CacheDependency;
 
-class FolderSearch extends Model
+class FolderTemplateSearch extends Model
 {
-    /** @var string 模板文件夹 */
-    const TEMPLATE_FOLDER = 'template_folder';
-    /** @var string 素材文件夹 */
-    const MATERIAL_FOLDER = 'material_folder';
+    /** @var string 个人模板文件夹 */
+    const FOLDER_TEMPLATE_MEMBER = 'folder_template_member';
+    /** @var string 团队模板文件夹 */
+    const FOLDER_TEMPLATE_TEAM  = 'folder_template_team';
+
+
     public $status;
     public $method;
+    public $team_id;
+
     public $_user;
     private $_cacheKey;
     private $_tableModel;
+    private $_condition;
 
     public function rules()
     {
         return [
-            [['status'], 'integer'],
+            [['status','team_id'], 'integer'],
             ['method', 'required'],
-            ['method', 'in', 'range' => [static::TEMPLATE_FOLDER, static::MATERIAL_FOLDER]],
+            ['method', 'in', 'range' => [static::FOLDER_TEMPLATE_MEMBER, static::FOLDER_TEMPLATE_TEAM]],
         ];
     }
 
@@ -43,7 +50,7 @@ class FolderSearch extends Model
         return [
             static::SCENARIO_DEFAULT => ['status','method'],
             static::SCENARIO_BACKEND => ['status','method'],
-            static::SCENARIO_FRONTEND => ['method']
+            static::SCENARIO_FRONTEND => ['method','team_id']
         ];
     }
 
@@ -76,13 +83,13 @@ class FolderSearch extends Model
             return false;
         }
         $folder = ($this->tableModel)::online()
-            ->andWhere(['user_id' => $this->user]);
+            ->andWhere($this->_condition);
         // 查询数据 使用缓存
         try {
             $result = \Yii::$app->dataCache->cache(function () use ($folder) {
                 $result_data = $folder->all();
                 return $result_data;
-            }, $this->cacheKey, CacheDependency::FOLDER);
+            }, $this->cacheKey, CacheDependency::FOLDER_TEMPLATE);
         } catch (\Throwable $e) {
             $result = null;
         }
@@ -158,11 +165,15 @@ class FolderSearch extends Model
     {
         if ($this->_tableModel === null) {
             switch ($this->method) {
-                case static::TEMPLATE_FOLDER:
-                    $this->_tableModel = Folder::class;
+                case static::FOLDER_TEMPLATE_MEMBER:
+                    //个人模板文件夹
+                    $this->_tableModel = FolderTemplateMember::class;
+                    $this->_condition = ['user_id'=>$this->user];
                     break;
-                case static::MATERIAL_FOLDER:
-                    $this->_tableModel = MaterialFolders::class;
+                case static::FOLDER_TEMPLATE_TEAM:
+                    //团队模板文件夹
+                    $this->_tableModel = FolderTemplateTeam::class;
+                    $this->_condition = ['team_id'=>$this->team_id];
                     break;
                 default:
                     $this->_tableModel = false;

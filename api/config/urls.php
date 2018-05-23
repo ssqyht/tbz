@@ -20,11 +20,16 @@ $restUrls = [
             ],
         ],
         [
-            'controller' => ['template-official', 'template-member','material-folders','upfile'],
+            'controller' => ['template-official'],
             'extraPatterns' => [
                 'GET,OPTIONS classify-search' => 'classify-search',
+            ]
+        ],
+        [
+            'controller' => [ 'template-user','folder-material','folder-template','material','my-favorite','team','team-member'],
+            'extraPatterns' => [
                 'POST,OPTIONS template-operation' =>'template-operation',
-                'POST,OPTIONS upfile-operation' =>'upfile-operation'
+                'POST,OPTIONS material-operation' =>'material-operation'
             ]
         ],
         [

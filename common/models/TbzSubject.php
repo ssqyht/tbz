@@ -75,7 +75,7 @@ class TbzSubject extends \yii\db\ActiveRecord
 
     public function frontendFields()
     {
-        return ['title', 'description','seo_keyword', 'seo_description','thumbnail', 'seo_title','banner'];
+        return ['id','title', 'description','seo_keyword', 'seo_description','thumbnail', 'seo_title','banner'];
     }
 
     /**
@@ -83,7 +83,7 @@ class TbzSubject extends \yii\db\ActiveRecord
      */
     public static function sortHot(){
         {
-            return TbzSubject::find()->orderBy(['sort' => SORT_ASC]);
+            return TbzSubject::find()->orderBy(['sort' => SORT_DESC]);
         }
     }
     /**

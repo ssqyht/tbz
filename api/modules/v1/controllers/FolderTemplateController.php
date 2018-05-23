@@ -6,7 +6,7 @@
  * Time: 20:53
  */
 namespace api\modules\v1\controllers;
-class FolderController extends \api\common\controllers\FolderController
+class FolderTemplateController extends \api\common\controllers\FolderTemplateController
 {
 
 }
