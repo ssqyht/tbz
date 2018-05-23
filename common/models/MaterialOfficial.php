@@ -12,6 +12,7 @@ use common\components\traits\TimestampTrait;
  * @property int $id @SWG\Property(property="id", type="integer", description="")
  * @property int $user_id 用户ID @SWG\Property(property="userId", type="integer", description=" 用户ID")
  * @property int $cid 素材分类ID @SWG\Property(property="cid", type="integer", description=" 素材分类ID")
+ * @property string $name 素材名 @SWG\Property(property="name", type="string", description=" 素材名")
  * @property string $tags 素材搜索标签 @SWG\Property(property="tags", type="string", description=" 素材搜索标签")
  * @property string $thumbnail 文件路径 @SWG\Property(property="thumbnail", type="string", description=" 文件路径")
  * @property int $file_id 文件id @SWG\Property(property="fileId", type="integer", description=" 文件id")
@@ -43,10 +44,10 @@ class MaterialOfficial extends \yii\db\ActiveRecord
     {
         return [
             [['user_id', 'cid', 'file_id', 'file_type', 'created_at', 'updated_at', 'extra_contents'], 'required'],
-            [['user_id', 'cid', 'file_id', 'width', 'height', 'created_at', 'updated_at'], 'integer'],
+            [['user_id', 'cid', 'file_id', 'file_type', 'width', 'height', 'status', 'created_at', 'updated_at'], 'integer'],
             [['extra_contents'], 'string'],
+            [['name'], 'string', 'max' => 50],
             [['tags', 'thumbnail'], 'string', 'max' => 255],
-            [['file_type', 'status'], 'string', 'max' => 1],
         ];
     }
 
@@ -59,6 +60,7 @@ class MaterialOfficial extends \yii\db\ActiveRecord
             'id' => 'ID',
             'user_id' => '用户ID',
             'cid' => '素材分类ID',
+            'name' => '素材名',
             'tags' => '素材搜索标签',
             'thumbnail' => '文件路径',
             'file_id' => '文件id',

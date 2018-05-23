@@ -17,7 +17,7 @@ class m180522_113333_create_material_member_table extends Migration
             'id' => $this->primaryKey()->unsigned(),
             'user_id' => $this->integer(11)->unsigned()->notNull()->comment('用户id'),
             'folder_id' => $this->integer(11)->unsigned()->notNull()->defaultValue(0)->comment('文件夹'),
-            'title' => $this->string(255)->notNull()->defaultValue('')->comment('素材标题'),
+            'file_name' => $this->string(255)->notNull()->defaultValue('')->comment('文件名'),
             'thumbnail' => $this->string(255)->notNull()->defaultValue('')->comment('图片路径'),
             'file_id' => $this->integer(11)->notNull()->defaultValue(0)->unsigned()->comment('文件id'),
             'mode' => $this->integer(11)->notNull()->defaultValue(0)->unsigned()->comment('素材模式 临时，正式'),

@@ -17,6 +17,7 @@ class m180522_113312_create_material_official_table extends Migration
             'id' => $this->primaryKey()->unsigned(),
             'user_id' => $this->integer(11)->unsigned()->notNull()->comment('用户ID'),
             'cid' => $this->integer(11)->unsigned()->notNull()->comment('素材分类ID'),
+            'name' => $this->string(50)->unsigned()->notNull()->defaultValue('')->comment('素材名'),
             'tags' => $this->string(255)->notNull()->defaultValue('')->comment('素材搜索标签'),
             'thumbnail' => $this->string(255)->notNull()->defaultValue('')->comment('文件路径'),
             'file_id' => $this->integer(11)->unsigned()->notNull()->comment('文件id'),

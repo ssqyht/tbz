@@ -35,9 +35,8 @@ class MaterialClassify extends \yii\db\ActiveRecord
     {
         return [
             [['name', 'created_at', 'updated_at'], 'required'],
-            [['created_at', 'updated_at'], 'integer'],
+            [['status', 'created_at', 'updated_at'], 'integer'],
             [['name'], 'string', 'max' => 30],
-            [['status'], 'string', 'max' => 1],
         ];
     }
 
