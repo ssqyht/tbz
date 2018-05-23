@@ -21,6 +21,10 @@ use yii\validators\UrlValidator;
 class FileCommon extends \yii\db\ActiveRecord
 {
     use TimestampTrait;
+
+    /** @var int 允许最大文件上传值 */
+    const MAX_UPLOAD_FILE_SIZE = 20 * 1024 * 1024;
+
     /**
      * @inheritdoc
      */
@@ -35,6 +39,8 @@ class FileCommon extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['width', 'height'], 'default', 'value' => 0],
+            [['width', 'height', 'size'], 'filter', 'filter'=> 'intval'],
             [['etag', 'path', 'size', 'type'], 'required'],
             [['size', 'width', 'height', 'created_at'], 'integer'],
             [['etag'], 'string', 'max' => 32, 'min' => 32],

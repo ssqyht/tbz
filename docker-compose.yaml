@@ -48,7 +48,6 @@ services:
       - "3306:3306"
     volumes:
       - ./../../data:/var/lib/mysql
-      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
     networks:
       - web
 

@@ -6,25 +6,26 @@
 namespace common\models\forms;
 
 use common\components\traits\FuncTrait;
+use common\components\validators\PathValidator;
+use common\components\vendor\OriginFIle;
 use common\models\FileCommon;
 use Yii;
 use common\extension\Code;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;
-use yii\imagine\Image;
 use yii\validators\UrlValidator;
 
 
 /**
  * 文件上传助手类
  * Class FileUpload
+ * @property OriginFIle|bool $fileData
  * @property string $content
  * @package common\models\forms
  * @author thanatos <thanatos915@163.com>
  */
 class FileUpload extends Model
 {
-
     /** @var string 存放模板缩略图 */
     const DIR_TEMPLATE = 'template';
     /** @var string 存放官方素材 */
@@ -34,34 +35,68 @@ class FileUpload extends Model
     /** @var string 其它文件 */
     const DIR_OTHER = 'other';
 
+    /** @var string 正常模式下的上传文件 */
+    const SCENARIO_NORMAL = 'normal';
+    /** @var string 替换模式下的上传文件 */
+    const SCENARIO_REPLACE = 'replace';
+
     /** @var string*/
     public $url;
     /** @var string */
     public $dir;
+    /** @var string 想要替换的原始Object */
+    public $replace;
 
-    /** @var array 远程文件信息 */
-    private $_content;
-    private $_mime;
-
-    private $_ext_mime_type;
-    private $_ext_mime_ext;
+    // 文件信息
+    private $_fileData;
 
     /**
-     * 上传文件
+     * 上传远程文件
      * @param string $url 文件URl
      * @param string $dir 存放位置
+     * @param null $replace 想要替换的原始Object
      * @return bool|FileCommon|null
      * @author thanatos <thanatos915@163.com>
      */
-    public static function upload($url, $dir = self::DIR_OTHER)
+    public static function upload($url, $dir = self::DIR_OTHER, $replace = null)
     {
         $model = new static();
-        if ($result = $model->submit(['url' => $url, 'dir' => $dir])) {
+        if ($result = $model->submit(['url' => $url, 'dir' => $dir, 'replace' => $replace])) {
             return $result;
         } else {
             $model->addErrors($model->getErrors());
             return false;
         }
+    }
+
+    /**
+     * 上传OSS Object文件
+     * 从原始路径复制到新路径，并删除原文件
+     * @param string $url
+     * @param string $replace
+     * @param string $dir
+     * @return bool
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function uploadObject(string $url, string $replace, $dir = self::DIR_TEMPLATE)
+    {
+        $model = new static();
+        if ($result = $model->submit(['url' => $url, 'dir' => $dir, 'replace' => $replace])) {
+
+        } else {
+            $model->addErrors($model->getErrors());
+            return false;
+        }
+    }
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $data = [
+            static::SCENARIO_NORMAL => ['url', 'dir'],
+            static::SCENARIO_REPLACE => ['url', 'dir', 'replace'],
+        ];
+        return $scenarios;
     }
 
     public function rules()
@@ -79,16 +114,18 @@ class FileUpload extends Model
                     $this->addError('url', Code::FILE_NOT_EXIST);
                 }
             }],
-            // 文件是否合法
             ['url', function () {
+                // 文件名是否合法
                 if (!$this->getIsAllowByMime()) {
                     return $this->addError('url', Code::FILE_EXTENSION_NOT_ALLOW);
                 }
-                // 修正SVG标签不正确
-                if ($this->getExtType() == FileCommon::EXT_SVG) {
-                    $this->repairSvgTag();
-                }
-            }]
+                // 文件大小验证
+                if ($this->fileData->length > FileCommon::MAX_UPLOAD_FILE_SIZE)
+                    return $this->addError('url', Code::FILE_SIZE_NOT_ALLOW);
+
+            }],
+            // 验证路径格式
+            ['replace', PathValidator::class]
         ];
     }
 
@@ -106,13 +143,32 @@ class FileUpload extends Model
         }
 
         // 生成文件名
-        $filename = $this->generateFileName();
-        $this->getImageSize();
-        // 上传OSS
-        $result = Yii::$app->oss->putObject($filename, $this->content);
+        if ($this->scenario == static::SCENARIO_REPLACE) {
+            $filename = $this->replace;
+        } else {
+            $filename = $this->generateFileName();
+        }
+
+        $width = $height = 0;
+        if ($this->fileData->extType == FileCommon::EXT_SVG) {
+            // SVG 替换后上传
+            $content = static::repairSvgTag($this->fileData->content);
+            $result = Yii::$app->oss->putObject($filename, $content);
+            list('height' => $height, 'width' => $width) = $this->fileData->getSvgSize();
+        } else {
+            // 其他文件直接上传
+            $result = Yii::$app->oss->putObjectOrigin($filename, $this->url);
+            list('height' => $height, 'width' => $width) = Yii::$app->oss->getObjectSize($filename);
+        }
+
         if (empty($result)) {
             $this->addError('url', Code::SERVER_FAILED);
             return false;
+        }
+
+        // 删除原文件
+        if ($this->scenario == static::SCENARIO_REPLACE) {
+            $this->rollbackFile($this->url);
         }
 
         // 检查文件唯一性
@@ -127,11 +183,12 @@ class FileUpload extends Model
             'etag' => $result->etag,
             'path' => $filename,
             'size' => $result->size_upload,
-            'type' => $this->getExtType(),
+            'type' => $this->fileData->extType,
+            'width' => $width,
+            'height' => $height,
         ];
 
         // 宽高信息
-        list('height' => $params['height'], 'width' => $params['width']) = $this->getImageSize();
 
         // 添加记录
         $model = new FileCommon();
@@ -157,7 +214,7 @@ class FileUpload extends Model
         } catch (\Throwable $throwable) {
             $filename = md5(uniqid());
         }
-        $extension = $this->getExtString();
+        $extension = $this->fileData->extString;
         return $baseDir . DIRECTORY_SEPARATOR . $this->dir. DIRECTORY_SEPARATOR . date('Ym') . DIRECTORY_SEPARATOR .   $filename . '.' . $extension ?? 'png';
     }
 
@@ -167,102 +224,29 @@ class FileUpload extends Model
      */
     public function getIsAllowByMime()
     {
-        return in_array($this->mime, ArrayHelper::getColumn(FileCommon::$extension, 'mime'));
+        return in_array($this->fileData['type'], ArrayHelper::getColumn(FileCommon::$extension, 'mime'));
     }
 
+
+
+
     /**
-     * 返回mime对应的扩展名
-     * @return mixed
+     * 获取文件Header信息
+     * @return array|bool
+     * @author thanatos <thanatos915@163.com>
      */
-    public function getExtString()
+    public function getFileData()
     {
-        if ($this->_ext_mime_ext === null) {
-            $tmp = ArrayHelper::map(FileCommon::$extension, 'mime', 'ext');
-            $this->_ext_mime_ext = $tmp[$this->mime];
-            unset($tmp);
+        if ($this->_fileData === null) {
+            $this->_fileData = FuncTrait::getSourceOrigin($this->url);
         }
-        return $this->_ext_mime_ext;
+        return $this->_fileData;
     }
-
-    /**
-     * 返回mime对应的type值
-     * @return int
-     */
-    public function getExtType()
-    {
-        if ($this->_ext_mime_type === null) {
-            $tmp = ArrayHelper::map(FileCommon::$extension, 'mime', 'type');
-            $this->_ext_mime_type = $tmp[$this->mime];
-            unset($tmp);
-        }
-        return $this->_ext_mime_type;
-    }
-
-    /**
-     * @param $value
-     */
-    public function setContent($value)
-    {
-        $this->_content = $value;
-    }
-
-    /**
-     * @return array
-     */
-    public function getContent()
-    {
-        $this->sourceContent();
-        return $this->_content;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getMime()
-    {
-        $this->sourceContent();
-        return $this->_mime;
-    }
-
-    /**
-     * 读取远程文件信息
-     * @return mixed
-     */
-    protected function sourceContent()
-    {
-        if ($this->_content === null && $this->_mime === null) {
-            list('content' => $this->_content, 'mime' => $this->_mime)= FuncTrait::getSourceOrigin($this->url);
-        }
-    }
-
-    /**
-     * 获取图片文件的宽高
-     * @return array
-     * @internal
-     */
-    protected function getImageSize()
-    {
-        $height = 0;
-        $width = 0;
-        if (in_array($this->getExtType(), [FileCommon::EXT_GIF, FileCommon::EXT_PNG, FileCommon::EXT_JPEG, FileCommon::EXT_JPG])) {
-            $image = Image::getImagine()->load($this->content);
-            $width = $image->getSize()->getWidth();
-            $height = $image->getSize()->getHeight();
-        }
-
-        // SVG宽高信息
-        if ($this->getExtType() === FileCommon::EXT_SVG) {
-            list('height' => $height, 'width' => $width) = FuncTrait::getSvgSize($this->content);
-        }
-
-        return ['height' => round($height) ?? 0, 'width' => round($width) ?? 0];
-    }
-
 
     /**
      * @return string
      */
-    protected function repairSvgTag() {
+    public static function repairSvgTag($content) {
         //定义待检测替换标签数组
         $svgTagArr = array(
             //标签
@@ -306,7 +290,7 @@ class FileUpload extends Model
             'viewbox' => 'viewBox',
         );
         $findArr = array_keys($svgTagArr);
-        $this->setContent(str_ireplace($findArr, $svgTagArr, $this->content));
+        return str_ireplace($findArr, $svgTagArr, $content);
     }
 
 

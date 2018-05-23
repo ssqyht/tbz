@@ -44,6 +44,7 @@ $restUrls = [
         'POST,OPTIONS wechat/refresh' => 'wechat/refresh',
         // 验证码
         'POST,OPTIONS main/send-sms' => 'main/send-sms',
+        'GET,OPTIONS main/<action>' => 'main/<action>',
 
         // 开始文档
         'doc/index' => 'doc/index',

@@ -7,8 +7,11 @@ namespace api\common\controllers;
 
 
 use common\components\traits\OrderTrait;
+use common\models\forms\FileUpload;
 use Yii;
 use common\components\vendor\RestController;
+use yii\httpclient\Client;
+use yii\httpclient\CurlTransport;
 use yii\web\BadRequestHttpException;
 
 class MainController extends RestController
@@ -67,6 +70,16 @@ class MainController extends RestController
             throw new BadRequestHttpException($smsModel->getStringErrors());
         }
 
+    }
+
+    /**
+     * TODO Test
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function actionIndex()
+    {
+        $url = 'https://img-blog.csdn.net/20180522191342344';
+        var_dump(FileUpload::upload($url));exit;
     }
 
 }

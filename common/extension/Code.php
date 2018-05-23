@@ -23,6 +23,8 @@ class Code
     const FILE_NOT_EXIST = 30001;
     /** @var int 不允许上传 */
     const FILE_EXTENSION_NOT_ALLOW = 30002;
+    /** @var int 文件大小超出限制 */
+    const FILE_SIZE_NOT_ALLOW = 30002;
     /** @var int 目录不存在 */
     const DIR_NOT_EXIST = 30003;
 
@@ -50,6 +52,7 @@ class Code
     public $system = [
         self::FILE_NOT_EXIST => '文件不存在',
         self::FILE_EXTENSION_NOT_ALLOW => '不允许的文件类型',
+        self::FILE_SIZE_NOT_ALLOW => '文件大小超出限制',
         self::DIR_NOT_EXIST => '目录不存在',
     ];
 

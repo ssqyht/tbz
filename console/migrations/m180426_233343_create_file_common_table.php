@@ -19,8 +19,8 @@ class m180426_233343_create_file_common_table extends Migration
             'path' => $this->string(255)->notNull()->comment('文件路径'),
             'size' => $this->integer(1)->unsigned()->notNull()->comment('文件大小'),
             'type' => $this->tinyInteger(1)->unsigned()->notNull()->comment('文件类型'),
-            'width' => $this->smallInteger(1)->unsigned()->defaultValue(0)->comment('图片宽度'),
-            'height' => $this->smallInteger(1)->unsigned()->defaultValue(0)->comment('图片高度'),
+            'width' => $this->smallInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('图片宽度'),
+            'height' => $this->smallInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('图片高度'),
             'created_at' => $this->integer(10)->unsigned()->notNull()->comment('创建时间'),
         ]);
         $this->addCommentOnTable($this->tableName, '上传文件总记录表');
