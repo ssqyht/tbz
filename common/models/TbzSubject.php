@@ -6,6 +6,7 @@ use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelFieldsTrait;
 use yii\helpers\Url;
+
 /**
  * This is the model class for table "{{%tbz_subject}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="TbzSubject"))
@@ -76,17 +77,19 @@ class TbzSubject extends \yii\db\ActiveRecord
 
     public function frontendFields()
     {
-        return ['id','title', 'description','seo_keyword', 'seo_description','thumbnail', 'seo_title','banner'];
+        return ['id', 'title', 'description', 'seo_keyword', 'seo_description', 'thumbnail', 'seo_title', 'banner'];
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public static function sortHot(){
+    public static function sortHot()
+    {
         {
             return TbzSubject::find()->orderBy(['sort' => SORT_DESC]);
         }
     }
+
     /**
      * 上线分类
      * @return \yii\db\ActiveQuery
@@ -110,6 +113,7 @@ class TbzSubject extends \yii\db\ActiveRecord
         }
         parent::afterSave($insert, $changedAttributes);
     }
+
     /**
      * @param $id
      * @return array|null|\yii\db\ActiveRecord
@@ -117,7 +121,7 @@ class TbzSubject extends \yii\db\ActiveRecord
     public static function findById($id)
     {
         if (Yii::$app->request->isFrontend()) {
-            return static::find()->where(['status' => static::STATUS_ONLINE,'id' => $id])->one();
+            return static::find()->where(['status' => static::STATUS_ONLINE, 'id' => $id])->one();
         } else {
             return static::find()->where(['id' => $id])->one();
         }
@@ -128,9 +132,12 @@ class TbzSubject extends \yii\db\ActiveRecord
      */
     public function extraFields()
     {
-        $data = ['thumbnail' => function() {
-            return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads'.$this->thumbnail;
-        }];
+        $data['thumbnail'] = function () {
+            return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads' . $this->thumbnail;
+        };
+        $data['banner'] = function () {
+            return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads' . $this->banner;
+        };
         return $data;
     }
 }
