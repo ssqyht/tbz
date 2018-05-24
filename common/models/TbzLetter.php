@@ -55,16 +55,16 @@ class TbzLetter extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'title' => 'Title',
-            'subtitle' => 'Subtitle',
-            'description' => 'Description',
-            'type' => 'Type',
-            'status' => 'Status',
-            'sort' => 'Sort',
-            'user_id' => 'User ID',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'id' => '唯一标识',
+            'title' => '消息标题',
+            'subtitle' => '消息副标题',
+            'description' => '消息描述',
+            'type' => '消息类型',
+            'status' => '消息状态',
+            'sort' => '热度',
+            'user_id' => '用户id',
+            'created_at' => '创建时间',
+            'updated_at' => '修改时间',
         ];
     }
 
@@ -101,5 +101,17 @@ class TbzLetter extends \yii\db\ActiveRecord
             Yii::$app->dataCache->updateCache(static::class);
         }
         parent::afterSave($insert, $changedAttributes);
+    }
+    /**
+     * @param $id
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public static function findById($id)
+    {
+        if (Yii::$app->request->isFrontend()) {
+            return static::find()->where(['status' => static::STATUS_ONLINE,'id' => $id])->one();
+        } else {
+            return static::find()->where(['id' => $id])->one();
+        }
     }
 }

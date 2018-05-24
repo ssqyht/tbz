@@ -8,13 +8,12 @@
 
 namespace common\models\forms;
 
-use common\models\Folder;
+use common\models\TemplateTeam;
 use common\models\FolderTemplateMember;
 use common\models\FolderTemplateTeam;
 use common\models\TemplateMember;
 use yii\base\Model;
 use common\components\traits\ModelErrorTrait;
-use common\models\MaterialFolders;
 
 class FolderTemplateForm extends Model
 {
@@ -34,14 +33,15 @@ class FolderTemplateForm extends Model
     /* @var integer 默认文件夹 */
     const DEFAULT_FOLDER = '0';
 
-
-    public $_tableModel;
     public $name;
     public $color;
     public $user_id;
     public $method;
     public $team_id;
 
+    private $_tableModel;
+    private $_condition;
+    private $_cacheModel;
 
     public function rules()
     {
@@ -60,7 +60,7 @@ class FolderTemplateForm extends Model
     ];
 
     /**
-     * @return bool|Folder
+     * @return bool
      * 添加新文件夹
      */
     public function addFolder()
@@ -79,7 +79,7 @@ class FolderTemplateForm extends Model
     /**
      * 编辑文件夹
      * @param $id
-     * @return bool|Folder|null
+     * @return bool|null
      */
     public function updateFolder($id)
     {
@@ -87,7 +87,7 @@ class FolderTemplateForm extends Model
         if(!$this->validateData()){
             return false;
         }
-        $folder = ($this->tableModel)::findOne(['id'=>$id]);
+        $folder = ($this->tableModel)::find()->where(['id'=>$id])->andWhere($this->_condition)->one();
         if (!$folder) {
             $this->addError('', '该文件夹不存在');
             return false;
@@ -114,13 +114,15 @@ class FolderTemplateForm extends Model
             $this->addError('noLogin', '获取用户信息失败，请登录');
             return false;
         }
-        $folder = ($this->tableModel)::findOne(['id'=>$id]);
+        $folder = ($this->tableModel)::find()->where(['id'=>$id])->andWhere($this->_condition)->one();
         if (!$folder) {
             $this->addError('id', '该文件夹不存在');
+            return false;
         }
         $transaction = \Yii::$app->db->beginTransaction();
         try {
-            \Yii::$app->db->createCommand()->update($this->relation_table[$this->method], ['folder_id' => static::DEFAULT_FOLDER], ['folder_id' => $id])->execute();
+            $this->_condition = array_merge($this->_condition,['folder_id' => $id]);
+            \Yii::$app->db->createCommand()->update($this->relation_table[$this->method], ['folder_id' => static::DEFAULT_FOLDER], $this->_condition)->execute();
             $folder->status = static::FALSE_DELETE;
             $folder->save(false);
             $transaction->commit();
@@ -133,6 +135,8 @@ class FolderTemplateForm extends Model
             $this->addError('', '删除失败');
             return false;
         }
+        //更新缓存
+        \Yii::$app->dataCache->updateCache($this->_cacheModel);
         return true;
     }
 
@@ -159,10 +163,14 @@ class FolderTemplateForm extends Model
                 case static::FOLDER_TEMPLATE_MEMBER:
                     //个人模板文件夹
                     $this->_tableModel = FolderTemplateMember::class;
+                    $this->_condition = ['user_id'=>$this->user];
+                    $this->_cacheModel = TemplateMember::class;
                     break;
                 case static::FOLDER_TEMPLATE_TEAM:
                     //团队模板文件夹
                     $this->_tableModel = FolderTemplateTeam::class;
+                    $this->_condition = ['team_id'=>$this->team_id];
+                    $this->_cacheModel = TemplateTeam::class;
                     break;
                 default:
                     $this->_tableModel = false;

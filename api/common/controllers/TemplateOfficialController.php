@@ -18,8 +18,6 @@ use yii\helpers\ArrayHelper;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
 use yii\web\BadRequestHttpException;
-use yii\web\HttpException;
-use yii\rest\Controller;
 
 class TemplateOfficialController extends RestController
 {
@@ -43,6 +41,12 @@ class TemplateOfficialController extends RestController
      *         in="header",
      *         type="string",
      *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,团队版时必传",
      *     ),
      *     @SWG\Response(
      *          response=200,

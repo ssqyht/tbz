@@ -139,7 +139,16 @@ class TemplateOfficial extends \yii\db\ActiveRecord
                 return $this->content;
             };
         }
-
+        if ($this->isRelationPopulated('myFavorite')) {
+            $data['is_favorite'] = function () {
+                if ($this->myFavorite){
+                    //有收藏，is_favorite值为1
+                    return 1;
+                }
+                //无收藏is_favorite值为0
+                return 0;
+            };
+        }
         return $data;
     }
 
@@ -189,6 +198,21 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     public static function findById($id)
     {
         return static::active()->andWhere(['template_id' => $id])->one();
+    }
+
+    /**
+     * 关联收藏表
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMyFavorite()
+    {
+        if ($team_id = \Yii::$app->request->getTeam()){
+            return $this->hasOne(MyFavoriteTeam::class, ['template_id' => 'template_id'])
+                ->where(['team_id' => $team_id]);
+        }else{
+            return $this->hasOne(MyFavoriteMember::class, ['template_id' => 'template_id'])
+                ->where(['user_id' =>1/*\Yii::$app->user->id */]);
+        }
     }
 
 }

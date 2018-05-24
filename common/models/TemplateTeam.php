@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelFieldsTrait;
+use yii\helpers\Url;
 /**
  * This is the model class for table "{{%template_team}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="TemplateTeam"))
@@ -87,9 +88,10 @@ class TemplateTeam extends \yii\db\ActiveRecord
             'amount_print' => '印刷次数',
         ];
     }
+
     public function frontendFields()
     {
-        return ['template_id', 'open_id','folder_id', 'title','classify_id', 'thumbnail_url','thumbnail_id','status','is_diy','edit_from','amount_print','team_id'];
+        return ['template_id', 'open_id', 'folder_id', 'title', 'classify_id', 'thumbnail_url', 'thumbnail_id', 'status', 'is_diy', 'edit_from', 'amount_print', 'team_id'];
     }
 
     /**
@@ -108,21 +110,24 @@ class TemplateTeam extends \yii\db\ActiveRecord
     public static function active()
     {
         if (Yii::$app->request->isFrontend()) {
-            return static::sort();
+            return static::find()->where(['status' => static::STATUS_NORMAL]);
         } else {
-            return static::sort()->andWhere(['status' => static::STATUS_NORMAL]);
+            return static::find();
         }
     }
 
     /**
-     * 根据模板id查询
      * @param $id
-     * @return TemplateMember|null|\yii\db\ActiveRecord
-     * @author thanatos <thanatos915@163.com>
+     * @param int $team_id
+     * @return array|null|\yii\db\ActiveRecord
      */
-    public static function findById($id)
+    public static function findById($id, $team_id = 0)
     {
-        return static::active()->andWhere(['template_id' => $id])->one();
+        if (Yii::$app->request->isFrontend()) {
+            return static::find()->where(['status' => static::STATUS_NORMAL,'template_id' => $id,'team_id'=>$team_id])->one();
+        } else {
+            return static::find()->where(['template_id' => $id])->one();
+        }
     }
 
     /**
@@ -137,5 +142,15 @@ class TemplateTeam extends \yii\db\ActiveRecord
             Yii::$app->dataCache->updateCache(static::class);
         }
         parent::afterSave($insert, $changedAttributes);
+    }
+    /**
+     * @return array|mixed
+     */
+    public function extraFields()
+    {
+        $data['thumbnail_url'] = function () {
+            return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads' . $this->thumbnail_url;
+        };
+        return $data;
     }
 }

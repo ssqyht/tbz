@@ -54,15 +54,15 @@ class TeamMember extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'user_id' => 'User ID',
-            'team_id' => 'Team ID',
-            'status' => 'Status',
-            'role' => 'Role',
-            'invite_id' => 'Invite ID',
-            'authority' => 'Authority',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'id' => '唯一标识',
+            'user_id' => '用户id',
+            'team_id' => '团队id',
+            'status' => '状态',
+            'role' => '成员角色',
+            'invite_id' => '邀请标的id',
+            'authority' => '权限',
+            'created_at' => '创建时间',
+            'updated_at' => '修改时间',
         ];
     }
     /**
@@ -82,11 +82,18 @@ class TeamMember extends \yii\db\ActiveRecord
             'id', 'team_id', 'user_id', 'role'
         ];
     }
+
+    /**
+     * @return array|mixed
+     */
     public function extraFields()
     {
         if ($this->isRelationPopulated('memberMark')) {
             $data['user_mark'] = function () {
                 return $this->memberMark->headimg_url;
+            };
+            $data['user_name'] = function () {
+                return $this->memberMark->username;
             };
         }
         return $data;
@@ -98,5 +105,27 @@ class TeamMember extends \yii\db\ActiveRecord
     public function getMemberMark()
     {
         return $this->hasOne(Member::class, ['id' => 'user_id']);
+    }
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * 更新缓存
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        // 更新缓存
+        if ($changedAttributes) {
+            Yii::$app->dataCache->updateCache(static::class);
+        }
+        parent::afterSave($insert, $changedAttributes);
+    }
+    /**
+     * 删除之后更新缓存
+     */
+    public function afterDelete()
+    {
+        // 更新缓存
+        Yii::$app->dataCache->updateCache(static::class);
+        parent::afterDelete();
     }
 }

@@ -5,26 +5,20 @@ namespace common\models;
 use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelFieldsTrait;
+use yii\helpers\Url;
 /**
  * This is the model class for table "{{%material_team}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="MaterialTeam"))
  *
  * @property int $id @SWG\Property(property="id", type="integer", description="")
- * @property int $source 文件模块来源(1:自主上传源文件,2:询价单提交,3:模板,4:新闻中心,5：商品,6:商品分类,7:虚拟记录,8:编辑器用户图片,9:评价晒图,10:优惠券展示图,11:积分商城的商品图片,12:管理后台独立静态页背景图,13:图帮主用户素材,14:图帮主会员头像上传,15:团队logo素材,16:团队素材,17:合作商,18:合作商模板分类图,19:图帮主秘籍缩略图,20:合作商产品链接logo,21:图帮主专题缩略图,22:社群吐槽缩略图 23:图帮主专题列表缩略图 24:编辑器表单图片) @SWG\Property(property="source", type="integer", description=" 文件模块来源(1:自主上传源文件,2:询价单提交,3:模板,4:新闻中心,5：商品,6:商品分类,7:虚拟记录,8:编辑器用户图片,9:评价晒图,10:优惠券展示图,11:积分商城的商品图片,12:管理后台独立静态页背景图,13:图帮主用户素材,14:图帮主会员头像上传,15:团队logo素材,16:团队素材,17:合作商,18:合作商模板分类图,19:图帮主秘籍缩略图,20:合作商产品链接logo,21:图帮主专题缩略图,22:社群吐槽缩略图 23:图帮主专题列表缩略图 24:编辑器表单图片)")
- * @property int $sid 来源模块对应信息id @SWG\Property(property="sid", type="integer", description=" 来源模块对应信息id")
- * @property int $team_id 团队id @SWG\Property(property="teamId", type="integer", description=" 团队id")
  * @property int $user_id 用户id @SWG\Property(property="userId", type="integer", description=" 用户id")
- * @property string $session_id 匿名sessionId(用于匿名用户临时编辑器图库) @SWG\Property(property="sessionId", type="string", description=" 匿名sessionId(用于匿名用户临时编辑器图库)")
- * @property string $filename 文件名 @SWG\Property(property="filename", type="string", description=" 文件名")
- * @property string $old_name 原文件名 @SWG\Property(property="oldName", type="string", description=" 原文件名")
- * @property string $title 素材标题 @SWG\Property(property="title", type="string", description=" 素材标题")
- * @property int $width 编辑器用户素材宽px @SWG\Property(property="width", type="integer", description=" 编辑器用户素材宽px")
- * @property int $height 编辑器用户素材高px @SWG\Property(property="height", type="integer", description=" 编辑器用户素材高px")
- * @property int $size 文件大小 @SWG\Property(property="size", type="integer", description=" 文件大小")
- * @property int $status 10正常,7到回收站,3删除 @SWG\Property(property="status", type="integer", description=" 10正常,7到回收站,3删除")
- * @property int $folder_id 所在文件夹 @SWG\Property(property="folderId", type="integer", description=" 所在文件夹")
- * @property int $created_at 创建日期 @SWG\Property(property="createdAt", type="integer", description=" 创建日期")
- * @property int $updated_at 修改时间 @SWG\Property(property="updatedAt", type="integer", description=" 修改时间")
+ * @property int $team_id 团队id @SWG\Property(property="teamId", type="integer", description=" 团队id")
+ * @property int $folder_id 文件夹 @SWG\Property(property="folderId", type="integer", description=" 文件夹")
+ * @property string $file_name 文件名 @SWG\Property(property="fileName", type="string", description=" 文件名")
+ * @property string $thumbnail 图片路径 @SWG\Property(property="thumbnail", type="string", description=" 图片路径")
+ * @property int $file_id 文件id @SWG\Property(property="fileId", type="integer", description=" 文件id")
+ * @property int $mode 素材模式 临时，正式 @SWG\Property(property="mode", type="integer", description=" 素材模式 临时，正式")
+ * @property int $created_at 创建时间 @SWG\Property(property="createdAt", type="integer", description=" 创建时间")
  */
 class MaterialTeam extends \yii\db\ActiveRecord
 {
@@ -40,11 +34,11 @@ class MaterialTeam extends \yii\db\ActiveRecord
 
     /** @var string 删除状态 */
     const STATUS_DELETE = '3';
-    /**
-     * @var array 前端页面返回参数
-     */
-    static $frontendFields = ['title', 'source', 'sid', 'folder_id', 'team_id', 'user_id', 'width', 'height', 'size', 'status', 'session_id', 'filename', 'old_name'];
 
+    public function frontendFields()
+    {
+        return ['id', 'user_id', 'team_id', 'folder_id', 'file_id', 'mode', 'file_name', 'thumbnail'];
+    }
     /**
      * @inheritdoc
      */
@@ -59,10 +53,8 @@ class MaterialTeam extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['source', 'sid', 'team_id', 'user_id', 'width', 'height', 'size', 'status', 'folder_id', 'created_at', 'updated_at'], 'integer'],
-            [['session_id'], 'string', 'max' => 30],
-            [['filename', 'old_name'], 'string', 'max' => 100],
-            [['title'], 'string', 'max' => 60],
+            [['user_id', 'team_id', 'folder_id', 'file_id', 'mode', 'created_at','status'], 'integer'],
+            [['file_name', 'thumbnail'], 'string', 'max' => 255],
         ];
     }
 
@@ -72,24 +64,19 @@ class MaterialTeam extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'source' => 'Source',
-            'sid' => 'Sid',
-            'team_id' => 'Team ID',
-            'user_id' => 'User ID',
-            'session_id' => 'Session ID',
-            'filename' => 'Filename',
-            'old_name' => 'Old Name',
-            'title' => 'Title',
-            'width' => 'Width',
-            'height' => 'Height',
-            'size' => 'Size',
-            'status' => 'Status',
-            'folder_id' => 'Folder ID',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'id' => '唯一标识',
+            'user_id' => '用户id',
+            'team_id' => '团队id',
+            'folder_id' => '所属文件夹id',
+            'file_name' => '素材名',
+            'thumbnail' => '图片路径',
+            'file_id' => '文件id',
+            'mode' => '素材类型',
+            'status' => '状态，3为删除，7为到回收站，10为正常',
+            'created_at' => '创建时间',
         ];
     }
+
     /**
      * 排序
      * @return \yii\db\ActiveQuery
@@ -111,5 +98,47 @@ class MaterialTeam extends \yii\db\ActiveRecord
             Yii::$app->dataCache->updateCache(static::class);
         }
         parent::afterSave($insert, $changedAttributes);
+    }
+
+    /**
+     * @param $id
+     * @param int $team_id
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public static function findById($id)
+    {
+        if (Yii::$app->request->isFrontend()) {
+            return static::find()->where(['status' => static::STATUS_NORMAL, 'id' => $id, 'team_id' => \Yii::$app->request->getTeam()])->one();
+        } else {
+            return static::find()->where(['id' => $id])->one();
+        }
+    }
+    /**
+     * @return array|mixed
+     */
+    public function extraFields()
+    {
+        $data = ['thumbnail' => function() {
+            return Url::to('@oss') . DIRECTORY_SEPARATOR .'uploads'. $this->thumbnail;
+        }];
+        //颜色变为数组
+        $data['width'] = function () {
+            return $this->fileCommon->width;
+        };
+        //字体变为数组
+        $data ['height'] = function () {
+            return $this->fileCommon->height;
+        };
+        $data['type'] = function () {
+            return $this->fileCommon->type;
+        };
+        return $data;
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFileCommon()
+    {
+        return $this->hasOne(FileCommon::class, ['file_id' => 'file_id']);
     }
 }

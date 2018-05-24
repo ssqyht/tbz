@@ -3,15 +3,10 @@
 namespace common\models\forms;
 
 use common\models\Member;
-use common\models\MyFavorite;
-use common\models\TbzLetter;
 use common\models\Team;
 use common\models\TeamMember;
-use common\models\TemplateOfficial;
 use yii\base\Model;
 use common\components\traits\ModelErrorTrait;
-use yii\helpers\Json;
-use common\extension\Code;
 
 class TeamForm extends Model
 {
@@ -22,6 +17,7 @@ class TeamForm extends Model
     const CREATED_ROLE = 1;
     /** @var int 普通成员角色 */
     const MEMBER_ROLE = 4;
+
     public $team_name;
     public $founder_id;
     public $colors;
@@ -31,13 +27,16 @@ class TeamForm extends Model
     public $member_id;
     public $team_id;
     public $role;
-
+    public $color;
+    public $font;
+    public $operation_type;
     public function rules()
     {
         return [
-            [['founder_id', 'status', 'team_id', 'member_id', 'role'], 'integer'],
+            [['founder_id', 'status', 'team_id', 'member_id', 'role','operation_type'], 'integer'],
             [['team_name'], 'string', 'max' => 100],
             [['team_mark'], 'string', 'max' => 200],
+            [['color','font'],'string'],
             [['colors', 'fonts'], 'validateColorsFonts'],
         ];
     }
@@ -158,6 +157,47 @@ class TeamForm extends Model
             return true;
         }
         $this->addError('', '删除失败');
+        return false;
+    }
+
+    /**
+     * 添加新的颜色或字体
+     * @return bool|Team|null
+     */
+    public function operation(){
+        if (!$this->validate()){
+            return false;
+        }
+        $team_model = Team::findOne(['id'=>$this->team_id,'status'=>Team::NORMAL_STATUS]);
+        if (!$team_model){
+            $this->addError('','当前团队不存在');
+            return false;
+        }
+        if ($this->color){
+            $colors = explode(',',$team_model->colors);
+           if ($this->operation_type == 1){
+                //剔除团队颜色
+                $colors = array_diff($colors,[$this->color]);
+            }else{
+                //添加颜色
+                array_push($colors,$this->color);
+            }
+            $team_model->colors = trim(implode(',',$colors),',');
+        }
+        if ($this->font){
+            $fonts = explode(',',$team_model->fonts);
+            if ($this->operation_type == 1){
+                //剔除团队字体
+                $fonts = array_diff($fonts ,[$this->font]);
+            }else{
+                //添加团队字体
+                array_push($fonts,$this->font);
+            }
+            $team_model->fonts = trim(implode(',',$fonts),',');
+        }
+        if ($team_model->save()){
+            return $team_model;
+        }
         return false;
     }
     /**

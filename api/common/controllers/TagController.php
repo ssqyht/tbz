@@ -69,6 +69,62 @@ class TagController extends RestController
     }
 
     /**
+     * @SWG\Get(
+     *     path="/tag/{id}",
+     *     operationId="getTagOne",
+     *     schemes={"http"},
+     *     tags={"分类相关接口"},
+     *     summary="获取单个标签信息",
+     *     description="此接口用于查看单个标签信息，后台调用",
+     *     @SWG\Parameter(
+     *         name="Client",
+     *         in="header",
+     *         required=true,
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *      @SWG\Parameter(
+     *         name="id",
+     *         in="path",
+     *         type="integer",
+     *         description="标签唯一标识tag_id",
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @SWG\Items(ref="#/definitions/Tag")
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     * @param $id
+     * @return Tag|null
+     * @throws NotFoundHttpException
+     */
+    public function actionView($id){
+        $result = Tag::findOne(['tag_id'=>$id]);
+        if ($result) {
+            return $result;
+        }
+        throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
+    }
+    /**
      * @SWG\Post(
      *     path="/tag",
      *     operationId="addTag",

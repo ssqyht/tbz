@@ -4,7 +4,8 @@ namespace common\models;
 
 use Yii;
 use common\components\traits\TimestampTrait;
-
+use common\components\traits\ModelFieldsTrait;
+use yii\helpers\Url;
 /**
  * This is the model class for table "{{%material_member}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="MaterialMember"))
@@ -22,7 +23,21 @@ class MaterialMember extends \yii\db\ActiveRecord
 {
 
     use TimestampTrait;
+    use ModelFieldsTrait;
 
+    /** @var string 素材正常状态 */
+    const STATUS_NORMAL = '10';
+
+    /** @var string 回收站 */
+    const STATUS_TRASH = '7';
+
+    /** @var string 删除状态 */
+    const STATUS_DELETE = '3';
+
+    public function frontendFields()
+    {
+        return ['id', 'user_id', 'folder_id', 'file_id', 'mode', 'file_name', 'thumbnail'];
+    }
     /**
      * @inheritdoc
      */
@@ -37,8 +52,7 @@ class MaterialMember extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'created_at'], 'required'],
-            [['user_id', 'folder_id', 'file_id', 'mode', 'created_at'], 'integer'],
+            [['user_id', 'folder_id', 'file_id', 'mode', 'created_at','status'], 'integer'],
             [['file_name', 'thumbnail'], 'string', 'max' => 255],
         ];
     }
@@ -49,14 +63,79 @@ class MaterialMember extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
+            'id' => '唯一标识',
             'user_id' => '用户id',
             'folder_id' => '文件夹',
             'file_name' => '文件名',
             'thumbnail' => '图片路径',
             'file_id' => '文件id',
             'mode' => '素材模式 临时，正式',
+            'status' => '状态，3为删除，7为到回收站，10为正常',
             'created_at' => '创建时间',
         ];
+    }
+
+    /**
+     * 排序
+     * @return \yii\db\ActiveQuery
+     */
+    public static function sort()
+    {
+        return static::find()->orderBy(['id' => SORT_DESC]);
+    }
+
+    /**
+     * @param $id
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public static function findById($id)
+    {
+        if (Yii::$app->request->isFrontend()) {
+            return static::find()->where(['status' => static::STATUS_NORMAL, 'id' => $id])->one();
+        } else {
+            return static::find()->where(['id' => $id])->one();
+        }
+    }
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * 更新缓存
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        // 更新缓存
+        if ($changedAttributes) {
+            Yii::$app->dataCache->updateCache(static::class);
+        }
+        parent::afterSave($insert, $changedAttributes);
+    }
+
+    /**
+     * @return array|mixed
+     */
+    public function extraFields()
+    {
+        $data = ['thumbnail' => function() {
+            return Url::to('@oss') . DIRECTORY_SEPARATOR .'uploads'. $this->thumbnail;
+        }];
+        //颜色变为数组
+        $data['width'] = function () {
+            return $this->fileCommon->width;
+        };
+        //字体变为数组
+        $data ['height'] = function () {
+            return $this->fileCommon->height;
+        };
+        $data['type'] = function () {
+            return $this->fileCommon->type;
+        };
+        return $data;
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getFileCommon()
+    {
+        return $this->hasOne(FileCommon::class, ['file_id' => 'file_id']);
     }
 }

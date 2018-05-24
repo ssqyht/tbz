@@ -11,12 +11,8 @@ namespace common\models\forms;
 use common\components\traits\ModelErrorTrait;
 use common\models\FolderTemplateMember;
 use common\models\FolderTemplateTeam;
-use common\models\MaterialFolders;
 use common\models\TeamMember;
-use common\models\MaterialTeam;
 use common\models\TemplateMember;
-use common\models\Upfile;
-use common\models\Folder;
 use common\models\TemplateTeam;
 
 class TemplateOperationForm extends \yii\base\Model
@@ -277,8 +273,7 @@ class TemplateOperationForm extends \yii\base\Model
 
     /**
      * 判断文件夹是否存在
-     * @param $folder_id
-     * @return bool|Folder|null
+     * @return bool|FolderTemplateMember|FolderTemplateTeam|null
      */
     public function isFolder()
     {

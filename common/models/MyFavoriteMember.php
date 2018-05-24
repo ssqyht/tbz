@@ -44,11 +44,11 @@ class MyFavoriteMember extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'template_id' => 'Template ID',
-            'user_id' => 'User ID',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'id' => '唯一标识',
+            'template_id' => '模板id',
+            'user_id' => '用户id',
+            'created_at' => '创建时间',
+            'updated_at' => '修改时间',
         ];
     }
     /**
@@ -72,5 +72,15 @@ class MyFavoriteMember extends \yii\db\ActiveRecord
             Yii::$app->dataCache->updateCache(static::class);
         }
         parent::afterSave($insert, $changedAttributes);
+    }
+
+    /**
+     * 删除之后更新缓存
+     */
+    public function afterDelete()
+    {
+        // 更新缓存
+        Yii::$app->dataCache->updateCache(static::class);
+        parent::afterDelete();
     }
 }

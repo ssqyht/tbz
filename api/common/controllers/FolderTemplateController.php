@@ -27,21 +27,25 @@ class FolderTemplateController extends RestController
      *     schemes={"http"},
      *     tags={"文件夹接口"},
      *     summary="获取模板文件夹信息",
+     *     description="此接口用于获取个人或团队模板文件夹信息，前台成功返回当前用户或团队下的正常状态模板文件夹信息，后台根据查询状态值返回所有个人或团队的模板文件夹信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
-     *         in="header",
-     *         type="integer"
-     *     ),
-     *      @SWG\Parameter(
      *         name="Handle",
      *         in="header",
-     *         type="string"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队模板文件夹的操作时，此项必传，否则为操作当前用户的个人模板文件夹",
      *     ),
      *      @SWG\Parameter(
      *          in="query",
@@ -72,7 +76,7 @@ class FolderTemplateController extends RestController
      */
     public function actionIndex()
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
             $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_TEAM, 'team_id' => $team_id];
         } else {
@@ -95,16 +99,25 @@ class FolderTemplateController extends RestController
      *     schemes={"http"},
      *     tags={"文件夹接口"},
      *     summary="创建模板文件夹",
+     *     description="此接口用于创建个人或团队的模板文件夹，成功返回新增的模板文件夹信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队模板文件夹的操作时，此项必传，否则为操作当前用户的个人模板文件夹",
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
@@ -117,7 +130,7 @@ class FolderTemplateController extends RestController
      *          in="formData",
      *          name="color",
      *          type="string",
-     *          description="颜色",
+     *          description="文件夹颜色",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -142,12 +155,12 @@ class FolderTemplateController extends RestController
      */
     public function actionCreate()
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
-            $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_TEAM, 'team_id' => $team_id];
+            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team_id];
         } else {
             //个人
-            $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_MEMBER];
+            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_MEMBER];
         }
         $create_data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $message = new FolderTemplateForm();
@@ -164,22 +177,31 @@ class FolderTemplateController extends RestController
      *     schemes={"http"},
      *     tags={"文件夹接口"},
      *     summary="修改模板文件夹信息",
+     *     description="此接口用于编辑个人或团队的模板文件夹，成功返回所编辑的模板文件夹信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队模板文件夹的操作时，此项必传，否则为操作当前用户的个人模板文件夹",
      *     ),
      *     @SWG\Parameter(
      *          in="path",
      *          name="folder_id",
      *          type="integer",
-     *          description="文件夹id",
+     *          description="文件夹唯一标识folder_id",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
@@ -193,7 +215,7 @@ class FolderTemplateController extends RestController
      *          in="formData",
      *          name="color",
      *          type="string",
-     *          description="颜色",
+     *          description="文件夹颜色",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -219,12 +241,12 @@ class FolderTemplateController extends RestController
      */
     public function actionUpdate($id)
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
-            $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_TEAM, 'team_id' => $team_id];
+            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team_id];
         } else {
             //个人
-            $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_MEMBER];
+            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_MEMBER];
         }
         $update_data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $folder = new FolderTemplateForm();
@@ -236,21 +258,30 @@ class FolderTemplateController extends RestController
 
     /**
      * @SWG\Delete(
-     *     path="/folder-template/{delete_id}",
+     *     path="/folder-template/{folder_id}",
      *     operationId="deleteFolderTemplate",
      *     schemes={"http"},
      *     tags={"文件夹接口"},
      *     summary="模板文件夹到回收站",
+     *     description="此接口用于删除个人或团队的模板文件夹，如果该文件夹下还有模板信息，默认会把所有该文件夹下的模板移动到默认文件夹，成功返回空字符串",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队模板文件夹的操作时，此项必传，否则为操作当前用户的个人模板文件夹",
      *     ),
      *     @SWG\Parameter(
      *          in="path",
@@ -276,16 +307,16 @@ class FolderTemplateController extends RestController
      */
     public function actionDelete($id)
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
-            $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_TEAM, 'team_id' => $team_id];
+            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team_id];
         } else {
             //个人
-            $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_MEMBER];
+            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_MEMBER];
         }
         $folder = new FolderTemplateForm();
         if ($folder->load($method, '') && $folder->deleteFolder($id)) {
-            return true;
+            return '';
         }
         throw new HttpException(500, $folder->getStringErrors(), Code::SERVER_FAILED);
     }

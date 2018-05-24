@@ -7,8 +7,10 @@
  */
 namespace common\models\forms;
 use common\models\MaterialMember;
+use common\components\traits\ModelErrorTrait;
 use common\models\MaterialTeam;
-use common\components\traits\ModelErrorTrait;;
+
+;
 class MaterialForm extends \yii\base\Model
 {
     use ModelErrorTrait;
@@ -16,29 +18,27 @@ class MaterialForm extends \yii\base\Model
     const MATERIAL_MEMBER = 'material_member';
     /** @var string 团队素材 */
     const MATERIAL_TEAM = 'material_team';
+
     /** @var int 到回收站状态 */
     const RECYCLE_BIN_STATUS = 7;
-    public $source;
-    public $sid;
+
+    public $file_id;
+    public $thumbnail;
     public $team_id;
     public $user_id;
-    public $session_id;
-    public $filename;
-    public $old_name;
-    public $title;
-    public $width;
-    public $height;
-    public $size;
-    public $status;
+    public $mode;
+    public $file_name;
     public $folder_id;
     public $method;
+
+    private $_user;
+
     public function rules()
     {
         return [
-            [['source', 'sid', 'team_id', 'user_id', 'width', 'height', 'size', 'status', 'folder_id'], 'integer'],
-            [['session_id'], 'string', 'max' => 30],
-            [['filename', 'old_name'], 'string', 'max' => 100],
-            [['title'], 'string', 'max' => 60],
+            [['user_id', 'folder_id', 'file_id', 'mode','team_id'], 'integer'],
+            [['file_name', 'thumbnail'], 'string', 'max' => 255],
+            [['folder_id'],'default','value'=>0],
             ['method','required'],
             ['method', 'in', 'range' => [static::MATERIAL_MEMBER, static::MATERIAL_TEAM ]],
         ];
@@ -46,7 +46,7 @@ class MaterialForm extends \yii\base\Model
 
     /**
      * 添加个人或者团队素材
-     * @return bool|MaterialMember|MaterialTeam
+     * @return bool|MaterialMember|False
      */
     public function addMaterial()
     {
@@ -54,10 +54,13 @@ class MaterialForm extends \yii\base\Model
             return false;
         }
         if ($this->method == 'material_member'){
+            //个人
             $model = new MaterialMember();
         }else{
+            //团队
             $model = new MaterialTeam();
         }
+        $this->user_id = $this->user;
         if ($model->load($this->attributes, '') && $model->save(false)) {
             return $model;
         }
@@ -67,7 +70,7 @@ class MaterialForm extends \yii\base\Model
     /**
      * 修改素材
      * @param $id
-     * @return bool|MaterialMember|MaterialTeam|null
+     * @return bool|MaterialMember|False|null
      */
     public function updateMaterial($id)
     {
@@ -79,14 +82,17 @@ class MaterialForm extends \yii\base\Model
             return false;
         }
         if ($this->method == 'material_member'){
-            $model = MaterialMember::findOne($id);
+            //个人
+            $model = MaterialMember::findOne(['id'=>$id,'user_id'=>$this->user]);
         }else{
-            $model =MaterialTeam::findOne($id);
+            //团队
+            $model =MaterialTeam::findOne(['id'=>$id,'team_id'=>$this->team_id]);
         }
         if (!$model) {
             $this->addError('', '该素材不存在');
             return false;
         }
+        $this->user_id = $this->user;
         if ($model->load($this->attributes, '') && $model->save(false)) {
             return $model;
         }
@@ -101,18 +107,27 @@ class MaterialForm extends \yii\base\Model
     public function deleteMaterial($id)
     {
         if ($this->method == 'material_member'){
-            $model = MaterialMember::findOne($id);
+            $model = MaterialMember::findOne(['id'=>$id,'user_id'=>$this->user]);
         }else{
-            $model =MaterialTeam::findOne($id);
+            $model =MaterialTeam::findOne(['id'=>$id,'team_id'=>$this->team_id]);
         }
         if (!$model) {
             $this->addError('id', '该素材不存在');
         }
-        $model->status = 7;
+        $model->status = static::RECYCLE_BIN_STATUS;
         if ($model->save(false)) {
             return true;
         }
         $this->addError('', '删除失败');
         return false;
+    }
+    /**
+     * 获取用户id
+     */
+    public function getUser(){
+        if ($this->_user === null){
+            $this->_user =1; /*\Yii::$app->user->id*/;
+        }
+        return $this->_user;
     }
 }

@@ -6,7 +6,7 @@ use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelErrorTrait;
 use common\components\traits\ModelFieldsTrait;
-
+use yii\helpers\Url;
 /**
  * This is the model class for table "{{%team}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="Team"))
@@ -65,17 +65,17 @@ class Team extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'coin' => 'Coin',
-            'team_name' => 'Team Name',
-            'founder_id' => 'Founder ID',
-            'colors' => 'Colors',
-            'fonts' => 'Fonts',
-            'team_mark' => 'Team Mark',
-            'team_level' => 'Team Level',
-            'status' => 'Status',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'id' => '唯一标识',
+            'coin' => '图币',
+            'team_name' => '团队名称',
+            'founder_id' => '创建者id',
+            'colors' => '颜色',
+            'fonts' => '字体',
+            'team_mark' => '团队头像',
+            'team_level' => '团队等级',
+            'status' => '团队状态',
+            'created_at' => '创建时间',
+            'updated_at' => '修改时间',
         ];
     }
 
@@ -100,6 +100,9 @@ class Team extends \yii\db\ActiveRecord
 
     public function extraFields()
     {
+        $data['team_mark'] = function () {
+            return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads' . $this->team_mark;
+        };
         //颜色变为数组
         $data['colors'] = function () {
             return explode(',', $this->colors);
@@ -108,11 +111,10 @@ class Team extends \yii\db\ActiveRecord
         $data ['fonts'] = function () {
             return explode(',', $this->fonts);
         };
-        if ($this->isRelationPopulated('members')) {
-            $data['members'] = function () {
-                return $this->members;
-            };
-        }
+        //团队成员
+        $data['members'] = function () {
+            return $this->members;
+        };
         return $data;
     }
 
@@ -126,5 +128,18 @@ class Team extends \yii\db\ActiveRecord
             ->where(['status' => TeamMember::NORMAL_STATUS])
             ->orderBy(['role' => SORT_ASC])
             ->with('memberMark');
+    }
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * 更新缓存
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        // 更新缓存
+        if ($changedAttributes) {
+            Yii::$app->dataCache->updateCache(static::class);
+        }
+        parent::afterSave($insert, $changedAttributes);
     }
 }

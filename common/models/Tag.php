@@ -57,12 +57,12 @@ class Tag extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'tag_id' => 'Tag ID',
-            'name' => 'Name',
-            'type' => 'Type',
-            'sort' => 'Sort',
-            'updated_at' => 'Updated At',
-            'created_at' => 'Created At',
+            'tag_id' => '唯一标识',
+            'name' => '标签名称',
+            'type' => '类型',
+            'sort' => '热度',
+            'updated_at' => '创建时间',
+            'created_at' => '修改时间',
         ];
     }
 

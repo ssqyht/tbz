@@ -109,7 +109,7 @@ class TemplateOfficialSearch extends Model
 //        try {
 //             $result = Yii::$app->dataCache->cache(function () use ($template_data) {
         $dataProvider = new ActiveDataProvider([
-            'query' => $this->query,
+            'query' => $this->query->with('myFavorite'),
         ]);
         if ($dataProvider){
             return $dataProvider;

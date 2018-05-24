@@ -8,11 +8,9 @@
 
 namespace common\models\search;
 
-use common\models\Folder;
 use common\components\vendor\Model;
 use common\models\FolderTemplateMember;
 use common\models\FolderTemplateTeam;
-use common\models\MaterialFolders;
 use yii\data\ActiveDataProvider;
 use common\models\CacheDependency;
 
@@ -48,8 +46,8 @@ class FolderTemplateSearch extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['status','method'],
-            static::SCENARIO_BACKEND => ['status','method'],
+            static::SCENARIO_DEFAULT => ['method','team_id'],
+            static::SCENARIO_BACKEND => ['status','method','team_id'],
             static::SCENARIO_FRONTEND => ['method','team_id']
         ];
     }
@@ -129,8 +127,8 @@ class FolderTemplateSearch extends Model
             $this->_cacheKey = [
                 __CLASS__,
                 static::class,
-                Folder::tableName(),
-                Folder::tableName(),
+                FolderTemplateTeam::tableName(),
+                FolderTemplateMember::tableName(),
                 $this->scenario,
                 $this->attributes,
             ];

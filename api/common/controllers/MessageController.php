@@ -82,7 +82,62 @@ class MessageController extends  RestController
         }
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
     }
-
+    /**
+     * @SWG\Get(
+     *     path="/message/{id}",
+     *     operationId="getMessageOne",
+     *     schemes={"http"},
+     *     tags={"消息接口"},
+     *     summary="获取单个消息信息",
+     *     description="此接口用于查看单个消息，前台成功返回线上消息信息，后台无限制",
+     *     @SWG\Parameter(
+     *         name="Client",
+     *         in="header",
+     *         required=true,
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *      @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *      @SWG\Parameter(
+     *          in="path",
+     *          name="id",
+     *          type="integer",
+     *          description="消息的唯一标识id",
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @SWG\Items(ref="#/definitions/TbzLetter"),
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     * @param $id
+     * @return array|null|\yii\db\ActiveRecord
+     * @throws NotFoundHttpException
+     */
+    public function actionView($id){
+        $result = TbzLetter::findById($id);
+        if ($result){
+            return $result;
+        }
+        throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
+    }
     /**
      * @SWG\Post(
      *     path="/message",

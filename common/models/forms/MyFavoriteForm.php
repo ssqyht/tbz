@@ -8,7 +8,6 @@
 
 namespace common\models\forms;
 
-use common\models\MyFavorite;
 use common\models\MyFavoriteMember;
 use common\models\MyFavoriteTeam;
 use common\models\TemplateOfficial;
@@ -56,15 +55,29 @@ class MyFavoriteForm extends Model
         }
         if (!$this->user) {
             $this->addError('unlogin', '获取用户信息失败，请登录');
+            return false;
         }
         $template_model = TemplateOfficial::findOne(['template_id' => $this->template_id]);
+        if (!$template_model){
+            $this->addError('', '收藏的模板不存在');
+            return false;
+        }
         if ($this->method == static::FAVORITE_TEAM){
             //团队
             $model = new MyFavoriteTeam();
+            if (MyFavoriteTeam::findOne(['template_id'=>$this->template_id,'team_id'=>$this->team_id])){
+                $this->addError('', '已收藏，不用重复收藏');
+                return false;
+            }
             $model->team_id = $this->team_id;
+            $model->user_id = $this->user;
             $model->template_id = $this->template_id;
         }else{
             //个人
+            if (MyFavoriteMember::findOne(['template_id'=>$this->template_id,'user_id'=>$this->user])){
+                $this->addError('', '已收藏，不用重复收藏');
+                return false;
+            }
             $model = new MyFavoriteMember();
             $model->user_id = $this->user;
             $model->template_id = $this->template_id;

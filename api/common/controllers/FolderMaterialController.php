@@ -7,7 +7,6 @@
  */
 namespace api\common\controllers;
 
-use common\models\forms\FolderTemplateForm;
 use common\models\forms\FolderMaterialForm;
 use common\models\search\FolderMaterialSearch;
 use common\models\TbzLetter;
@@ -26,27 +25,31 @@ class FolderMaterialController extends RestController
      *     schemes={"http"},
      *     tags={"文件夹接口"},
      *     summary="获取素材文件夹信息",
+     *     description="此接口用于获取个人或团队素材文件夹信息，前台成功返回当前用户或团队下的正常状态素材文件夹信息，后台根据查询状态值返回所有个人或团队的文件夹信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
-     *         in="header",
-     *         type="integer"
-     *     ),
-     *      @SWG\Parameter(
      *         name="Handle",
      *         in="header",
-     *         type="string"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队素材文件夹的操作时，此项必传，否则为操作当前用户的个人素材文件夹",
      *     ),
      *      @SWG\Parameter(
      *          in="query",
      *          name="status",
      *          type="integer",
-     *          description="文件夹状态(后台可以根据状态查询,10为正常，7为回收站，3为删除)",
+     *          description="后台查询条件，文件夹状态(后台可以根据状态查询,10为正常，7为回收站，3为删除)",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -71,7 +74,7 @@ class FolderMaterialController extends RestController
      */
     public function actionIndex()
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')){
+        if ($team_id = \Yii::$app->request->getTeam()){
             //团队
             $method = ['method' => FolderMaterialSearch::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
         }else{
@@ -94,16 +97,25 @@ class FolderMaterialController extends RestController
      *     schemes={"http"},
      *     tags={"文件夹接口"},
      *     summary="创建素材文件夹",
+     *     description="此接口用于创建个人或团队素材文件夹，成功返回新增素材文件夹信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队素材文件夹的操作时，此项必传，否则为操作当前用户个人的素材文件夹",
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
@@ -116,7 +128,7 @@ class FolderMaterialController extends RestController
      *          in="formData",
      *          name="color",
      *          type="string",
-     *          description="颜色",
+     *          description="文件夹颜色",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -141,7 +153,7 @@ class FolderMaterialController extends RestController
      */
     public function actionCreate()
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')){
+        if ($team_id = \Yii::$app->request->getTeam()){
             //团队
             $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
         }else{
@@ -163,16 +175,25 @@ class FolderMaterialController extends RestController
      *     schemes={"http"},
      *     tags={"文件夹接口"},
      *     summary="修改素材文件夹信息",
+     *     description="此接口用于创建个人或团队素材文件夹，成功返回所编辑的素材文件夹信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队素材文件夹的操作时，此项必传，否则为操作当前用户个人的素材文件夹",
      *     ),
      *     @SWG\Parameter(
      *          in="path",
@@ -218,7 +239,7 @@ class FolderMaterialController extends RestController
      */
     public function actionUpdate($id)
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')){
+        if ($team_id = \Yii::$app->request->getTeam()){
             //团队
             $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
         }else{
@@ -240,16 +261,25 @@ class FolderMaterialController extends RestController
      *     schemes={"http"},
      *     tags={"文件夹接口"},
      *     summary="素材文件夹到回收站",
+     *     description="此接口用于删除个人或团队素材文件夹，如果该文件夹下还有素材信息，默认会把所有该文件夹下的素材移动到默认文件夹，成功返回空字符串",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队素材文件夹的操作时，此项必传，否则为操作当前用户个人的素材文件夹",
      *     ),
      *     @SWG\Parameter(
      *          in="path",
@@ -275,7 +305,7 @@ class FolderMaterialController extends RestController
      */
     public function actionDelete($id)
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')){
+        if ($team_id = \Yii::$app->request->getTeam()){
             //团队
             $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
         }else{
@@ -284,7 +314,7 @@ class FolderMaterialController extends RestController
         }
         $folder = new FolderMaterialForm();
         if ($folder->load($method, '') && $folder->deleteFolder($id)) {
-            return true;
+            return '';
         }
         throw new HttpException(500, $folder->getStringErrors(), Code::SERVER_FAILED);
     }

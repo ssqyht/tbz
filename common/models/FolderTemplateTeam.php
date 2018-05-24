@@ -27,8 +27,10 @@ class FolderTemplateTeam extends \yii\db\ActiveRecord
     /** @var int 正常状态 */
     const NORMAL_STATUS = 10;
 
-    static $frontendFields = ['id', 'color', 'name', 'user_id', 'team_id'];
-
+    public function frontendFields()
+    {
+        return ['id', 'color', 'name', 'user_id', 'team_id'];
+    }
     /**
      * @inheritdoc
      */
@@ -55,14 +57,14 @@ class FolderTemplateTeam extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'color' => 'Color',
-            'status' => 'Status',
-            'user_id' => 'User ID',
-            'team_id' => 'Team ID',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'id' => '唯一标识',
+            'name' => '文件夹名称',
+            'color' => '文件夹颜色',
+            'status' => '文件夹状态',
+            'user_id' => '用户id',
+            'team_id' => '团队id',
+            'created_at' => '创建时间',
+            'updated_at' => '修改时间',
         ];
     }
 

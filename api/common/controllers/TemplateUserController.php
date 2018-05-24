@@ -8,6 +8,7 @@ namespace api\common\controllers;
 use common\models\forms\TemplateForm;
 use common\models\search\TemplateUserSearch;
 use common\models\TemplateMember;
+use common\models\TemplateTeam;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
 use common\models\forms\TemplateOperationForm;
@@ -39,7 +40,7 @@ class TemplateUserController extends BaseController
      *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Team",
      *         in="header",
      *         type="integer",
      *         description="团队的唯一标识team_id,当为查询团队版模板时，此项必传，否则查询结果为个人模板信息",
@@ -91,7 +92,7 @@ class TemplateUserController extends BaseController
      */
     public function actionIndex()
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')){
+        if ($team_id = \Yii::$app->request->getTeam()){
             //团队
             $method = ['method' => TemplateUserSearch::TEMPLATE_TEAM,'team_id'=>$team_id];
         }else{
@@ -105,6 +106,76 @@ class TemplateUserController extends BaseController
             return $result;
         }
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+    }
+
+    /**
+     * @SWG\Get(
+     *     path="/template-user/{id}",
+     *     operationId="getTemplateUserOne",
+     *     schemes={"http"},
+     *     tags={"用户模板相关接口"},
+     *     summary="查询单个模板信息(团队和个人)",
+     *     description="此接口为前后台根据模板的template_id查询团队或个人模板信息,前台只返回当前用户下或团队正常状态的模板信息",
+     *     @SWG\Parameter(
+     *         name="Client",
+     *         in="header",
+     *         required=true,
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为查询团队版模板时，此项必传，否则查询结果为个人模板信息",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="id",
+     *         in="path",
+     *         type="integer",
+     *         description="模板的唯一标识template_id",
+     *          required=true,
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @SWG\Items(ref="#/definitions/TemplateMember")
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     * @param $id
+     * @return TemplateMember|TemplateTeam|null
+     * @throws NotFoundHttpException
+     */
+    public function actionView($id){
+        if ($team_id = \Yii::$app->request->getTeam()){
+            //团队
+          $result = TemplateTeam::findById($id,$team_id);
+        }else{
+            //个人
+            $result = TemplateMember::findById($id);
+        }
+        if ($result) {
+            return $result;
+        }
+        throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
     }
     /**
      * 新增模板
@@ -294,7 +365,7 @@ class TemplateUserController extends BaseController
      *     schemes={"http"},
      *     tags={"用户模板相关接口"},
      *     summary="用户（团队、个人）模板的常规操作(单个重命名，删除，到回收站、还原、个人转团队、移动到文件夹)",
-     *     description="此接口用于前台个人或团队模板的重命名、到回收站、删除、还原、移动到指定文件夹等场景",
+     *     description="此接口用于前台个人或团队模板的重命名、到回收站、删除、还原、移动到指定文件夹等场景,成功返回空字符串",
      *     @SWG\Parameter(
      *         name="Client",
      *         in="header",
@@ -309,7 +380,7 @@ class TemplateUserController extends BaseController
      *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台（此接口只支持前台）",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Team",
      *         in="header",
      *         type="integer",
      *         description="团队的唯一标识team_id,当为团队模板的操作时，此项必传，否则为操作当前用户的模板",
@@ -358,7 +429,7 @@ class TemplateUserController extends BaseController
     public function actionTemplateOperation()
     {
         $model = new TemplateOperationForm();
-        if ($team_id = \Yii::$app->request->headers->get('team')){
+        if ($team_id = \Yii::$app->request->getTeam()){
             //团队
             $method = ['method' => TemplateOperationForm::TEMPLATE_TEAM,'team_id'=>$team_id];
         }else{
@@ -367,7 +438,7 @@ class TemplateUserController extends BaseController
         }
         $data = ArrayHelper::merge(\Yii::$app->request->post(),$method);
         if ($result = $model->operation($data)) {
-            return $result;
+            return '';
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }

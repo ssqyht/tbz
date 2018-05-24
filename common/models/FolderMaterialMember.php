@@ -25,8 +25,13 @@ class FolderMaterialMember extends \yii\db\ActiveRecord
     use ModelFieldsTrait;
     /** @var int 正常状态 */
     const NORMAL_STATUS = 10;
-
-    static $frontendFields = ['id', 'color', 'name', 'user_id'];
+    /**
+     * @return array
+     */
+    public function frontendFields()
+    {
+        return ['id', 'color', 'name', 'user_id'];
+    }
 
     /**
      * @inheritdoc
@@ -54,13 +59,13 @@ class FolderMaterialMember extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'color' => 'Color',
-            'status' => 'Status',
-            'user_id' => 'User ID',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'id' => '唯一标识',
+            'name' => '文件夹名称',
+            'color' => '文件夹颜色',
+            'status' => '文件夹状态',
+            'user_id' => '用户id',
+            'created_at' => '创建时间',
+            'updated_at' => '修改时间',
         ];
     }
 

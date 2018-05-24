@@ -38,13 +38,15 @@ class CacheDependencyController extends Controller
             ['template_cover','模板专题缓存',time()],
             ['template_user_search','个人、团队模板缓存',time()],
             ['material','素材缓存',time()],
-            ['my_favorite','收藏缓存',time()]
+            ['my_favorite','收藏缓存',time()],
+            ['team_member','团队成员缓存',time()],
+            ['team','团队缓存',time()],
         ])->execute();
 
         $db->createCommand()->batchInsert(CacheGroup::tableName(), ['table_name', 'cache_name'], [
             ['table_name' => 'tu_category', 'official_classify'],
             ['table_name' => 'tu_classify', 'official_classify'],
-            ['template_official','classify_search_template'],
+            ['tu_template_official','classify_search_template'],
             ['tu_classify','classify_search_template'],
             ['tu_folder_material_member','folder_material'],
             ['tu_folder_material_team','folder_material'],
@@ -58,6 +60,15 @@ class CacheDependencyController extends Controller
             ['tu_material_team','material'],
             ['tu_my_favorite_member','my_favorite'],
             ['tu_my_favorite_team','my_favorite'],
+            ['tu_my_favorite_member','official_hot_recommend'],
+            ['tu_my_favorite_team','official_hot_recommend'],
+            ['tu_classify','official_hot_recommend'],
+            ['tu_template_official','official_hot_recommend'],
+            ['tu_team_member','team_member'],
+            ['tu_member','team_member'],
+            ['tu_team_member','team'],
+            ['tu_member','team'],
+            ['tu_team','team'],
         ])->execute();
 
         $this->stdout('Success' . "\n", Console::FG_GREEN);

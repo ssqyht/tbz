@@ -22,6 +22,8 @@ class Request extends \yii\web\Request
 
     private $_handle;
 
+    private $_team;
+
     public function getClient()
     {
         // 处理客户端Client信息
@@ -59,6 +61,18 @@ class Request extends \yii\web\Request
     {
         $handle = $value ?: $this->headers->get('Handle');
         $this->_handle = $handle == 'backend' ? $handle : 'frontend';
+    }
+
+    /**
+     * 获取团队的team_id
+     * @return array|bool|string
+     */
+    public function getTeam()
+    {
+        if ($this->_team === null) {
+            $this->_team = $this->headers->get('Team') ? $this->headers->get('Team') : false;
+        }
+        return $this->_team;
     }
 
 }

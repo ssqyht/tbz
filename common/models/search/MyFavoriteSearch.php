@@ -8,10 +8,8 @@
 
 namespace common\models\search;
 
-use common\models\MyFavorite;
 use common\models\MyFavoriteMember;
 use common\models\MyFavoriteTeam;
-use function GuzzleHttp\Promise\all;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use common\models\CacheDependency;
@@ -90,7 +88,7 @@ class MyFavoriteSearch extends Model
                     $result[] = $data->templateOfficials;
                 }
                 return $result;
-            }, $this->cacheKey, CacheDependency::MY_FAVORITE);
+            }, $this->getCacheKey($provider->getKeys()), CacheDependency::MY_FAVORITE);
         } catch (\Throwable $e) {
             $result = null;
         }
@@ -113,16 +111,17 @@ class MyFavoriteSearch extends Model
      * @return array|null
      * @author thanatos <thanatos915@163.com>
      */
-    public function getCacheKey()
+    public function getCacheKey($key)
     {
         if ($this->_cacheKey === null) {
             $this->_cacheKey = [
                 __CLASS__,
                 static::class,
-                MyFavorite::tableName(),
-                MyFavorite::tableName(),
+                MyFavoriteMember::tableName(),
+                MyFavoriteTeam::tableName(),
                 $this->scenario,
                 $this->attributes,
+                $key
             ];
         }
         return $this->_cacheKey;

@@ -75,7 +75,62 @@ class GainTemplateCoverController extends RestController
             throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
         }
     }
-
+    /**
+     * @SWG\Get(
+     *     path="/gain-template-cover/{id}",
+     *     operationId="GetCoverOne",
+     *     schemes={"http"},
+     *     tags={"模板相关接口"},
+     *     summary="获取单个专题模板信息",
+     *     description="此接口用于查看单个专题模板信息,前台成功返回线上模板信息，后台无限制",
+     *     @SWG\Parameter(
+     *         name="Client",
+     *         in="header",
+     *         required=true,
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *      @SWG\Parameter(
+     *          in="path",
+     *          name="id",
+     *          type="integer",
+     *          description="专题模板唯一标识id",
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @SWG\Items(ref="#/definitions/TbzSubject")
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     * @param $id
+     * @return array|null|\yii\db\ActiveRecord
+     * @throws BadRequestHttpException
+     */
+    public function actionView($id){
+        $result = TbzSubject::findById($id);
+        if ($result){
+            return $result;
+        }
+        throw new BadRequestHttpException('未找到', Code::SERVER_UNAUTHORIZED);
+    }
     /**
      * @SWG\Post(
      *     path="/gain-template-cover",
@@ -362,9 +417,9 @@ class GainTemplateCoverController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return bool|\common\components\vendor\Response|\yii\console\Response|Response
+     * @param $id
+     * @return string
      * @throws NotFoundHttpException
-     * @author swz
      */
     public function actionDelete($id)
     {

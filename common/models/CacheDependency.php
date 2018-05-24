@@ -30,6 +30,10 @@ class CacheDependency extends \yii\db\ActiveRecord
     const MATERIAL = 'material';
     /** @var string 收藏缓存 */
     const MY_FAVORITE = 'my_favorite';
+    /** @var string 团队成员缓存 */
+    const TEAM_MEMBER = 'team_member';
+    /** @var string 团队缓存 */
+    const TEAM = 'team';
     /**
      * @inheritdoc
      */

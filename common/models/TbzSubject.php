@@ -60,18 +60,18 @@ class TbzSubject extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'title' => 'Title',
-            'description' => 'Description',
-            'thumbnail' => 'Thumbnail',
-            'banner' => 'Banner',
-            'seo_title' => 'Seo Title',
-            'seo_keyword' => 'Seo Keyword',
-            'seo_description' => 'Seo Description',
-            'status' => 'Status',
-            'sort' => 'Sort',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
+            'id' => '唯一标识',
+            'title' => '模板标题',
+            'description' => '描述',
+            'thumbnail' => '缩略图路径',
+            'banner' => '专题内页banner图路径',
+            'seo_title' => 'Seo标题',
+            'seo_keyword' => 'Seo关键词',
+            'seo_description' => 'Seo描述',
+            'status' => '模板状态',
+            'sort' => '热度',
+            'created_at' => '创建时间',
+            'updated_at' => '修改时间',
         ];
     }
 

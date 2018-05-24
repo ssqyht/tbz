@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelFieldsTrait;
+use yii\helpers\Url;
 /**
  * This is the model class for table "{{%template_member}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="TemplateMember"))
@@ -106,9 +107,9 @@ class TemplateMember extends \yii\db\ActiveRecord
     public static function active()
     {
         if (Yii::$app->request->isFrontend()) {
-            return static::sort();
+            return static::find()->where(['status'=>static::STATUS_NORMAL,'user_id'=>1/*\Yii::$app->user->id*/]);
         } else {
-            return static::sort()->andWhere(['status' => static::STATUS_NORMAL]);
+            return static::find();
         }
     }
 
@@ -135,6 +136,17 @@ class TemplateMember extends \yii\db\ActiveRecord
             Yii::$app->dataCache->updateCache(static::class);
         }
         parent::afterSave($insert, $changedAttributes);
+    }
+
+    /**
+     * @return array|mixed
+     */
+    public function extraFields()
+    {
+        $data['thumbnail_url'] = function () {
+            return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads' . $this->thumbnail_url;
+        };
+        return $data;
     }
 
 }

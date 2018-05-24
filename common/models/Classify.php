@@ -177,7 +177,8 @@ class Classify extends \yii\db\ActiveRecord
     {
         return $this->hasMany(TemplateOfficial::class, ['classify_id' => 'classify_id'])
             ->where(['status' => static::TEMPLATE_OFFICIAL_STATUS])
-            ->orderBy(['sort' => SORT_ASC]);
+            ->orderBy(['sort' => SORT_ASC])
+            ->with('myFavorite');
     }
 
     /**

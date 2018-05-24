@@ -9,13 +9,10 @@
 namespace api\common\controllers;
 
 use common\models\forms\MyFavoriteForm;
-use common\models\MyFavorite;
-use common\models\TbzLetter;
 use common\models\search\MyFavoriteSearch;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
 use common\components\vendor\RestController;
-use common\models\forms\MessageForm;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\helpers\ArrayHelper;
@@ -29,16 +26,25 @@ class MyFavoriteController extends RestController
      *     schemes={"http"},
      *     tags={"收藏接口"},
      *     summary="获取收藏模板信息",
+     *     description="此接口用来前台根据查询条件查询个人或团队收藏的模板信息，成功返回模板信息，只能前台调用",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队收藏的操作时，此项必传，否则为查询当前用户的个人收藏",
      *     ),
      *      @SWG\Parameter(
      *          in="query",
@@ -50,7 +56,7 @@ class MyFavoriteController extends RestController
      *          in="query",
      *          name="classify_id",
      *          type="integer",
-     *          description="小分类的classify_id",
+     *          description="小分类的classify_id，可根据小分类进行筛选查询",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -76,7 +82,7 @@ class MyFavoriteController extends RestController
      */
     public function actionIndex()
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
             $method = ['method' => MyFavoriteSearch::FAVORITE_TEAM, 'team_id' => $team_id];
         } else {
@@ -91,7 +97,6 @@ class MyFavoriteController extends RestController
         }
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
     }
-
     /**
      * @SWG\Post(
      *     path="/my-favorite",
@@ -99,22 +104,31 @@ class MyFavoriteController extends RestController
      *     schemes={"http"},
      *     tags={"收藏接口"},
      *     summary="添加收藏",
+     *     description="此接口用来新增个人或团队新的收藏信息，同时会在官方模板表为收藏量加1，成功返回空字符串",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队收藏的操作时，此项必传，否则为查询当前用户的个人收藏",
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="template_id",
      *          type="integer",
-     *          description="模板的template_id",
+     *          description="官方模板的template_id",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -135,7 +149,7 @@ class MyFavoriteController extends RestController
      */
     public function actionCreate()
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
             $method = ['method' => MyFavoriteForm::FAVORITE_TEAM, 'team_id' => $team_id];
         } else {
@@ -145,7 +159,7 @@ class MyFavoriteController extends RestController
         $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $model = new MyFavoriteForm();
         if ($model->load($data, '') && ($result = $model->addMyFavorite())) {
-            return $result;
+            return '';
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }
@@ -162,22 +176,31 @@ class MyFavoriteController extends RestController
      *     schemes={"http"},
      *     tags={"收藏接口"},
      *     summary="删除收藏",
+     *     description="此接口用来删除个人或团队收藏，成功返回空字符串",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队收藏的操作时，此项必传，否则为查询当前用户的个人收藏",
      *     ),
      *     @SWG\Parameter(
      *          in="path",
      *          name="id",
      *          type="integer",
-     *          description="收藏id",
+     *          description="个人或团队收藏的唯一标识id",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -198,7 +221,7 @@ class MyFavoriteController extends RestController
      */
     public function actionDelete($id)
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
             $method = ['method' => MyFavoriteForm::FAVORITE_TEAM, 'team_id' => $team_id];
         } else {
@@ -207,7 +230,7 @@ class MyFavoriteController extends RestController
         }
         $model = new MyFavoriteForm();
         if ($model->load($method, '') && $model->deleteMyFavorite($id)) {
-            return true;
+            return '';
         }
         throw new HttpException(500, $model->getStringErrors(), Code::SERVER_FAILED);
     }

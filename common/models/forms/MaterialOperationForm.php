@@ -12,6 +12,7 @@ use common\models\FolderMaterialMember;
 use common\models\FolderMaterialTeam;
 use common\models\MaterialMember;
 use common\models\MaterialTeam;
+use common\models\TeamMember;
 class MaterialOperationForm extends \yii\base\Model
 {
     use ModelErrorTrait;
@@ -42,16 +43,16 @@ class MaterialOperationForm extends \yii\base\Model
 
 
     public $method;
-    public $_table;
-    public $_user;
-    public $_condition;
-    public $_folderModel;
-    public $_tableModel;
     public $ids;
     public $name;
     public $folder;
     public $team_id;
     public $type;
+
+    private $_table;
+    private $_user;
+    private $_condition;
+    private $_tableModel;
 
     public function rules()
     {
@@ -105,7 +106,7 @@ class MaterialOperationForm extends \yii\base\Model
             $this->addError('', '重命名时文件名不能为空');
             return false;
         }
-        return $this->batchProcessing('title', $this->name);
+        return $this->batchProcessing('file_name', $this->name);
     }
 
     /**
@@ -162,7 +163,7 @@ class MaterialOperationForm extends \yii\base\Model
     public function batchProcessing($key, $value)
     {
         if ($this->table) {
-            $result = \Yii::$app->db->createCommand()->update($this->_table, [$key => $value], [$this->_condition => $this->ids])
+            $result = \Yii::$app->db->createCommand()->update($this->_table, [$key => $value],$this->_condition)
                 ->execute();
             if ($result) {
                 //更新缓存
@@ -197,14 +198,18 @@ class MaterialOperationForm extends \yii\base\Model
                 case static::MATERIAL_MEMBER:
                     //个人素材
                     $this->_table = MaterialMember::tableName();
-                    $this->_condition = 'id';
+                    $this->_condition = ['id'=>$this->ids,'user_id'=>$this->user];
                     $this->_tableModel = MaterialMember::class;
                     break;
                 case static::MATERIAL_TEAM:
                     //团队素材
-                    $this->_table = MaterialTeam::tableName();
-                    $this->_condition = 'id';
-                    $this->_tableModel = MaterialTeam::class;
+                    if (!$this->isTeamMember()){
+                        $this->_table = false;
+                    }else{
+                        $this->_table = MaterialTeam::tableName();
+                        $this->_condition = ['id'=>$this->ids,'team_id'=>$this->team_id];
+                        $this->_tableModel = MaterialTeam::class;
+                    }
                     break;
                 default:
                     $this->_table = false;
@@ -231,5 +236,17 @@ class MaterialOperationForm extends \yii\base\Model
             $is_folder = false;
         }
         return $is_folder;
+    }
+    /**
+     * 验证当前用户是否是所要操作的团队成员
+     * @return bool
+     */
+    public function isTeamMember(){
+        $current_role = TeamMember::findOne(['user_id' => $this->user,'team_id'=>$this->team_id,'status'=>TeamMember::NORMAL_STATUS]);
+        if (!$current_role) {
+            $this->addError('','当前用户不属于所要操作的团队');
+            return false;
+        }
+        return true;
     }
 }

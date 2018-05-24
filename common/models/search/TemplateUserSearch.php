@@ -125,7 +125,6 @@ class TemplateUserSearch extends Model
         ]);
         return $provider;
     }
-
     /**
      * 查询缓存Key
      * @return array|null

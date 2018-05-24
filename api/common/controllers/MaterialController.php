@@ -9,9 +9,9 @@
 namespace api\common\controllers;
 
 use common\models\forms\MaterialForm;
-use common\models\forms\UpfileForm;
+use common\models\MaterialMember;
+use common\models\MaterialTeam;
 use common\models\search\MaterialSearch;
-use common\models\TemplateMember;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
 use common\models\forms\MaterialOperationForm;
@@ -27,40 +27,50 @@ class MaterialController extends BaseController
      *     operationId="getMaterial",
      *     schemes={"http"},
      *     tags={"素材接口"},
-     *     summary="根据条件查询素材",
+     *     summary="查询素材",
+     *     description="此接口用来前后台根据不同查询条件查询素材（图队和个人），可用于素材展示页和素材回收站页，成功返回素材信息，有分页",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
-     *         in="header",
-     *         type="integer"
-     *     ),
-     *       @SWG\Parameter(
      *         name="Handle",
      *         in="header",
-     *         type="string"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队素材的操作时，此项必传，否则为查询当前用户的个人素材",
      *     ),
      *      @SWG\Parameter(
      *          in="query",
      *          name="status",
      *          type="integer",
-     *          description="素材状态,10正常，7回收站，3删除",
+     *          description="前后台参数，素材状态,10正常，7回收站，3删除，不传默认按10查询",
      *     ),
-     *      @SWG\Parameter(
+     *     @SWG\Parameter(
      *          in="query",
      *          name="sort",
      *          type="integer",
-     *          description="按创建时间排序，默认降序，1为升序",
+     *          description="前后台参数，按创建时间排序，默认降序，1为升序",
      *     ),
-     *       @SWG\Parameter(
+     *      @SWG\Parameter(
      *          in="query",
      *          name="folder",
      *          type="integer",
-     *          description="所在文件夹的id",
+     *          description="前台参数，素材所在文件夹的folder_id,默认显示默认文件夹的素材",
+     *     ),
+     *      @SWG\Parameter(
+     *          in="query",
+     *          name="mode",
+     *          type="integer",
+     *          description="前后台参数，素材类型，10为临时，20为正式,不传默认为20",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -85,9 +95,8 @@ class MaterialController extends BaseController
      */
     public function actionIndex()
     {
-        //\Yii::$app->cache->flush();die;
         $model = new MaterialSearch();
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
             $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
         } else {
@@ -99,9 +108,77 @@ class MaterialController extends BaseController
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+        throw new NotFoundHttpException($model->getStringErrors(), Code::SOURCE_NOT_FOUND);
     }
 
+    /**
+     * @SWG\Get(
+     *     path="/material/{id}",
+     *     operationId="getMaterialOne",
+     *     schemes={"http"},
+     *     tags={"素材接口"},
+     *     summary="查询单个素材",
+     *     description="此接口用来前后台查询单个素材，前台成功返回当前用户或团队下正常素材信息，后台无限制",
+     *     @SWG\Parameter(
+     *         name="Client",
+     *         in="header",
+     *         required=true,
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队素材的操作时，此项必传，否则为查询当前用户的个人素材",
+     *     ),
+     *      @SWG\Parameter(
+     *          in="path",
+     *          name="id",
+     *          type="integer",
+     *          description="素材唯一标识id",
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @SWG\Items(ref="#/definitions/MaterialMember")
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     * @param $id
+     * @return array|null|\yii\db\ActiveRecord
+     * @throws NotFoundHttpException
+     */
+    public function actionView($id){
+        if ($team_id = \Yii::$app->request->getTeam()) {
+            //团队
+            $result = MaterialTeam::findById($id);
+        } else {
+            //个人
+            $result = MaterialMember::findById($id);
+        }
+        if ($result) {
+            return $result;
+        }
+        throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
+    }
     /**
      * 新增素材
      * @SWG\POST(
@@ -110,22 +187,59 @@ class MaterialController extends BaseController
      *     schemes={"http"},
      *     tags={"素材接口"},
      *     summary="新增素材",
+     *     description="此接口用于新增个人或团队素材，成功返回新增素材信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Parameter(
-     *         name="body",
-     *         in="body",
-     *         required=true,
-     *         @SWG\Schema(ref="#/definitions/MaterialMember")
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队素材的操作时，此项必传，否则为操作当前用户的个人素材",
+     *     ),
+     *      @SWG\Parameter(
+     *          in="formData",
+     *          name="file_name",
+     *          type="string",
+     *          description="文件名",
+     *          required=true,
+     *     ),
+     *     @SWG\Parameter(
+     *          in="formData",
+     *          name="thumbnail",
+     *          type="string",
+     *          description="图片路径",
+     *          required=true,
+     *     ),
+     *     @SWG\Parameter(
+     *          in="formData",
+     *          name="file_id",
+     *          type="string",
+     *          description="文件id",
+     *          required=true,
+     *     ),
+     *       @SWG\Parameter(
+     *          in="formData",
+     *          name="mode",
+     *          type="integer",
+     *          description="素材模式,10为临时,20为正式",
+     *          required=true,
+     *     ),
+     *     @SWG\Parameter(
+     *          in="formData",
+     *          name="folder_id",
+     *          type="integer",
+     *          description="文件夹folder_id,默认为0",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -150,17 +264,17 @@ class MaterialController extends BaseController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return bool|\common\models\MaterialMember|\common\models\MaterialTeam
+     * @return bool|\common\models\MaterialMember|\common\models\False
      * @throws BadRequestHttpException
      */
     public function actionCreate()
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
-            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
+            $method = ['method' => MaterialForm::MATERIAL_TEAM, 'team_id' => $team_id];
         } else {
             //个人
-            $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
+            $method = ['method' => MaterialForm::MATERIAL_MEMBER];
         }
         $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $model = new MaterialForm();
@@ -178,28 +292,67 @@ class MaterialController extends BaseController
      *     schemes={"http"},
      *     tags={"素材接口"},
      *     summary="编辑素材",
+     *     description="此接口用于编辑素材信息，成功返回编辑后的素材信息",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Parameter(
-     *        name="id",
-     *        in="path",
-     *        required=true,
-     *        type="integer"
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队素材的操作时，此项必传，否则为操作当前用户的个人素材",
      *     ),
      *     @SWG\Parameter(
-     *         name="body",
-     *         in="body",
-     *         required=true,
-     *         @SWG\Schema(ref="#/definitions/MaterialMember")
+     *          in="path",
+     *          name="id",
+     *          type="integer",
+     *          description="素材唯一标识id",
+     *          required=true,
+     *     ),
+     *     @SWG\Parameter(
+     *          in="formData",
+     *          name="file_name",
+     *          type="string",
+     *          description="文件名",
+     *          required=true,
+     *     ),
+     *     @SWG\Parameter(
+     *          in="formData",
+     *          name="thumbnail",
+     *          type="string",
+     *          description="图片路径",
+     *          required=true,
+     *     ),
+     *     @SWG\Parameter(
+     *          in="formData",
+     *          name="file_id",
+     *          type="string",
+     *          description="文件id",
+     *          required=true,
+     *     ),
+     *       @SWG\Parameter(
+     *          in="formData",
+     *          name="mode",
+     *          type="integer",
+     *          description="素材模式",
+     *          required=true,
+     *     ),
+     *     @SWG\Parameter(
+     *          in="formData",
+     *          name="folder_id",
+     *          type="integer",
+     *          description="文件夹folder_id",
+     *          required=true,
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -226,17 +379,17 @@ class MaterialController extends BaseController
      * )
      *
      * @param $id
-     * @return bool|\common\models\MaterialMember|\common\models\MaterialTeam|null
+     * @return bool|\common\models\MaterialMember|\common\models\False|null
      * @throws BadRequestHttpException
      */
     public function actionUpdate($id)
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
-            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
+            $method = ['method' => MaterialForm::MATERIAL_TEAM, 'team_id' => $team_id];
         } else {
             //个人
-            $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
+            $method = ['method' => MaterialForm::MATERIAL_MEMBER];
         }
         $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $model = new MaterialForm();
@@ -253,27 +406,32 @@ class MaterialController extends BaseController
      *     schemes={"http"},
      *     tags={"素材接口"},
      *     summary="素材放入回收站",
+     *     description="此接口用于把个人或团队素材放入回收站，成功返回空字符串",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
-     *     ),
-     *     @SWG\Parameter(
-     *         name="team",
-     *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
      *         name="Handle",
      *         in="header",
-     *         type="string"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
      *     ),
      *     @SWG\Parameter(
-     *        name="id",
-     *        in="path",
-     *        required=true,
-     *        type="integer"
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队素材的操作时，此项必传，否则为操作当前用户的个人素材",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="id",
+     *         in="path",
+     *         type="integer",
+     *         required=true,
+     *         description="所要删除素材的唯一标识id",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -292,7 +450,7 @@ class MaterialController extends BaseController
      */
     public function actionDelete($id)
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
             $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
         } else {
@@ -302,7 +460,7 @@ class MaterialController extends BaseController
         $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $model = new MaterialForm();
         if ($model->load($data, '') && ($result = $model->deleteMaterial($id))) {
-            return $result;
+            return "";
         }
         throw new HttpException(500, $model->getStringErrors(), Code::SERVER_FAILED);
     }
@@ -314,16 +472,25 @@ class MaterialController extends BaseController
      *     schemes={"http"},
      *     tags={"素材接口"},
      *     summary="素材的常规操作(单个重命名，删除，到回收站、还原、移动到文件夹)",
+     *     description="此接口用于个人或团队素材的单个重命名，到回收站、删除、还原、移动都指定文件夹等场景，只限前台使用，且只能用来操作当前用户下的素材，成功返回空字符串",
      *     @SWG\Parameter(
-     *         name="client",
+     *         name="Client",
      *         in="header",
      *         required=true,
-     *         type="string"
+     *         type="string",
+     *         description="公共参数",
      *     ),
      *     @SWG\Parameter(
-     *         name="team",
+     *         name="Handle",
      *         in="header",
-     *         type="integer"
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Team",
+     *         in="header",
+     *         type="integer",
+     *         description="团队的唯一标识team_id,当为团队素材的操作时，此项必传，否则为操作当前用户的个人素材",
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
@@ -343,13 +510,13 @@ class MaterialController extends BaseController
      *          in="formData",
      *          name="name",
      *          type="string",
-     *          description="文件名称,type为1时必传",
+     *          description="文件名称,重命名时（即type为1）时必传",
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="folder",
      *          type="integer",
-     *          description="文件夹的id,type为2必传",
+     *          description="文件夹的id,移动到指定文件夹时（即type为2）必传",
      *     ),
      *      @SWG\Response(
      *          response=200,
@@ -368,17 +535,17 @@ class MaterialController extends BaseController
      */
     public function actionMaterialOperation()
     {
-        if ($team_id = \Yii::$app->request->headers->get('team')) {
+        if ($team_id = \Yii::$app->request->getTeam()) {
             //团队
-            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
+            $method = ['method' => MaterialOperationForm::MATERIAL_TEAM, 'team_id' => $team_id];
         } else {
             //个人
-            $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
+            $method = ['method' => MaterialOperationForm::MATERIAL_MEMBER];
         }
         $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $model = new MaterialOperationForm();
         if ($result = $model->operation($data)) {
-            return $result;
+            return '';
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }

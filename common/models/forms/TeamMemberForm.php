@@ -7,13 +7,7 @@
  */
 
 namespace common\models\forms;
-
-use common\models\Member;
-use common\models\MyFavorite;
-use common\models\TbzLetter;
-use common\models\Team;
 use common\models\TeamMember;
-use common\models\TemplateOfficial;
 use yii\base\Model;
 use common\components\traits\ModelErrorTrait;
 class TeamMemberForm extends Model

@@ -10,7 +10,6 @@ namespace common\models\search;
 use common\models\Team;
 use common\components\vendor\Model;
 use common\models\TeamMember;
-use yii\data\ActiveDataProvider;
 use common\models\CacheDependency;
 
 class TeamMemberSearch extends Model
@@ -81,7 +80,7 @@ class TeamMemberSearch extends Model
             $result = \Yii::$app->dataCache->cache(function () use ($team_data) {
                 $result = $team_data->all();
                 return $result;
-            }, $this->cacheKey, CacheDependency::TEMPLATE_COVER);
+            }, $this->cacheKey, CacheDependency::TEAM_MEMBER);
         } catch (\Throwable $e) {
             $result = null;
         }
