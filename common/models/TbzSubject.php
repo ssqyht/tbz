@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelFieldsTrait;
+use yii\helpers\Url;
 /**
  * This is the model class for table "{{%tbz_subject}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="TbzSubject"))
@@ -108,5 +109,28 @@ class TbzSubject extends \yii\db\ActiveRecord
             Yii::$app->dataCache->updateCache(static::class);
         }
         parent::afterSave($insert, $changedAttributes);
+    }
+    /**
+     * @param $id
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public static function findById($id)
+    {
+        if (Yii::$app->request->isFrontend()) {
+            return static::find()->where(['status' => static::STATUS_ONLINE,'id' => $id])->one();
+        } else {
+            return static::find()->where(['id' => $id])->one();
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function extraFields()
+    {
+        $data = ['thumbnail' => function() {
+            return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads'.$this->thumbnail;
+        }];
+        return $data;
     }
 }
