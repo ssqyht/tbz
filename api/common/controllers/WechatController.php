@@ -88,7 +88,7 @@ class WechatController extends RestController
         // 记录session缓存
         Yii::$app->session->set(self::LOGIN_QRCODE_KEY, $result->ticket);
 
-        $content = FuncTrait::getSourceOrigin($url);
+        $content = FuncTrait::getSourceOrigin($url, false);
         // Ajax 返回base64
         if (Yii::$app->request->isPost) {
             return ['content' => FuncTrait::base64Image($content)];

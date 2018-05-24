@@ -78,7 +78,7 @@ class FileUpload extends Model
      * @return bool
      * @author thanatos <thanatos915@163.com>
      */
-    public static function uploadObject(string $url, string $replace, $dir = self::DIR_TEMPLATE)
+    public static function uploadObject(string $url, $dir = self::DIR_TEMPLATE, $replace = '')
     {
         $model = new static();
         if ($result = $model->submit(['url' => $url, 'dir' => $dir, 'replace' => $replace])) {
@@ -144,7 +144,7 @@ class FileUpload extends Model
 
         // 生成文件名
         if ($this->scenario == static::SCENARIO_REPLACE) {
-            $filename = $this->replace;
+            $filename = $this->replace ?: $this->generateFileName();
         } else {
             $filename = $this->generateFileName();
         }

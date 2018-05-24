@@ -101,7 +101,7 @@ trait FuncTrait
             return false;
         }
 
-        return 'data:' . $content['mime'] . ';base64,' . base64_encode($content['content']);
+        return 'data:' . $content['type'] . ';base64,' . base64_encode($content['content']);
     }
 
 }
