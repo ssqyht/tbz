@@ -140,4 +140,16 @@ class TbzSubject extends \yii\db\ActiveRecord
         };
         return $data;
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTemplates()
+    {
+        return $this->hasMany(TemplateOfficial::class, ['template_id' => 'template_id'])
+            ->where(['status' => TemplateOfficial::STATUS_ONLINE])
+            ->orderBy(['created_at'=>SORT_DESC])
+            ->with(['myFavorite','classifyName'])
+            ->viaTable(TemplateTopic::tableName(),['topic_id'=>'id']);
+    }
 }

@@ -69,19 +69,6 @@ class TemplateTopic extends \yii\db\ActiveRecord
         }
         parent::afterSave($insert, $changedAttributes);
     }
-
-    /**
-     * 关联查询官方模板
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTemplates()
-    {
-        return $this->hasOne(TemplateOfficial::class, ['template_id' => 'template_id'])
-            ->where(['status' => TemplateOfficial::STATUS_ONLINE])
-            ->orderBy(['created_at' => SORT_DESC])
-            ->with(['myFavorite','classifyName']);
-    }
-
     /**
      * 关联小分类表，获取小分类信息
      * @return \yii\db\ActiveQuery

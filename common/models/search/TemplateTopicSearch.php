@@ -9,6 +9,7 @@
 namespace common\models\search;
 
 use common\components\vendor\Model;
+use common\models\TbzSubject;
 use common\models\TemplateOfficial;
 use common\models\TemplateTopic;
 use yii\data\ActiveDataProvider;
@@ -163,8 +164,8 @@ class TemplateTopicSearch extends Model
     public function getQuery()
     {
         if ($this->_query === null) {
-            $query = TemplateTopic::find()
-                ->where(['topic_id'=>$this->topic_id])
+            $query = TbzSubject::find()
+                ->where(['id'=>$this->topic_id])
                 ->with(['templates' => function ($query) {
                     //按小分类查询
                     if ($this->classify_id) {
