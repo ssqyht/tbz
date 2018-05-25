@@ -158,7 +158,7 @@ class TemplateTopicSearch extends Model
     }
 
     /**
-     * @return ActiveQuery|\yii\db\ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
     public function getQuery()
     {
@@ -183,5 +183,24 @@ class TemplateTopicSearch extends Model
             $this->_query = $query;
         }
         return $this->_query;
+    }
+
+    /**
+     * 获取专题的小分类
+     * @param $topic_id
+     * @return array
+     */
+    public function getClassify($topic_id){
+       $data =  TemplateTopic::find()
+            ->where(['topic_id'=>$topic_id])
+            ->with('classifys')
+            ->all();
+       $result = [];
+        foreach ($data as $key=>$value){
+            if ($value->classifys){
+                $result[$key] = $value->classifys;
+            }
+        }
+        return $result;
     }
 }

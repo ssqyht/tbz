@@ -215,4 +215,61 @@ class TemplateTopicController extends RestController
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_FAILED);
     }
+    /**
+     * @SWG\Get(
+     *     path="/template-topic/{topic_id}",
+     *     operationId="getClassifyTopic",
+     *     schemes={"http"},
+     *     tags={"模板相关接口"},
+     *     summary="获取模板专题下的小分类",
+     *     description="此接口用于获取某一专题下的模板小分类列表，前台调用，成功返回小分类信息",
+     *     @SWG\Parameter(
+     *         name="Client",
+     *         in="header",
+     *         required=true,
+     *         type="string",
+     *         description="公共参数",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="Handle",
+     *         in="header",
+     *         type="string",
+     *         description="公共参数,区分前后台，frontend为前台,backend为后台,默认为前台",
+     *     ),
+     *      @SWG\Parameter(
+     *          in="path",
+     *          name="topic_id",
+     *          type="integer",
+     *          description="模板专题的唯一标识id",
+     *          required=true,
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @SWG\Items(ref="#/definitions/Classify")
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
+     * @param $id
+     * @return array
+     * @throws NotFoundHttpException
+     */
+    public function actionView($id){
+        $model = new TemplateTopicSearch();
+        if ($result = $model->getClassify($id)) {
+            return $result;
+        }
+        throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
+    }
 }

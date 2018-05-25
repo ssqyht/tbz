@@ -6,6 +6,7 @@ use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelErrorTrait;
 use common\components\traits\ModelFieldsTrait;
+
 /**
  * This is the model class for table "{{%template_topic}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="TemplateTopic"))
@@ -21,6 +22,7 @@ class TemplateTopic extends \yii\db\ActiveRecord
 
     use TimestampTrait;
     use ModelErrorTrait;
+
     /**
      * @inheritdoc
      */
@@ -36,7 +38,7 @@ class TemplateTopic extends \yii\db\ActiveRecord
     {
         return [
             [['template_id', 'topic_id', 'created_at', 'updated_at'], 'integer'],
-            [['template_id','topic_id'],'required']
+            [['template_id', 'topic_id'], 'required']
         ];
     }
 
@@ -53,6 +55,7 @@ class TemplateTopic extends \yii\db\ActiveRecord
             'updated_at' => '修改时间',
         ];
     }
+
     /**
      * @param bool $insert
      * @param array $changedAttributes
@@ -66,14 +69,37 @@ class TemplateTopic extends \yii\db\ActiveRecord
         }
         parent::afterSave($insert, $changedAttributes);
     }
+
     /**
      * 关联查询官方模板
      * @return \yii\db\ActiveQuery
      */
-    public function getTemplates(){
+    public function getTemplates()
+    {
         return $this->hasOne(TemplateOfficial::class, ['template_id' => 'template_id'])
             ->where(['status' => TemplateOfficial::STATUS_ONLINE])
             ->orderBy(['created_at' => SORT_DESC])
             ->with('myFavorite');
+    }
+
+    /**
+     * 关联小分类表，获取小分类信息
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClassifys()
+    {
+        return $this->hasOne(Classify::class, ['classify_id' => 'classify_id'])
+            ->via('tempClassify');
+    }
+
+    /**
+     * 关联官方模板表，去除重复的小分类
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTempClassify()
+    {
+        return $this->hasOne(TemplateOfficial::class, ['template_id' => 'template_id'])
+            ->where(['status' => TemplateOfficial::STATUS_ONLINE])
+            ->groupBy('classify_id');
     }
 }
