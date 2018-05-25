@@ -11,7 +11,7 @@ $restUrls = [
     'modules' => ['v1', 'v2'],
     'rules' => [
         [
-            'controller' => ['user', 'category', 'classify', 'gain-template-cover','message','tag','folder'],
+            'controller' => ['user', 'category', 'classify', 'gain-template-cover','message','tag','folder','template-topic'],
             'extraPatterns' => [
                 'POST,OPTIONS login' => 'login',
                 'POST,OPTIONS bind' => 'bind',

@@ -430,31 +430,13 @@ class GainTemplateCoverController extends RestController
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
     }
 
-    /*
-     * 迁移老数据
-     */
-    public function actionMigrateOldData()
-    {
-        $test_data = \Yii::$app->db_old->createCommand('SELECT * FROM com_tbz_subject ')
-            ->queryAll();
-        $data = [];
-        $i = 0;
-        foreach ($test_data as $key => $value) {
-            $data[$i][0] = $value['id'];
-            $data[$i][1] = $value['title'];
-            $data[$i][2] = $value['description'];
-            $data[$i][3] = $value['thumbnail'];
-            $data[$i][4] = $value['banner'];
-            $data[$i][5] = $value['seoTitle'];
-            $data[$i][6] = $value['seoKeyword'];
-            $data[$i][7] = $value['seoDescription'];
-            $data[$i][8] = $value['status'];
-            $data[$i][9] = $value['sort'];
-            $data[$i][10] = strtotime($value['createdTime']);
-            $data[$i][11] = strtotime($value['updatedTime']);
-            $i++;
+    public function actionCoverTemplate(){
+        $tbz_subject = new TbzSubjectSearch();
+        $result_data = $tbz_subject->search(\Yii::$app->request->get());
+        if ($result_data) {
+            return $result_data;
+        } else {
+            throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
         }
-        Yii::$app->db->createCommand()->batchInsert('tbz_subject', ['id', 'title', 'description', 'thumbnail', 'banner', 'seo_title', 'seo_keyword', 'seo_description', 'status', 'sort', 'created_time', 'updated_time'], $data)->execute();//执行批量添加
-        return $data;
     }
 }

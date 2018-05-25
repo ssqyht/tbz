@@ -4,28 +4,29 @@ namespace common\models;
 
 use Yii;
 use common\components\traits\TimestampTrait;
-
+use common\components\traits\ModelErrorTrait;
+use common\components\traits\ModelFieldsTrait;
 /**
- * This is the model class for table "{{%my_favorite_member}}".
- * @SWG\Definition(type="object", @SWG\Xml(name="MyFavoriteMember"))
+ * This is the model class for table "{{%template_topic}}".
+ * @SWG\Definition(type="object", @SWG\Xml(name="TemplateTopic"))
  *
  * @property int $id @SWG\Property(property="id", type="integer", description="")
- * @property int $template_id 模板id @SWG\Property(property="templateId", type="integer", description=" 模板id")
- * @property int $user_id 用户id @SWG\Property(property="userId", type="integer", description=" 用户id")
+ * @property int $template_id 官方模板id @SWG\Property(property="templateId", type="integer", description=" 官方模板id")
+ * @property int $topic_id 模板专题id @SWG\Property(property="topicId", type="integer", description=" 模板专题id")
  * @property int $created_at 创建日期 @SWG\Property(property="createdAt", type="integer", description=" 创建日期")
  * @property int $updated_at 修改时间 @SWG\Property(property="updatedAt", type="integer", description=" 修改时间")
  */
-class MyFavoriteMember extends \yii\db\ActiveRecord
+class TemplateTopic extends \yii\db\ActiveRecord
 {
 
     use TimestampTrait;
-
+    use ModelErrorTrait;
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return '{{%my_favorite_member}}';
+        return '{{%template_topic}}';
     }
 
     /**
@@ -34,7 +35,8 @@ class MyFavoriteMember extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['template_id', 'user_id', 'created_at', 'updated_at'], 'integer'],
+            [['template_id', 'topic_id', 'created_at', 'updated_at'], 'integer'],
+            [['template_id','topic_id'],'required']
         ];
     }
 
@@ -44,21 +46,12 @@ class MyFavoriteMember extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => '唯一标识',
+            'id' => 'ID',
             'template_id' => '模板id',
-            'user_id' => '用户id',
+            'topic_id' => '模板专题id',
             'created_at' => '创建时间',
             'updated_at' => '修改时间',
         ];
-    }
-    /**
-     * @return \yii\db\ActiveQuery
-     * 关联TemplateOfficial
-     */
-    public function getTemplateOfficials()
-    {
-        return $this->hasOne(TemplateOfficial::class, ['template_id' => 'template_id'])
-            ->where(['status' => TemplateOfficial::STATUS_ONLINE]);
     }
     /**
      * @param bool $insert
@@ -73,14 +66,14 @@ class MyFavoriteMember extends \yii\db\ActiveRecord
         }
         parent::afterSave($insert, $changedAttributes);
     }
-
     /**
-     * 删除之后更新缓存
+     * 关联查询官方模板
+     * @return \yii\db\ActiveQuery
      */
-    public function afterDelete()
-    {
-        // 更新缓存
-        Yii::$app->dataCache->updateCache(static::class);
-        parent::afterDelete();
+    public function getTemplates(){
+        return $this->hasOne(TemplateOfficial::class, ['template_id' => 'template_id'])
+            ->where(['status' => TemplateOfficial::STATUS_ONLINE])
+            ->orderBy(['created_at' => SORT_DESC])
+            ->with('myFavorite');
     }
 }

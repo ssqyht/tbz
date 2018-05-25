@@ -106,6 +106,7 @@ class FolderMaterialSearch extends Model
         }
         $folder = ($this->tableModel)::sortTime();
         if ($this->status) {
+            /** @var $folder \yii\db\ActiveQuery */
             $folder->andWhere(['status' => $this->status]);
         }
         $provider = new ActiveDataProvider([

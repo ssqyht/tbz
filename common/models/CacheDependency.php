@@ -34,6 +34,8 @@ class CacheDependency extends \yii\db\ActiveRecord
     const TEAM_MEMBER = 'team_member';
     /** @var string 团队缓存 */
     const TEAM = 'team';
+    /** @var string 模板专题缓存 */
+    const TEMPLATE_TOPIC = 'template_topic';
     /**
      * @inheritdoc
      */

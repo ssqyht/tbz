@@ -83,9 +83,11 @@ class MyFavoriteSearch extends Model
             $result = \Yii::$app->dataCache->cache(function () use ($provider) {
                 $provider_data = $provider->getModels();
                 $result = [];
-                foreach ($provider_data as $data) {
+                foreach ($provider_data as $key =>$data) {
                     // 获取模板信息
-                    $result[] = $data->templateOfficials;
+                    if ($data->templateOfficials){
+                        $result[$key] = $data->templateOfficials;
+                    }
                 }
                 return $result;
             }, $this->getCacheKey($provider->getKeys()), CacheDependency::MY_FAVORITE);
