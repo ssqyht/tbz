@@ -123,7 +123,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     public function frontendFields()
     {
         return [
-            'template_id', 'user_id', 'title','classify_id','thumbnail_id','price', 'virtual_edit', 'virtual_view', 'virtual_favorite'
+            'template_id', 'user_id', 'title','classify_id','thumbnail_id','price', 'amount_edit', 'amount_view', 'amount_favorite'
         ];
     }
 
@@ -147,6 +147,11 @@ class TemplateOfficial extends \yii\db\ActiveRecord
                 }
                 //无收藏is_favorite值为0
                 return 0;
+            };
+        }
+        if ($this->isRelationPopulated('classifyName')) {
+            $data['classify_name'] = function () {
+               return $this->classifyName->name;
             };
         }
         return $data;
@@ -215,4 +220,11 @@ class TemplateOfficial extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * 关联classify，获取小分类的name
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClassifyName(){
+        return $this->hasOne(Classify::class, ['classify_id' => 'classify_id']);
+    }
 }

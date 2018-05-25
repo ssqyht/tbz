@@ -177,6 +177,7 @@ class MaterialSearch extends Model
             if ($this->folder) {
                 $query->andWhere(['folder_id' => $this->folder]);
             }
+            //按素材类型查询
             if ($this->mode){
                 $query->andWhere(['mode' => $this->mode]);
             }else{

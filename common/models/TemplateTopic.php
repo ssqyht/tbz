@@ -79,7 +79,7 @@ class TemplateTopic extends \yii\db\ActiveRecord
         return $this->hasOne(TemplateOfficial::class, ['template_id' => 'template_id'])
             ->where(['status' => TemplateOfficial::STATUS_ONLINE])
             ->orderBy(['created_at' => SORT_DESC])
-            ->with('myFavorite');
+            ->with(['myFavorite','classifyName']);
     }
 
     /**

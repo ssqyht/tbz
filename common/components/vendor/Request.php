@@ -70,7 +70,7 @@ class Request extends \yii\web\Request
     public function getTeam()
     {
         if ($this->_team === null) {
-            $this->_team = $this->headers->get('Team') ? $this->headers->get('Team') : false;
+            $this->_team = $this->headers->get('Team') ?: false;
         }
         return $this->_team;
     }

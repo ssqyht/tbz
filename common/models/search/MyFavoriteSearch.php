@@ -62,6 +62,7 @@ class MyFavoriteSearch extends Model
         $favorite_data->with(['templateOfficials' => function ($query) {
                 if ($this->classify_id) {
                     //按小分类查询
+                    /** @var $query \yii\db\ActiveQuery */
                     $query->andWhere(['classify_id' => $this->classify_id]);
                 }
             }]);

@@ -86,6 +86,7 @@ class FolderMaterialSearch extends Model
         // 查询数据 使用缓存
         try {
             $result = \Yii::$app->dataCache->cache(function () use ($folder) {
+                /** @var  $folder \yii\db\ActiveQuery */
                 $result_data = $folder->all();
                 return $result_data;
             }, $this->cacheKey, CacheDependency::FOLDER_MATERIAL);
