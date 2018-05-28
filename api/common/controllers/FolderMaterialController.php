@@ -12,11 +12,10 @@ use common\models\search\FolderMaterialSearch;
 use common\models\TbzLetter;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
-use common\components\vendor\RestController;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\helpers\ArrayHelper;
-class FolderMaterialController extends RestController
+class FolderMaterialController extends BaseController
 {
     /**
      * @SWG\Get(
@@ -291,7 +290,7 @@ class FolderMaterialController extends RestController
      *     @SWG\Response(
      *          response=200,
      *          description="请求成功",
-     *          ref="true",
+     *          ref="",
      *     ),
      *     @SWG\Response(
      *          response="default",

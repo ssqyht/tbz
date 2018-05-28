@@ -210,12 +210,7 @@ class TemplateUserController extends BaseController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(
-     *                      @SWG\Property(
-     *                      property="classify_name",
-     *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/TemplateMember")
-     *                  ))
+     *                  @SWG\Items(ref="#/definitions/TemplateMember"),
      *              )
      *          )
      *     ),
@@ -277,12 +272,7 @@ class TemplateUserController extends BaseController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(
-     *                      @SWG\Property(
-     *                      property="classify_name",
-     *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/TemplateMember")
-     *                  ))
+     *                  @SWG\Items(ref="#/definitions/TemplateMember"),
      *              )
      *          )
      *     ),

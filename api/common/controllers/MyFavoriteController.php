@@ -12,12 +12,11 @@ use common\models\forms\MyFavoriteForm;
 use common\models\search\MyFavoriteSearch;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
-use common\components\vendor\RestController;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\helpers\ArrayHelper;
 
-class MyFavoriteController extends RestController
+class MyFavoriteController extends BaseController
 {
     /**
      * @SWG\Get(

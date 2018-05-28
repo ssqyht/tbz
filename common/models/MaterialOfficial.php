@@ -4,7 +4,8 @@ namespace common\models;
 
 use Yii;
 use common\components\traits\TimestampTrait;
-
+use yii\helpers\Url;
+use common\components\traits\ModelFieldsTrait;
 /**
  * This is the model class for table "{{%material_official}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="MaterialOfficial"))
@@ -28,7 +29,16 @@ class MaterialOfficial extends \yii\db\ActiveRecord
 {
 
     use TimestampTrait;
+    use ModelFieldsTrait;
 
+    /** @var string 素材正常状态 */
+    const STATUS_NORMAL = '10';
+
+    /** @var string 回收站 */
+    const STATUS_TRASH = '7';
+
+    /** @var string 删除状态 */
+    const STATUS_DELETE = '3';
     /**
      * @inheritdoc
      */
@@ -72,5 +82,61 @@ class MaterialOfficial extends \yii\db\ActiveRecord
             'updated_at' => '修改时间',
             'extra_contents' => '素材额外字段',
         ];
+    }
+    /**
+     * 排序
+     * @return \yii\db\ActiveQuery
+     */
+    public static function sort()
+    {
+        return static::find()->orderBy(['id' => SORT_DESC]);
+    }
+
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * 更新缓存
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        // 更新缓存
+        if ($changedAttributes) {
+            Yii::$app->dataCache->updateCache(static::class);
+        }
+        parent::afterSave($insert, $changedAttributes);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public static function active()
+    {
+        if (Yii::$app->request->isFrontend()) {
+            return static::find()->where(['status' => static::STATUS_NORMAL]);
+        } else {
+            return static::find();
+        }
+    }
+    /**
+     * 单个素材查询
+     * @param $id
+     * @return array|null|\yii\db\ActiveRecord
+     */
+    public static function findById($id)
+    {
+        if (Yii::$app->request->isFrontend()) {
+            return static::find()->where(['status' => static::STATUS_NORMAL, 'id' => $id])->one();
+        } else {
+            return static::find()->where(['id' => $id])->one();
+        }
+    }
+    /**
+     * @return array|mixed
+     */
+    public function extraFields()
+    {
+        $data = ['thumbnail' => function() {
+            return Url::to('@oss') . DIRECTORY_SEPARATOR .'uploads'. $this->thumbnail;
+        }];
+        return $data;
     }
 }

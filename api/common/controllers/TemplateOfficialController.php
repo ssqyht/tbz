@@ -56,12 +56,7 @@ class TemplateOfficialController extends RestController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(
-     *                      @SWG\Property(
-     *                      property="classify_name",
-     *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/TemplateOfficial")
-     *                  ))
+     *                  @SWG\Items(ref="#/definitions/TemplateOfficial"),
      *              )
      *          )
      *     ),
@@ -143,12 +138,7 @@ class TemplateOfficialController extends RestController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(
-     *                      @SWG\Property(
-     *                      property="classify_name",
-     *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/TemplateOfficial")
-     *                  ))
+     *                  @SWG\Items(ref="#/definitions/TemplateOfficial")
      *              )
      *          )
      *     ),
@@ -209,12 +199,7 @@ class TemplateOfficialController extends RestController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(
-     *                      @SWG\Property(
-     *                      property="classify_name",
-     *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/TemplateOfficial")
-     *                  ))
+     *                  @SWG\Items(ref="#/definitions/TemplateOfficial"),
      *              )
      *          )
      *     ),
@@ -274,12 +259,7 @@ class TemplateOfficialController extends RestController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(
-     *                      @SWG\Property(
-     *                      property="classify_name",
-     *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/TemplateOfficial")
-     *                  ))
+     *                  @SWG\Items(ref="#/definitions/TemplateOfficial"),
      *              )
      *          )
      *     ),
@@ -346,12 +326,7 @@ class TemplateOfficialController extends RestController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(
-     *                      @SWG\Property(
-     *                      property="classify_name",
-     *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/TemplateOfficial")
-     *                  ))
+     *                  @SWG\Items(ref="#/definitions/TemplateOfficial"),
      *              )
      *          )
      *     ),

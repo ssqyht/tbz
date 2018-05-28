@@ -13,12 +13,11 @@ use common\models\search\FolderTemplateSearch;
 use common\models\TbzLetter;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
-use common\components\vendor\RestController;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\helpers\ArrayHelper;
 
-class FolderTemplateController extends RestController
+class FolderTemplateController extends BaseController
 {
     /**
      * @SWG\Get(

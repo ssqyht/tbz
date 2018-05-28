@@ -121,11 +121,9 @@ class MaterialTeam extends \yii\db\ActiveRecord
         $data = ['thumbnail' => function() {
             return Url::to('@oss') . DIRECTORY_SEPARATOR .'uploads'. $this->thumbnail;
         }];
-        //颜色变为数组
         $data['width'] = function () {
             return $this->fileCommon->width;
         };
-        //字体变为数组
         $data ['height'] = function () {
             return $this->fileCommon->height;
         };

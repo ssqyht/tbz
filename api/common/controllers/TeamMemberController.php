@@ -12,10 +12,9 @@ use common\models\search\TeamMemberSearch;
 use yii\helpers\ArrayHelper;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
-use common\components\vendor\RestController;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
-class TeamMemberController extends RestController
+class TeamMemberController extends BaseController
 {
     /**
      * @SWG\Get(

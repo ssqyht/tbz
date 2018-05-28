@@ -249,12 +249,7 @@ class MaterialController extends BaseController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(
-     *                      @SWG\Property(
-     *                      property="classify_name",
-     *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/MaterialMember")
-     *                  ))
+     *                  @SWG\Items(ref="#/definitions/MaterialMember"),
      *              )
      *          )
      *     ),
@@ -362,12 +357,7 @@ class MaterialController extends BaseController
      *              @SWG\Property(
      *                  property="data",
      *                  type="array",
-     *                  @SWG\Items(
-     *                      @SWG\Property(
-     *                      property="classify_name",
-     *                      type="array",
-     *                      @SWG\Items(ref="#/definitions/MaterialMember")
-     *                  ))
+     *                  @SWG\Items(ref="#/definitions/MaterialMember"),
      *              )
      *          )
      *     ),

@@ -113,6 +113,7 @@ class MaterialForm extends \yii\base\Model
         }
         if (!$model) {
             $this->addError('id', '该素材不存在');
+            return false;
         }
         $model->status = static::RECYCLE_BIN_STATUS;
         if ($model->save(false)) {

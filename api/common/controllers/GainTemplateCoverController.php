@@ -429,14 +429,4 @@ class GainTemplateCoverController extends RestController
         }
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
     }
-
-    public function actionCoverTemplate(){
-        $tbz_subject = new TbzSubjectSearch();
-        $result_data = $tbz_subject->search(\Yii::$app->request->get());
-        if ($result_data) {
-            return $result_data;
-        } else {
-            throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
-        }
-    }
 }

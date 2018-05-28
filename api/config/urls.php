@@ -26,7 +26,7 @@ $restUrls = [
             ]
         ],
         [
-            'controller' => [ 'template-user','folder-material','folder-template','material','my-favorite','team','team-member'],
+            'controller' => [ 'template-user','folder-material','folder-template','material','my-favorite','team','team-member','material-official'],
             'extraPatterns' => [
                 'POST,OPTIONS template-operation' =>'template-operation',
                 'POST,OPTIONS material-operation' =>'material-operation',

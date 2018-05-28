@@ -48,16 +48,17 @@ class TemplateOperationForm extends \yii\base\Model
     const STATUS_NORMAL = 10;
 
     public $method;
-    public $_table;
-    public $_user;
-    public $_condition;
-    public $_folderModel;
-    public $_tableModel;
     public $ids;
     public $name;
     public $folder;
     public $team_id;
     public $type;
+
+    public $_table;
+    public $_user;
+    public $_condition;
+    public $_folderModel;
+    public $_tableModel;
 
     public function rules()
     {
@@ -202,6 +203,8 @@ class TemplateOperationForm extends \yii\base\Model
             ];
         }
         $result = \Yii::$app->db->createCommand()->batchInsert(TemplateTeam::tableName(), ['classify_id', 'open_id', 'user_id', 'team_id', 'folder_id', 'cooperation_id', 'title', 'thumbnail_url', 'thumbnail_id', 'status', 'is_diy', 'edit_from', 'amount_print', 'created_at', 'updated_at'], $data)->execute();//执行批量添加
+        //更新缓存
+        \Yii::$app->dataCache->updateCache( TemplateTeam::class);
         return $result;
     }
 

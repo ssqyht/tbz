@@ -12,12 +12,11 @@ use common\models\TbzLetter;
 use common\models\search\MessageSearch;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
-use common\components\vendor\RestController;
 use common\models\forms\MessageForm;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 
-class MessageController extends  RestController
+class MessageController extends  BaseController
 {
     /**
      * @SWG\Get(
