@@ -8,5 +8,7 @@ namespace api\common\controllers;
 
 class BaseController
 {
-
+    public function actionTest(){
+        return 'aasfad';
+    }
 }
