@@ -89,10 +89,10 @@ class TeamMember extends \yii\db\ActiveRecord
     public function extraFields()
     {
         if ($this->isRelationPopulated('memberMark')) {
-            $data['user_mark'] = function () {
+            $data['userMark'] = function () {
                 return $this->memberMark->headimg_url;
             };
-            $data['user_name'] = function () {
+            $data['userName'] = function () {
                 return $this->memberMark->username;
             };
         }

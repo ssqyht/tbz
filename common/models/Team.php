@@ -100,7 +100,7 @@ class Team extends \yii\db\ActiveRecord
 
     public function extraFields()
     {
-        $data['team_mark'] = function () {
+        $data['teamMark'] = function () {
             return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads' . $this->team_mark;
         };
         //颜色变为数组
