@@ -7,7 +7,6 @@ namespace api\common\controllers;
 
 use common\models\forms\TbzSubjectForm;
 use common\models\TbzSubject;
-use Yii;
 use common\components\vendor\RestController;
 use yii\web\NotFoundHttpException;
 use common\models\search\TbzSubjectSearch;

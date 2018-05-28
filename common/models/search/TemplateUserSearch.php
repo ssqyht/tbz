@@ -182,10 +182,10 @@ class TemplateUserSearch extends Model
                 $query->andWhere(['status' => static::NORMAL_STATUS]);
             }
             //按时间排序
-            if (!$this->sort && $this->sort == 1) {
-                $query->orderBy(['created_at' => SORT_ASC]);
+            if ($this->sort && $this->sort == 1) {
+                $query->orderBy(['updated_at' => SORT_ASC]);
             } else {
-                $query->orderBy(['created_at' => SORT_DESC]);
+                $query->orderBy(['updated_at' => SORT_DESC]);
             }
             $this->_query = $query;
         }
