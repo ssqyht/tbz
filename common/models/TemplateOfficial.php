@@ -140,7 +140,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             };
         }
         if ($this->isRelationPopulated('myFavorite')) {
-            $data['is_favorite'] = function () {
+            $data['isFavorite'] = function () {
                 if ($this->myFavorite){
                     //有收藏，is_favorite值为1
                     return 1;
@@ -150,7 +150,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             };
         }
         if ($this->isRelationPopulated('classifyName')) {
-            $data['classify_name'] = function () {
+            $data['classifyName'] = function () {
                return $this->classifyName->name;
             };
         }

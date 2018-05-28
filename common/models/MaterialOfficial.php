@@ -139,4 +139,8 @@ class MaterialOfficial extends \yii\db\ActiveRecord
         }];
         return $data;
     }
+    public function frontendFields()
+    {
+        return ['id', 'user_id', 'name', 'file_type', 'tags', 'extra_contents', 'thumbnail','width','height'];
+    }
 }

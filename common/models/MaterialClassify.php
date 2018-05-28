@@ -4,7 +4,8 @@ namespace common\models;
 
 use Yii;
 use common\components\traits\TimestampTrait;
-
+use common\components\traits\ModelFieldsTrait;
+use common\components\traits\ModelErrorTrait;
 /**
  * This is the model class for table "{{%material_classify}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="MaterialClassify"))
@@ -19,6 +20,16 @@ class MaterialClassify extends \yii\db\ActiveRecord
 {
 
     use TimestampTrait;
+    use ModelFieldsTrait;
+    use ModelErrorTrait;
+    /** @var string 素材分类正常状态 */
+    const STATUS_NORMAL = '10';
+
+    /** @var string 回收站 */
+    const STATUS_TRASH = '7';
+
+    /** @var string 删除状态 */
+    const STATUS_DELETE = '3';
 
     /**
      * @inheritdoc
@@ -34,7 +45,7 @@ class MaterialClassify extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'created_at', 'updated_at'], 'required'],
+            [['name'], 'required'],
             [['status', 'created_at', 'updated_at'], 'integer'],
             [['name'], 'string', 'max' => 30],
         ];
@@ -52,5 +63,38 @@ class MaterialClassify extends \yii\db\ActiveRecord
             'created_at' => '创建时间',
             'updated_at' => '修改时间',
         ];
+    }
+
+    /**
+     * @param $status
+     * @return \yii\db\ActiveQuery
+     */
+    public static function active($status)
+    {
+        if (Yii::$app->request->isFrontend()) {
+            return static::find()->where(['status' => static::STATUS_NORMAL]);
+        } else {
+            return static::find()->where(['status'=>$status]);
+        }
+    }
+    /**
+     * @return array
+     */
+    public function frontendFields()
+    {
+        return ['cid','name'];
+    }
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * 更新缓存
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        // 更新缓存
+        if ($changedAttributes) {
+            Yii::$app->dataCache->updateCache(static::class);
+        }
+        parent::afterSave($insert, $changedAttributes);
     }
 }

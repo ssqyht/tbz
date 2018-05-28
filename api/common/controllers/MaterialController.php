@@ -27,7 +27,7 @@ class MaterialController extends BaseController
      *     operationId="getMaterial",
      *     schemes={"http"},
      *     tags={"素材接口"},
-     *     summary="查询素材",
+     *     summary="查询素材(团队、个人)",
      *     description="此接口用来前后台根据不同查询条件查询素材（图队和个人），可用于素材展示页和素材回收站页，成功返回素材信息，有分页",
      *     @SWG\Parameter(
      *         name="Client",
@@ -117,7 +117,7 @@ class MaterialController extends BaseController
      *     operationId="getMaterialOne",
      *     schemes={"http"},
      *     tags={"素材接口"},
-     *     summary="查询单个素材",
+     *     summary="查询单个素材(团队、个人)",
      *     description="此接口用来前后台查询单个素材，前台成功返回当前用户或团队下正常素材信息，后台无限制",
      *     @SWG\Parameter(
      *         name="Client",
@@ -186,7 +186,7 @@ class MaterialController extends BaseController
      *     operationId="addMaterial",
      *     schemes={"http"},
      *     tags={"素材接口"},
-     *     summary="新增素材",
+     *     summary="新增素材(团队、个人)",
      *     description="此接口用于新增个人或团队素材，成功返回新增素材信息",
      *     @SWG\Parameter(
      *         name="Client",
@@ -286,7 +286,7 @@ class MaterialController extends BaseController
      *     operationId="updateMaterial",
      *     schemes={"http"},
      *     tags={"素材接口"},
-     *     summary="编辑素材",
+     *     summary="编辑素材(团队、个人)",
      *     description="此接口用于编辑素材信息，成功返回编辑后的素材信息",
      *     @SWG\Parameter(
      *         name="Client",
@@ -395,7 +395,7 @@ class MaterialController extends BaseController
      *     operationId="deleteMaterial",
      *     schemes={"http"},
      *     tags={"素材接口"},
-     *     summary="素材放入回收站",
+     *     summary="素材放入回收站(团队、个人)",
      *     description="此接口用于把个人或团队素材放入回收站，成功返回空字符串",
      *     @SWG\Parameter(
      *         name="Client",
@@ -461,7 +461,7 @@ class MaterialController extends BaseController
      *     operationId="materialOperation",
      *     schemes={"http"},
      *     tags={"素材接口"},
-     *     summary="素材的常规操作(单个重命名，删除，到回收站、还原、移动到文件夹)",
+     *     summary="素材的常规操作(单个重命名，删除，到回收站、还原、移动到文件夹)(团队、个人)",
      *     description="此接口用于个人或团队素材的单个重命名，到回收站、删除、还原、移动都指定文件夹等场景，只限前台使用，且只能用来操作当前用户下的素材，成功返回空字符串",
      *     @SWG\Parameter(
      *         name="Client",

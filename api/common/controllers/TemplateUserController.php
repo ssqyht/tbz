@@ -373,13 +373,13 @@ class TemplateUserController extends BaseController
      *         name="Team",
      *         in="header",
      *         type="integer",
-     *         description="团队的唯一标识team_id,当为团队模板的操作时，此项必传，否则为操作当前用户的模板",
+     *         description="团队的唯一标识team_id,当为团队模板的操作时，此项必传，否则为操作当前用户的模板，在个人模板转团队模板时，此项也必传",
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="type",
      *          type="integer",
-     *          description="操作类型,1重命名(单个),2移动到文件夹，3到回收站，4删除，5还原",
+     *          description="操作类型,1重命名(单个),2移动到文件夹，3到回收站，4删除，5还原，6个人模板转团队模板",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
