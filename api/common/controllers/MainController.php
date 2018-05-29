@@ -78,8 +78,8 @@ class MainController extends RestController
      */
     public function actionIndex()
     {
-        $url = 'https://img-blog.csdn.net/20180522191342344';
-        var_dump(FileUpload::upload($url));exit;
+        $data = Yii::$app->oss->getPolicy();
+        var_dump(json_decode($data, true));
     }
 
 }

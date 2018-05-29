@@ -30,6 +30,7 @@ use yii\web\IdentityInterface;
  * @property int $status 用户状态
  * @property int $created_at 创建时间
  * @property int $updated_at 修改时间
+ * @property Team|false $team
  */
 class Member extends \yii\db\ActiveRecord implements IdentityInterface
 {
@@ -60,6 +61,9 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
      * @var string
      */
     public $access_token;
+
+    /** @var Team|false|null */
+    private $_team;
 
     /**
      * @inheritdoc
@@ -256,6 +260,18 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
             $this->password_hash = Yii::$app->security->generatePasswordHash($password);
         } catch (\Throwable $exception) {
         }
+    }
+
+    public function getTeam()
+    {
+        if ($this->_team === null) {
+            $team_id = Yii::$app->request->headers->get('Team');
+            if ($team_id > 0 && $team = Team::findByIdFromMember($team_id))
+                $this->_team = $team;
+            else
+                $this->_team = false;
+        }
+        return $this->_team;
     }
 
 }

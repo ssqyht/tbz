@@ -12,7 +12,8 @@ return [
             'accessKeyId' => 'LTAIv4N83CO6YfFy',
             'accessKeySecret' => 'H1nVZLptjrcxFdVmiXRJEXpAXUHck9',
             'endpoint' => 'oss-cn-beijing.aliyuncs.com',
-            'bucket' => 'tubangzhu-dev'
+            'bucket' => 'tubangzhu-dev',
+            'callbackUrl' => 'http://xia.tubangzhu.site/oss/callback'
         ],
         'db' => [
             'class' => 'yii\db\Connection',

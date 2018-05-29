@@ -26,6 +26,7 @@ use yii\validators\UrlValidator;
  */
 class FileUpload extends Model
 {
+    const TEMP_DIR = 'temporary';
     /** @var string 存放模板缩略图 */
     const DIR_TEMPLATE = 'template';
     /** @var string 存放官方素材 */
@@ -96,7 +97,7 @@ class FileUpload extends Model
             static::SCENARIO_NORMAL => ['url', 'dir'],
             static::SCENARIO_REPLACE => ['url', 'dir', 'replace'],
         ];
-        return $scenarios;
+        return ArrayHelper::merge($scenarios, $data);
     }
 
     public function rules()
@@ -148,17 +149,18 @@ class FileUpload extends Model
         } else {
             $filename = $this->generateFileName();
         }
+        $fullFilename = UPLOAD_BASE_DIR . DIRECTORY_SEPARATOR . $filename;
 
         $width = $height = 0;
         if ($this->fileData->extType == FileCommon::EXT_SVG) {
             // SVG 替换后上传
             $content = static::repairSvgTag($this->fileData->content);
-            $result = Yii::$app->oss->putObject($filename, $content);
+            $result = Yii::$app->oss->putObject($fullFilename, $content);
             list('height' => $height, 'width' => $width) = $this->fileData->getSvgSize();
         } else {
             // 其他文件直接上传
-            $result = Yii::$app->oss->putObjectOrigin($filename, $this->url);
-            list('height' => $height, 'width' => $width) = Yii::$app->oss->getObjectSize($filename);
+            $result = Yii::$app->oss->putObjectOrigin($fullFilename, $this->url);
+            list('height' => $height, 'width' => $width) = Yii::$app->oss->getObjectSize($fullFilename);
         }
 
         if (empty($result)) {
@@ -174,7 +176,7 @@ class FileUpload extends Model
         // 检查文件唯一性
         if ($file = FileCommon::findByEtag($result->etag)) {
             // 删除图片
-            $this->rollbackFile($filename);
+            $this->rollbackFile($fullFilename);
             return $file;
         }
 
@@ -188,15 +190,13 @@ class FileUpload extends Model
             'height' => $height,
         ];
 
-        // 宽高信息
-
         // 添加记录
         $model = new FileCommon();
         if (($fileModel = $model->create($params))) {
             return $fileModel;
         } else {
             $this->addErrors($model->getErrors());
-            $this->rollbackFile($filename);
+            $this->rollbackFile($fullFilename);
             return false;
         }
 
@@ -208,14 +208,13 @@ class FileUpload extends Model
      */
     public function generateFileName()
     {
-        $baseDir = base64_encode('uploads');
         try {
             $filename = Yii::$app->security->generateRandomString(20);
         } catch (\Throwable $throwable) {
             $filename = md5(uniqid());
         }
         $extension = $this->fileData->extString;
-        return $baseDir . DIRECTORY_SEPARATOR . $this->dir. DIRECTORY_SEPARATOR . date('Ym') . DIRECTORY_SEPARATOR .   $filename . '.' . $extension ?? 'png';
+        return $this->dir. DIRECTORY_SEPARATOR . date('Ym') . DIRECTORY_SEPARATOR .   $filename . '.' . $extension ?? 'png';
     }
 
     /**
@@ -226,8 +225,6 @@ class FileUpload extends Model
     {
         return in_array($this->fileData['type'], ArrayHelper::getColumn(FileCommon::$extension, 'mime'));
     }
-
-
 
 
     /**

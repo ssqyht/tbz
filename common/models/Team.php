@@ -6,6 +6,7 @@ use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelErrorTrait;
 use common\components\traits\ModelFieldsTrait;
+use yii\db\ActiveQuery;
 use yii\helpers\Url;
 /**
  * This is the model class for table "{{%team}}".
@@ -22,6 +23,7 @@ use yii\helpers\Url;
  * @property int $status 团队状态 @SWG\Property(property="status", type="integer", description=" 团队状态")
  * @property int $created_at 创建日期 @SWG\Property(property="createdAt", type="integer", description=" 创建日期")
  * @property int $updated_at 修改时间 @SWG\Property(property="updatedAt", type="integer", description=" 修改时间")
+ * @property TeamMember[] $members
  */
 class Team extends \yii\db\ActiveRecord
 {
@@ -88,6 +90,27 @@ class Team extends \yii\db\ActiveRecord
         return Team::find()->where(['status' => static::NORMAL_STATUS]);
     }
 
+    public static function findById($id)
+    {
+        return static::online()->andWhere(['id' => $id])->one();
+    }
+
+    /**
+     * 查询当前member的Team
+     * @param int $id Team Id
+     * @return array|null|\yii\db\ActiveRecord
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function findByIdFromMember($id)
+    {
+        return static::online()
+            ->andWhere(['id' => $id])
+            ->joinWith(['members' => function($query){
+                /** @var $query ActiveQuery */
+                $query->andWhere(['user_id' => Yii::$app->user->id]);
+            }])->one();
+    }
+
     /**
      * @return array
      */
@@ -126,8 +149,7 @@ class Team extends \yii\db\ActiveRecord
     {
         return $this->hasMany(TeamMember::class, ['team_id' => 'id'])
             ->where(['status' => TeamMember::NORMAL_STATUS])
-            ->orderBy(['role' => SORT_ASC])
-            ->with('memberMark');
+            ->orderBy(['role' => SORT_ASC]);
     }
     /**
      * @param bool $insert

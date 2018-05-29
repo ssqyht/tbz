@@ -5,6 +5,7 @@
 $rules = [
     '' => 'site/index',
     'wechat/server' => 'wechat/server',
+    'POST,GET,OPTIONS oss/callback' => 'oss/callback',
 ];
 
 $restUrls = [
@@ -45,6 +46,7 @@ $restUrls = [
         'POST,OPTIONS wechat/refresh' => 'wechat/refresh',
         // 验证码
         'POST,OPTIONS main/send-sms' => 'main/send-sms',
+        'GET,POST,OPTIONS system/oss-policy' => 'system/oss-policy',
         'GET,OPTIONS main/<action>' => 'main/<action>',
 
         // 开始文档

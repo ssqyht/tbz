@@ -2,13 +2,7 @@
 
 namespace api\controllers;
 
-use common\components\traits\FuncTrait;
-use common\models\forms\FileUpload;
-use common\models\forms\LoginForm;
-use common\models\forms\RegisterForm;
-use common\models\MemberOauth;
 use common\models\OauthPublicKeys;
-use Firebase\JWT\JWT;
 use Yii;
 use yii\web\Controller;
 

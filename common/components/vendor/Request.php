@@ -6,6 +6,7 @@
 namespace common\components\vendor;
 
 use common\models\OauthPublicKeys;
+use common\models\Team;
 
 
 /**
@@ -21,8 +22,6 @@ class Request extends \yii\web\Request
     public $_client;
 
     private $_handle;
-
-    private $_team;
 
     public function getClient()
     {
@@ -62,17 +61,4 @@ class Request extends \yii\web\Request
         $handle = $value ?: $this->headers->get('Handle');
         $this->_handle = $handle == 'backend' ? $handle : 'frontend';
     }
-
-    /**
-     * 获取团队的team_id
-     * @return array|bool|string
-     */
-    public function getTeam()
-    {
-        if ($this->_team === null) {
-            $this->_team = $this->headers->get('Team') ?: false;
-        }
-        return $this->_team;
-    }
-
 }

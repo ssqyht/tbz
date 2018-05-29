@@ -12,6 +12,7 @@ use common\models\Team;
 use common\components\vendor\Model;
 use common\models\TeamMember;
 use common\models\CacheDependency;
+use yii\db\ActiveQuery;
 
 class TeamSearch extends Model
 {
@@ -77,7 +78,10 @@ class TeamSearch extends Model
         }
         $team_data = Team::find()
             ->where(['id' => $this->team_id, 'status' => Team::NORMAL_STATUS])
-            ->with('members');
+            ->with(['members' => function($query) {
+                /** @var $query ActiveQuery */
+                $query->with('memberMark');
+            }]);
         try {
             $result = \Yii::$app->dataCache->cache(function () use ($team_data) {
                 $result = $team_data->all();

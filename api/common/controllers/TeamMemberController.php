@@ -7,6 +7,7 @@
  */
 namespace api\common\controllers;
 
+use Yii;
 use common\models\forms\TeamMemberForm;
 use common\models\search\TeamMemberSearch;
 use yii\helpers\ArrayHelper;
@@ -67,7 +68,8 @@ class TeamMemberController extends BaseController
      */
     public function actionIndex(){
         $model = new TeamMemberSearch();
-        $result = $model->search(['team_id'=>\Yii::$app->request->getTeam()]);
+//        $result = $model->search(['team_id'=>\Yii::$app->request->getTeam()]);
+        $result = $model->search(['team_id'=>Yii::$app->request->getTeam()->id]);
         if ($result) {
             return $result;
         }
