@@ -211,9 +211,9 @@ class TemplateOfficial extends \yii\db\ActiveRecord
      */
     public function getMyFavorite()
     {
-        if ($team_id = \Yii::$app->request->getTeam()){
+        if ($team = Yii::$app->user->identity->team){
             return $this->hasOne(MyFavoriteTeam::class, ['template_id' => 'template_id'])
-                ->where(['team_id' => $team_id]);
+                ->where(['team_id' => $team->id]);
         }else{
             return $this->hasOne(MyFavoriteMember::class, ['template_id' => 'template_id'])
                 ->where(['user_id' =>1/*\Yii::$app->user->id */]);
