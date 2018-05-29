@@ -8,7 +8,7 @@ namespace api\modules\v1\swagger;
 /**
  * @SWG\Swagger(
  *     schemes={"http", "https"},
- *     host="localhost",
+ *     host="api5.tubangzhu.site",
  *     basePath="/v1",
  *     @SWG\Info(
  *         version="1.0.0",
