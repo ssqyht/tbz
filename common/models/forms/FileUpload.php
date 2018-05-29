@@ -370,13 +370,11 @@ class FileUpload extends Model
         $fullFile = UPLOAD_BASE_DIR . DIRECTORY_SEPARATOR . $filename;
 
         // 检查文件唯一性
-        /*
         if ($file = FileCommon::findByEtag($this->etag)) {
             // 删除图片
             $this->rollbackFile($this->filename);
             return $file;
         }
-        */
 
         $width = 0;
         $height = 0;
@@ -393,10 +391,10 @@ class FileUpload extends Model
             }
             list('height' => $height, 'width' => $width) = FuncTrait::getSvgObjectSize($content);
         } else {
-//            if (!Yii::$app->oss->copyObject($this->filename, $fullFile)) {
-//                $this->addError('', Code::SERVER_FAILED);
-//                return false;
-//            }
+            if (!Yii::$app->oss->copyObject($this->filename, $fullFile)) {
+                $this->addError('', Code::SERVER_FAILED);
+                return false;
+            }
             $width = $this->width;
             $height = $this->height;
         }
