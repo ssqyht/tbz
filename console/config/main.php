@@ -33,7 +33,7 @@ return [
             ],
         ],
         'request' => [
-            'class' => 'yii\console\Request',
+            'class' => 'common\components\vendor\RequestConsole',
         ],
         'dbMigrateDdy' => [
             'class' => 'yii\db\Connection',

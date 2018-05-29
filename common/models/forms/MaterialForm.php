@@ -6,11 +6,22 @@
  * Time: 18:11
  */
 namespace common\models\forms;
+
+use common\models\FileUsedRecord;
+use common\models\Member;
+use Yii;
 use common\models\MaterialMember;
 use common\components\traits\ModelErrorTrait;
 use common\models\MaterialTeam;
+use yii\db\Exception;
+use yii\helpers\Json;
 
-;
+/**
+ * Class MaterialForm
+ * @property MaterialTeam|MaterialMember|null $activeModel
+ * @package common\models\forms
+ * @author thanatos <thanatos915@163.com>
+ */
 class MaterialForm extends \yii\base\Model
 {
     use ModelErrorTrait;
@@ -29,19 +40,90 @@ class MaterialForm extends \yii\base\Model
     public $mode;
     public $file_name;
     public $folder_id;
-    public $method;
+    public $id;
 
     private $_user;
+    private $_activeModel;
 
     public function rules()
     {
         return [
-            [['user_id', 'folder_id', 'file_id', 'mode','team_id'], 'integer'],
+            [['thumbnail', 'file_id'], 'required'],
+            [['folder_id', 'file_id', 'team_id', 'id'], 'integer'],
             [['file_name', 'thumbnail'], 'string', 'max' => 255],
             [['folder_id'],'default','value'=>0],
-            ['method','required'],
-            ['method', 'in', 'range' => [static::MATERIAL_MEMBER, static::MATERIAL_TEAM ]],
+            ['id', function(){
+                if (empty($this->activeModel)) {
+                    $this->addError('id', '请求资源不存在');
+                }
+            }]
         ];
+    }
+
+    /**
+     * 用户素材处理函数
+     * @param $params
+     * @return bool|MaterialMember|MaterialTeam|null
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function submit($params)
+    {
+        $this->load($params, '');
+        if (!$this->validate()) {
+            return false;
+        }
+        $model = $this->activeModel;
+        $model->load($this->attributes, '');
+        // 验证数据
+        if (!$model->validate())
+            return false;
+
+        $model->user_id = Yii::$app->user->id;
+        // 添加Team信息
+        if ($model instanceof MaterialTeam)
+            $model->team_id = Yii::$app->user->identity->team->id;
+
+        $transaction = Yii::$app->getDb()->beginTransaction();
+
+        // 保存素材信息
+        if (!$this->activeModel->validate() || !$this->activeModel->save()) {
+            $this->addErrors($this->activeModel->getErrors());
+            return false;
+        }
+
+        try {
+            $purpose = FileUsedRecord::PURPOSE_MATERIAL;
+            // 处理素材源文件信息, 如果文件变化了。则处理文件引用信息
+            if ($model->isAttributeChanged('thumbnail') && $model->isAttributeChanged('file_id')) {
+                // 处理修改素材文件流程
+                if ($model->primaryKey) {
+                    // 删除原来的文件引用信息
+                    $file_id = $model->getOldAttribute('file_id');
+                    if (!$result = FileUsedRecord::dropRecord($model->user_id, $file_id, $purpose, $model->oldPrimaryKey)) {
+                        throw new Exception('Drop old File Use failed'. $result->getStringErrors());
+                    }
+                }
+            }
+
+            // 增加文件引用记录
+            if (!$result = FileUsedRecord::createRecord($model->user_id, $model->file_id, $purpose, $model->primaryKey)) {
+                throw new \Exception('Create File Use failed'. $result->getStringErrors());
+            }
+            $transaction->commit();
+            return $model;
+        } catch (\Throwable $e) {
+            try {
+                $transaction->rollBack();
+            } catch (\Throwable $e) {}
+            $message = $e->getMessage();
+            // 添加错误信息
+            if (strpos($message, '=') === false)
+                $this->addError('', $message);
+            else
+                $this->addErrors(Json::decode(explode(':', $message)[1]));
+            return false;
+        }
+
     }
 
     /**
@@ -122,6 +204,33 @@ class MaterialForm extends \yii\base\Model
         $this->addError('', '删除失败');
         return false;
     }
+
+    /**
+     * @return array|null|\yii\db\ActiveRecord
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function getActiveModel()
+    {
+        if ($this->_activeModel === null) {
+            $user = Yii::$app->user->identity;
+            /** @var MaterialMember|MaterialTeam $modelClass */
+            $modelClass = '';
+            if ($user->team) {
+                $modelClass = MaterialTeam::class;
+            } else {
+                $modelClass = MaterialMember::class;
+            }
+
+            if ($this->id) {
+                $model = $modelClass::findById($this->id);
+            } else {
+                $model = new $modelClass();
+            }
+            $this->_activeModel = $model;
+        }
+        return $this->_activeModel;
+    }
+
     /**
      * 获取用户id
      */

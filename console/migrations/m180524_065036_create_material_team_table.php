@@ -21,7 +21,6 @@ class m180524_065036_create_material_team_table extends Migration
             'file_name' => $this->string(255)->notNull()->defaultValue('')->comment('文件名'),
             'thumbnail' => $this->string(255)->notNull()->defaultValue('')->comment('图片路径'),
             'file_id' => $this->integer(11)->notNull()->defaultValue(0)->unsigned()->comment('文件id'),
-            'mode' => $this->integer(11)->notNull()->defaultValue(20)->unsigned()->comment('素材模式 临时，正式'),
             'created_at' => $this->integer(11)->notNull()->comment('创建时间')->unsigned()->defaultValue(0),
             'status' => $this->tinyInteger(2)->notNull()->comment('状态，3为删除，7为到回收站，10为正常')->unsigned()->defaultValue(0),
         ]);

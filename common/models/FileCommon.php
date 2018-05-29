@@ -22,9 +22,6 @@ class FileCommon extends \yii\db\ActiveRecord
 {
     use TimestampTrait;
 
-    /** @var int 允许最大文件上传值 */
-    const MAX_UPLOAD_FILE_SIZE = 20 * 1024 * 1024;
-
     /**
      * @inheritdoc
      */

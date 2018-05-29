@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\traits\ModelErrorTrait;
 use common\components\traits\TimestampTrait;
 use Yii;
 use yii\helpers\ArrayHelper;
@@ -19,6 +20,7 @@ use yii\helpers\ArrayHelper;
 class FileUsedRecord extends \yii\db\ActiveRecord
 {
     use TimestampTrait;
+    use ModelErrorTrait;
 
     /** @var int 用户头像 */
     const PURPOSE_HEADIMG = 10;
@@ -83,11 +85,63 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     }
 
     /**
+     * 删除文件使用记录
+     * @param int $user_id 用户id
+     * @param int $file_id 文件id
+     * @param int $purpose 文件用途
+     * @param int $purpose_id 用途表id
+     * @return bool|FileUsedRecord|false|int|null|string
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function dropRecord($user_id, $file_id, $purpose, $purpose_id)
+    {
+        $model = new static(['scenario' => static::SCENARIO_DROP]);
+        $data = [
+            'user_id' => $user_id,
+            'file_id' => $file_id,
+            'purpose' => $purpose,
+            'purpose_id'  => $purpose_id
+        ];
+        if ($result = $model->submit($data)) {
+            return $result;
+        } else {
+            return $model;
+        }
+
+    }
+
+    /**
+     * 增加文件引用记录
+     * @param int $user_id 用户id
+     * @param int $file_id 文件id
+     * @param int $purpose 文件用途
+     * @param int $purpose_id 用途表id
+     * @return bool|FileUsedRecord|false|int|null|string
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function createRecord($user_id, $file_id, $purpose, $purpose_id)
+    {
+        $model = new static(['scenario' => static::SCENARIO_CREATE]);
+        $data = [
+            'user_id' => $user_id,
+            'file_id' => $file_id,
+            'purpose' => $purpose,
+            'purpose_id'  => $purpose_id
+        ];
+        if ($result = $model->submit($data)) {
+            return $result;
+        } else {
+            return $model;
+        }
+    }
+
+    /**
      * 文件处理总入口
      * @return bool|FileUsedRecord|false|int|null|string
      */
-    public function submit()
+    public function submit($params)
     {
+        $this->load($params, '');
         if (!$this->validate()) {
             return false;
         }

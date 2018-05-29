@@ -8,6 +8,7 @@ namespace api\common\controllers;
 
 use common\components\traits\OrderTrait;
 use common\models\forms\FileUpload;
+use common\models\forms\FrontendUploadForm;
 use Yii;
 use common\components\vendor\RestController;
 use yii\httpclient\Client;
@@ -78,8 +79,10 @@ class MainController extends RestController
      */
     public function actionIndex()
     {
-        $data = Yii::$app->oss->getPolicy();
-        var_dump(json_decode($data, true));
+        $model = new FrontendUploadForm(['scenario' => FrontendUploadForm::SCENARIO_FRONTEND]);
+        $data = json_decode(file_get_contents('1.txt'), true);
+        var_dump($model->submit($data));
+        var_dump($model->getErrors());exit;
     }
 
 }

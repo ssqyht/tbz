@@ -6,6 +6,7 @@
 namespace common\models\forms;
 
 use common\components\traits\FuncTrait;
+use common\components\validators\FileUploadValidator;
 use common\components\validators\PathValidator;
 use common\components\vendor\OriginFIle;
 use common\models\FileCommon;
@@ -121,7 +122,7 @@ class FileUpload extends Model
                     return $this->addError('url', Code::FILE_EXTENSION_NOT_ALLOW);
                 }
                 // 文件大小验证
-                if ($this->fileData->length > FileCommon::MAX_UPLOAD_FILE_SIZE)
+                if ($this->fileData->length > FileUploadValidator::MAX_UPLOAD_FILE_SIZE)
                     return $this->addError('url', Code::FILE_SIZE_NOT_ALLOW);
 
             }],

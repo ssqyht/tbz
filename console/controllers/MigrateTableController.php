@@ -327,7 +327,7 @@ class MigrateTableController extends Controller
             }
         }
         FileUsedRecord::getDb()->createCommand()->batchInsert(FileUsedRecord::tableName(), ['user_id', 'file_id', 'purpose', 'purpose_id', 'created_at'], $data)->execute();
-        $this->stdout('迁移成功数' . "\n", Console::FG_GREEN);
+        $this->stdout('迁移成功' . "\n", Console::FG_GREEN);
 
     }
 

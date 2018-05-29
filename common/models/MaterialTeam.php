@@ -17,7 +17,6 @@ use yii\helpers\Url;
  * @property string $file_name 文件名 @SWG\Property(property="fileName", type="string", description=" 文件名")
  * @property string $thumbnail 图片路径 @SWG\Property(property="thumbnail", type="string", description=" 图片路径")
  * @property int $file_id 文件id @SWG\Property(property="fileId", type="integer", description=" 文件id")
- * @property int $mode 素材模式 临时，正式 @SWG\Property(property="mode", type="integer", description=" 素材模式 临时，正式")
  * @property int $created_at 创建时间 @SWG\Property(property="createdAt", type="integer", description=" 创建时间")
  */
 class MaterialTeam extends \yii\db\ActiveRecord
@@ -37,7 +36,7 @@ class MaterialTeam extends \yii\db\ActiveRecord
 
     public function frontendFields()
     {
-        return ['id', 'user_id', 'team_id', 'folder_id', 'file_id', 'mode', 'file_name', 'thumbnail'];
+        return ['id', 'user_id', 'team_id', 'folder_id', 'file_id', 'file_name', 'thumbnail'];
     }
     /**
      * @inheritdoc
@@ -53,7 +52,7 @@ class MaterialTeam extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'team_id', 'folder_id', 'file_id', 'mode', 'created_at','status'], 'integer'],
+            [['user_id', 'team_id', 'folder_id', 'file_id', 'created_at','status'], 'integer'],
             [['file_name', 'thumbnail'], 'string', 'max' => 255],
         ];
     }
