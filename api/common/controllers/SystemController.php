@@ -24,6 +24,6 @@ class SystemController extends RestController
      */
     public function actionOssPolicy()
     {
-        return Yii::$app->oss->getSignature(FileUpload::TEMP_DIR);
+        return Yii::$app->oss->getSignature(UPLOAD_BASE_DIR . DIRECTORY_SEPARATOR . FileUpload::TEMP_DIR);
     }
 }

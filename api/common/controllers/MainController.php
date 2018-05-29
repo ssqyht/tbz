@@ -6,13 +6,9 @@
 namespace api\common\controllers;
 
 
-use common\components\traits\OrderTrait;
 use common\models\forms\FileUpload;
-use common\models\forms\FrontendUploadForm;
 use Yii;
 use common\components\vendor\RestController;
-use yii\httpclient\Client;
-use yii\httpclient\CurlTransport;
 use yii\web\BadRequestHttpException;
 
 class MainController extends RestController
@@ -79,7 +75,7 @@ class MainController extends RestController
      */
     public function actionIndex()
     {
-        $model = new FrontendUploadForm(['scenario' => FrontendUploadForm::SCENARIO_FRONTEND]);
+        $model = new FileUpload(['scenario' => FileUpload::SCENARIO_FRONTEND]);
         $data = json_decode(file_get_contents('1.txt'), true);
         var_dump($model->submit($data));
         var_dump($model->getErrors());exit;

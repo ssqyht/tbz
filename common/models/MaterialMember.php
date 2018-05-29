@@ -51,6 +51,8 @@ class MaterialMember extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            ['file_name', 'default', 'value' => ''],
+            [['user_id', 'folder_id', 'file_id'], 'default', 'value' => 0],
             [['user_id', 'folder_id', 'file_id', 'created_at','status'], 'integer'],
             [['file_name', 'thumbnail'], 'string', 'max' => 255],
         ];

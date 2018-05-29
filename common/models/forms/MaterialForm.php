@@ -86,8 +86,8 @@ class MaterialForm extends \yii\base\Model
         $transaction = Yii::$app->getDb()->beginTransaction();
 
         // 保存素材信息
-        if (!$this->activeModel->validate() || !$this->activeModel->save()) {
-            $this->addErrors($this->activeModel->getErrors());
+        if (!($model->validate() && $model->save())) {
+            $this->addErrors($model->getErrors());
             return false;
         }
 

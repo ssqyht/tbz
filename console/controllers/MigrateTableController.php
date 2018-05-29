@@ -14,11 +14,8 @@ use common\models\Tag;
 use Yii;
 use yii\base\Exception;
 use yii\console\Controller;
-use yii\data\ActiveDataProvider;
 use yii\data\SqlDataProvider;
-use yii\db\ActiveQuery;
 use yii\db\Query;
-use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 
 /**
