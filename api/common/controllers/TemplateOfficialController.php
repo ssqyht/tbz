@@ -86,7 +86,7 @@ class TemplateOfficialController extends RestController
      *     schemes={"http"},
      *     tags={"模板相关接口"},
      *     summary="官方模板查询接口",
-     *     description="此接口用于前台模板中心页展示页根据若干查询条件查询出相应的模板信息，成功返回上线的模板信息，后台可根据状态查询对应的模板信息，所有查询条件为空时，默认返回classify_id为1的模板信息",
+     *     description="此接口用于前台模板中心页展示页根据若干查询条件查询出相应的模板信息，成功返回上线的模板信息，后台可根据状态查询对应的模板信息",
      *      @SWG\Parameter(
      *         name="Client",
      *         in="header",
@@ -102,7 +102,14 @@ class TemplateOfficialController extends RestController
      *     ),
      *     @SWG\Parameter(
      *         in="query",
-     *         name="product",
+     *         name="category",
+     *         type="integer",
+     *         description="查询条件,大分类的category_id",
+     *         required=true,
+     *     ),
+     *     @SWG\Parameter(
+     *         in="query",
+     *         name="classify",
      *         type="integer",
      *         description="查询条件，模板小分类的classify_id",
      *     ),

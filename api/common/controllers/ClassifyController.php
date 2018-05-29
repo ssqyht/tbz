@@ -98,7 +98,7 @@ class ClassifyController extends RestController
      *     schemes={"http"},
      *     tags={"分类相关接口"},
      *     summary="获取小分类或标签信息",
-     *     description="此接口是前台模板中心页根据大分类获取小分类和标签信息，或者根据小分类获取标签信息，成功返回小分类信息和标签信息（风格和行业）",
+     *     description="此接口是前台模板中心页根据大分类获取小分类和标签信息，或者根据小分类获取标签信息，成功返回小分类信息或标签信息（风格和行业）",
      *     @SWG\Parameter(
      *         name="Client",
      *         in="header",
@@ -123,7 +123,7 @@ class ClassifyController extends RestController
      *          in="query",
      *          name="classify",
      *          type="integer",
-     *          description="小分类的classify_id,如果此参数为空，则默认返回大分类下热度最高的小分类的标签信息，如果不为空，classify返回空数组",
+     *          description="小分类的classify_id,如果此参数为空，只返回小分类的信息，如果不为空，且有对应标签的话，同时返回标签信息",
      *     ),
      *     @SWG\Response(
      *          response=200,

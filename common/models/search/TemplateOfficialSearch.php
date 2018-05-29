@@ -29,10 +29,8 @@ class TemplateOfficialSearch extends Model
     const SCENARIO_FRONTEND = 'frontend';
     /** @var string 后台查询列表 */
     const SCENARIO_BACKEND = 'backend';
-    /** @var int 默认小分类为名片 */
-    const DEFAULT_CLASSIFY = 1;
     /** @var string 小分类 */
-    public $product;
+    public $classify;
     /** @var integer 价格 */
     public $price;
     /** @var integer 风格 */
@@ -43,6 +41,8 @@ class TemplateOfficialSearch extends Model
     public $sort;
     /** @var integer 模板转态 */
     public $status;
+    /** @var integer 大分类 */
+    public $category;
 
     private $_query;
     private $_cacheKey;
@@ -53,7 +53,8 @@ class TemplateOfficialSearch extends Model
     public function rules()
     {
         return [
-            [['product', 'price', 'style', 'industry', 'sort', 'status'], 'integer'],
+            [['classify', 'price', 'style', 'industry', 'sort', 'status','category'], 'integer'],
+            ['category','required'],
         ];
     }
 
@@ -63,9 +64,9 @@ class TemplateOfficialSearch extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['product', 'price', 'style', 'industry', 'sort', 'status'],
-            static::SCENARIO_BACKEND => ['product', 'price', 'style', 'industry', 'sort', 'status'],
-            static::SCENARIO_FRONTEND => ['product', 'price', 'style', 'industry', 'sort']
+            static::SCENARIO_DEFAULT => ['classify', 'price', 'style', 'industry', 'sort', 'status','category'],
+            static::SCENARIO_BACKEND => ['classify', 'price', 'style', 'industry', 'sort', 'status','category'],
+            static::SCENARIO_FRONTEND => ['classify', 'price', 'style', 'industry', 'sort','category']
         ];
     }
 
@@ -100,9 +101,7 @@ class TemplateOfficialSearch extends Model
     ];
 
     /**
-     * 前端查询
-     * @return ActiveDataProvider|bool
-     * @author thanatos <thanatos915@163.com>
+     * @return array|bool|ActiveDataProvider
      */
     public function searchFrontend()
     {
@@ -111,6 +110,7 @@ class TemplateOfficialSearch extends Model
         $dataProvider = new ActiveDataProvider([
             'query' => $this->query->with('myFavorite'),
         ]);
+        $dataProvider = $dataProvider->getModels();
         if ($dataProvider){
             return $dataProvider;
         }
@@ -181,11 +181,14 @@ class TemplateOfficialSearch extends Model
     {
         if ($this->_query === null) {
             $query = TemplateOfficial::active();
-            if (!$this->product) {
-                $this->product = static::DEFAULT_CLASSIFY;
+            if ($this->classify) {
+                //按小分类查询
+                $query->andWhere(['classify_id' => $this->classify]);
+            }else{
+                //按大分类查询
+                $classify = Classify::find()->select('classify_id')->where(['category_id'=>$this->category]);
+                $query->andWhere(['classify_id' =>$classify]);
             }
-            //按小分类查询
-            $query->where(['classify_id' => $this->product]);
             //按价格区间查询
             if ($this->price && array_key_exists($this->price, $this->prices)) {
                 $query->andWhere(($this->prices)[$this->price]);
