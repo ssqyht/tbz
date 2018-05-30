@@ -98,7 +98,7 @@ class TemplateTopicSearch extends Model
                 $result = [];
                 foreach ($provider_model as $key=>$value){
                     if ($value->templates){
-                        $result[$key] = $value->templates;
+                        $result[] = $value->templates;
                     }
                 }
                 return $result;
@@ -199,7 +199,7 @@ class TemplateTopicSearch extends Model
        $result = [];
         foreach ($data as $key=>$value){
             if ($value->classifys){
-                $result[$key] = $value->classifys;
+                $result[] = $value->classifys;
             }
         }
         return $result;
