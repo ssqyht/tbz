@@ -96,15 +96,7 @@ class MaterialController extends BaseController
     public function actionIndex()
     {
         $model = new MaterialSearch();
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
-        }
-        $data = ArrayHelper::merge(\Yii::$app->request->get(), $method);
-        $result = $model->search($data);
+        $result = $model->search(\Yii::$app->request->get());
         if ($result) {
             return $result;
         }
@@ -166,7 +158,8 @@ class MaterialController extends BaseController
      * @return array|null|\yii\db\ActiveRecord
      * @throws NotFoundHttpException
      */
-    public function actionView($id){
+    public function actionView($id)
+    {
         if ($team = \Yii::$app->user->identity->team) {
             //团队
             $result = MaterialTeam::findById($id);
@@ -265,16 +258,8 @@ class MaterialController extends BaseController
      */
     public function actionCreate()
     {
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => MaterialForm::MATERIAL_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => MaterialForm::MATERIAL_MEMBER];
-        }
-        $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $model = new MaterialForm();
-        if ($model->load($data, '') && ($result = $model->addMaterial())) {
+        if ($result = $model->submit(\Yii::$app->request->post())) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -375,16 +360,9 @@ class MaterialController extends BaseController
      */
     public function actionUpdate($id)
     {
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => MaterialForm::MATERIAL_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => MaterialForm::MATERIAL_MEMBER];
-        }
-        $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
+        $data = ArrayHelper::merge(\Yii::$app->request->post(), ['id' => $id]);
         $model = new MaterialForm();
-        if ($model->load($data, '') && ($result = $model->updateMaterial($id))) {
+        if ($result = $model->submit($data)) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -441,16 +419,8 @@ class MaterialController extends BaseController
      */
     public function actionDelete($id)
     {
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
-        }
-        $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $model = new MaterialForm();
-        if ($model->load($data, '') && ($result = $model->deleteMaterial($id))) {
+        if ($model->load(['id'=>$id], '') && ($result = $model->deleteMaterial())) {
             return "";
         }
         throw new HttpException(500, $model->getStringErrors(), Code::SERVER_FAILED);
@@ -526,17 +496,9 @@ class MaterialController extends BaseController
      */
     public function actionMaterialOperation()
     {
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => MaterialOperationForm::MATERIAL_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => MaterialOperationForm::MATERIAL_MEMBER];
-        }
-        $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $model = new MaterialOperationForm();
-        if ($result = $model->operation($data)) {
-            return '';
+        if ($result = $model->operation(\Yii::$app->request->post())) {
+            return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }

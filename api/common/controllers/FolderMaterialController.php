@@ -5,6 +5,7 @@
  * Date: 2018/5/22
  * Time: 10:37
  */
+
 namespace api\common\controllers;
 
 use common\models\forms\FolderMaterialForm;
@@ -15,6 +16,7 @@ use common\extension\Code;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\helpers\ArrayHelper;
+
 class FolderMaterialController extends BaseController
 {
     /**
@@ -73,16 +75,8 @@ class FolderMaterialController extends BaseController
      */
     public function actionIndex()
     {
-        if ($team = \Yii::$app->user->identity->team){
-            //团队
-            $method = ['method' => FolderMaterialSearch::MATERIAL_FOLDER_TEAM,'team_id'=>$team->id];
-        }else{
-            //个人
-            $method = ['method' => FolderMaterialSearch::MATERIAL_FOLDER_MEMBER];
-        }
         $folder = new FolderMaterialSearch();
-        $data = ArrayHelper::merge(\Yii::$app->request->get(),$method);
-        $result = $folder->search($data);
+        $result = $folder->search(\Yii::$app->request->get());
         if ($result) {
             return $result;
         }
@@ -152,16 +146,9 @@ class FolderMaterialController extends BaseController
      */
     public function actionCreate()
     {
-        if ($team = \Yii::$app->user->identity->team){
-            //团队
-            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team->id];
-        }else{
-            //个人
-            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_MEMBER];
-        }
-        $create_data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $model = new FolderMaterialForm();
-        if ($model->load($create_data, '') && ($result = $model->addFolder())) {
+        $model->setScenario('create');
+        if ($model->load(\Yii::$app->request->post(), '') && ($result = $model->editFolder())) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -238,16 +225,10 @@ class FolderMaterialController extends BaseController
      */
     public function actionUpdate($id)
     {
-        if ($team = \Yii::$app->user->identity->team){
-            //团队
-            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team->id];
-        }else{
-            //个人
-            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_MEMBER];
-        }
-        $update_data = ArrayHelper::merge(\Yii::$app->request->post(),$method);
+        $update_data = ArrayHelper::merge(\Yii::$app->request->post(), ['id' => $id]);
         $folder = new FolderMaterialForm();
-        if ($folder->load($update_data, '') && ($result = $folder->updateFolder($id))) {
+        $folder->setScenario('update');
+        if ($folder->load($update_data, '') && ($result = $folder->editFolder())) {
             return $result;
         }
         throw new BadRequestHttpException($folder->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -304,15 +285,9 @@ class FolderMaterialController extends BaseController
      */
     public function actionDelete($id)
     {
-        if ($team = \Yii::$app->user->identity->team){
-            //团队
-            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team->id];
-        }else{
-            //个人
-            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_MEMBER];
-        }
         $folder = new FolderMaterialForm();
-        if ($folder->load($method, '') && $folder->deleteFolder($id)) {
+        $folder->setScenario('delete');
+        if ($folder->load(['id' => $id], '') && $folder->deleteFolder()) {
             return '';
         }
         throw new HttpException(500, $folder->getStringErrors(), Code::SERVER_FAILED);

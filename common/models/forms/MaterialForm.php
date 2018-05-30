@@ -129,78 +129,17 @@ class MaterialForm extends \yii\base\Model
         }
 
     }
-
-    /**
-     * 添加个人或者团队素材
-     * @return bool|MaterialMember|False
-     */
-    public function addMaterial()
-    {
-        if (!$this->validate()) {
-            return false;
-        }
-        if ($this->method == 'material_member'){
-            //个人
-            $model = new MaterialMember();
-        }else{
-            //团队
-            $model = new MaterialTeam();
-        }
-        $this->user_id = $this->user;
-        if ($model->load($this->attributes, '') && $model->save(false)) {
-            return $model;
-        }
-        return false;
-    }
-
-    /**
-     * 修改素材
-     * @param $id
-     * @return bool|MaterialMember|False|null
-     */
-    public function updateMaterial($id)
-    {
-        if (!$id) {
-            $this->addError('id', '唯一标识不能为空');
-            return false;
-        }
-        if (!$this->validate()) {
-            return false;
-        }
-        if ($this->method == 'material_member'){
-            //个人
-            $model = MaterialMember::findOne(['id'=>$id,'user_id'=>$this->user]);
-        }else{
-            //团队
-            $model =MaterialTeam::findOne(['id'=>$id,'team_id'=>$this->team_id]);
-        }
-        if (!$model) {
-            $this->addError('', '该素材不存在');
-            return false;
-        }
-        $this->user_id = $this->user;
-        if ($model->load($this->attributes, '') && $model->save(false)) {
-            return $model;
-        }
-        $this->addError('', '修改失败');
-        return false;
-    }
     /**
      * 把素材放入回收站
      * @param $id
      * @return bool
      */
-    public function deleteMaterial($id)
+    public function deleteMaterial()
     {
-        if ($this->method == 'material_member'){
-            $model = MaterialMember::findOne(['id'=>$id,'user_id'=>$this->user]);
-        }else{
-            $model =MaterialTeam::findOne(['id'=>$id,'team_id'=>$this->team_id]);
-        }
-        if (!$model) {
-            $this->addError('id', '该素材不存在');
+        if($this->validate()){
             return false;
         }
+        $model = $this->activeModel;
         $model->status = static::RECYCLE_BIN_STATUS;
         if ($model->save(false)) {
             return true;

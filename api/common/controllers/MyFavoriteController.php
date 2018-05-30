@@ -14,7 +14,6 @@ use yii\web\NotFoundHttpException;
 use common\extension\Code;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
-use yii\helpers\ArrayHelper;
 
 class MyFavoriteController extends BaseController
 {
@@ -81,16 +80,8 @@ class MyFavoriteController extends BaseController
      */
     public function actionIndex()
     {
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => MyFavoriteSearch::FAVORITE_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => MyFavoriteSearch::FAVORITE_MEMBER];
-        }
-        $data = ArrayHelper::merge(\Yii::$app->request->get(), $method);
         $model = new MyFavoriteSearch();
-        $result = $model->search($data);
+        $result = $model->search(\Yii::$app->request->get());
         if ($result) {
             return $result;
         }
@@ -148,16 +139,9 @@ class MyFavoriteController extends BaseController
      */
     public function actionCreate()
     {
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => MyFavoriteForm::FAVORITE_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => MyFavoriteForm::FAVORITE_MEMBER];
-        }
-        $data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $model = new MyFavoriteForm();
-        if ($model->load($data, '') && ($result = $model->addMyFavorite())) {
+        $model ->setScenario('create');
+        if ($model->load(\Yii::$app->request->post(), '') && ($result = $model->addMyFavorite())) {
             return '';
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -220,15 +204,9 @@ class MyFavoriteController extends BaseController
      */
     public function actionDelete($id)
     {
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => MyFavoriteForm::FAVORITE_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => MyFavoriteForm::FAVORITE_MEMBER];
-        }
         $model = new MyFavoriteForm();
-        if ($model->load($method, '') && $model->deleteMyFavorite($id)) {
+        $model ->setScenario('delete');
+        if ($model->load(['id'=>$id], '') && $model->deleteMyFavorite()) {
             return '';
         }
         throw new HttpException(500, $model->getStringErrors(), Code::SERVER_FAILED);

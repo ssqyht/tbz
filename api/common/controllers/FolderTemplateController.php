@@ -75,16 +75,8 @@ class FolderTemplateController extends BaseController
      */
     public function actionIndex()
     {
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_MEMBER];
-        }
         $folder = new FolderTemplateSearch();
-        $data = ArrayHelper::merge(\Yii::$app->request->get(), $method);
-        $result = $folder->search($data);
+        $result = $folder->search(\Yii::$app->request->get());
         if ($result) {
             return $result;
         }
@@ -154,16 +146,8 @@ class FolderTemplateController extends BaseController
      */
     public function actionCreate()
     {
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_MEMBER];
-        }
-        $create_data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
         $message = new FolderTemplateForm();
-        if ($message->load($create_data, '') && ($result = $message->addFolder())) {
+        if ($message->load(\Yii::$app->request->post(), '') && ($result = $message->editFolder())) {
             return $result;
         }
         throw new BadRequestHttpException($message->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -240,16 +224,9 @@ class FolderTemplateController extends BaseController
      */
     public function actionUpdate($id)
     {
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_MEMBER];
-        }
-        $update_data = ArrayHelper::merge(\Yii::$app->request->post(), $method);
+        $update_data = ArrayHelper::merge(\Yii::$app->request->post(), ['id' => $id]);
         $folder = new FolderTemplateForm();
-        if ($folder->load($update_data, '') && ($result = $folder->updateFolder($id))) {
+        if ($folder->load($update_data, '') && ($result = $folder->editFolder())) {
             return $result;
         }
         throw new BadRequestHttpException($folder->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -306,15 +283,8 @@ class FolderTemplateController extends BaseController
      */
     public function actionDelete($id)
     {
-        if ($team = \Yii::$app->user->identity->team) {
-            //团队
-            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team->id];
-        } else {
-            //个人
-            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_MEMBER];
-        }
         $folder = new FolderTemplateForm();
-        if ($folder->load($method, '') && $folder->deleteFolder($id)) {
+        if ($folder->load(['id' => $id], '') && $folder->deleteFolder()) {
             return '';
         }
         throw new HttpException(500, $folder->getStringErrors(), Code::SERVER_FAILED);

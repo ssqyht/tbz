@@ -18,35 +18,28 @@ use common\components\traits\ModelErrorTrait;
 class MaterialSearch extends Model
 {
     use ModelErrorTrait;
-    /** @var string 个人素材 */
-    const MATERIAL_MEMBER = 'material_member';
-    /** @var string 团队素材 */
-    const MATERIAL_TEAM = 'material_team';
 
     /** @var int 正常状态 */
     const NORMAL_STATUS = 10;
     /** @var integer 默认文件夹 */
     const DEFAULT_FOLDER = 0;
     /** @var int 正式素材 */
-    const FORMAL_MODE = 20;
+    const NORMAL_MODE = 20;
 
     public $status;
     public $folder;
     public $sort;
-    public $method;
-    public $team_id;
     public $mode;
 
-    private $_user;
     private $_cacheKey;
     private $_query;
+    private $_condition;
+    private $_tableModel;
 
     public function rules()
     {
         return [
             [['status', 'folder', 'team_id', 'mode'], 'integer'],
-            ['method', 'required'],
-            ['method', 'in', 'range' => [static::MATERIAL_MEMBER, static::MATERIAL_TEAM]],
         ];
     }
 
@@ -56,9 +49,9 @@ class MaterialSearch extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['status', 'method', 'mode'],
-            static::SCENARIO_BACKEND => ['status', 'method', 'mode'],
-            static::SCENARIO_FRONTEND => ['status', 'folder', 'team_id', 'method', 'mode']
+            static::SCENARIO_DEFAULT => ['status', 'mode', 'folder'],
+            static::SCENARIO_BACKEND => ['status', 'mode'],
+            static::SCENARIO_FRONTEND => ['status', 'folder','mode']
         ];
     }
 
@@ -90,17 +83,9 @@ class MaterialSearch extends Model
     public function searchFrontend()
     {
         //查询当前用户的素材
-        if ($this->method == static::MATERIAL_MEMBER) {
-            //个人素材查询
-            $this->query->andWhere(['user_id' => $this->user]);
-        } else {
-            //团队素材查询
-            $this->query->andWhere(['team_id' => $this->team_id]);
-        }
+        $this->query->andWhere($this->_condition);
         //按默认文件夹查询
-        if (!$this->folder) {
-            $this->query->andWhere(['folder_id' => static::DEFAULT_FOLDER]);
-        }
+        $this->query->andWhere(['folder_id' => $this->folder ?: static::DEFAULT_FOLDER]);
         $provider = new ActiveDataProvider([
             'query' => $this->query,
             'pagination' => [
@@ -170,29 +155,14 @@ class MaterialSearch extends Model
     public function getQuery()
     {
         if ($this->_query === null) {
-            if ($this->method == static::MATERIAL_MEMBER) {
-                //个人素材
-                $query = MaterialMember::sort()->with('fileCommon');
-            } else {
-                //团队素材
-                $query = MaterialTeam::sort()->with('fileCommon');
+            if (!$query = $this->tableModel){
+                return false;
             }
-            //按文件夹查询
-            if ($this->folder) {
-                $query->andWhere(['folder_id' => $this->folder]);
-            }
+            $query->with('fileCommon');
             //按素材类型查询
-            if ($this->mode) {
-                $query->andWhere(['mode' => $this->mode]);
-            } else {
-                $query->andWhere(['mode' => static::FORMAL_MODE]);
-            }
+            $query->andWhere(['mode' => $this->mode ?: static::NORMAL_MODE]);
             //按状态查询
-            if ($this->status) {
-                $query->andWhere(['status' => $this->status]);
-            } else {
-                $query->andWhere(['status' => static::NORMAL_STATUS]);
-            }
+            $query->andWhere(['status' => $this->status ?: static::NORMAL_STATUS]);
             //按时间排序
             if ($this->sort && $this->sort == 1) {
                 $query->orderBy(['created_at' => SORT_ASC]);
@@ -205,13 +175,22 @@ class MaterialSearch extends Model
     }
 
     /**
-     * 获取用户id
+     * 获取模型
+     * @return mixed|string
      */
-    public function getUser()
+    public function getTableModel()
     {
-        if ($this->_user === null) {
-            $this->_user = 1; /*\Yii::$app->user->id*/;
+        if ($this->_tableModel === null) {
+            $user = \Yii::$app->user->identity;
+            if ($user->team){
+                $tableModel = MaterialTeam::sort();
+                $this->_condition = ['team_id'=>$user->team->id];
+            }else{
+                $tableModel = MaterialMember::sort();
+                $this->_condition = ['user_id'=>\Yii::$app->user->id];
+            }
+            $this->_tableModel = $tableModel;
         }
-        return $this->_user;
+        return $this->_tableModel;
     }
 }

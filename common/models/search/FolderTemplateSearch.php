@@ -16,17 +16,8 @@ use common\models\CacheDependency;
 
 class FolderTemplateSearch extends Model
 {
-    /** @var string 个人模板文件夹 */
-    const FOLDER_TEMPLATE_MEMBER = 'folder_template_member';
-    /** @var string 团队模板文件夹 */
-    const FOLDER_TEMPLATE_TEAM  = 'folder_template_team';
-
-
     public $status;
-    public $method;
-    public $team_id;
 
-    public $_user;
     private $_cacheKey;
     private $_tableModel;
     private $_condition;
@@ -34,9 +25,7 @@ class FolderTemplateSearch extends Model
     public function rules()
     {
         return [
-            [['status','team_id'], 'integer'],
-            ['method', 'required'],
-            ['method', 'in', 'range' => [static::FOLDER_TEMPLATE_MEMBER, static::FOLDER_TEMPLATE_TEAM]],
+            [['status'], 'integer'],
         ];
     }
 
@@ -46,9 +35,9 @@ class FolderTemplateSearch extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['method','team_id'],
-            static::SCENARIO_BACKEND => ['status','method','team_id'],
-            static::SCENARIO_FRONTEND => ['method','team_id']
+            static::SCENARIO_DEFAULT => [],
+            static::SCENARIO_BACKEND => ['status'],
+            static::SCENARIO_FRONTEND => []
         ];
     }
 
@@ -137,18 +126,6 @@ class FolderTemplateSearch extends Model
         }
         return $this->_cacheKey;
     }
-
-    /**
-     * @return int 获取用户id
-     */
-    public function getUser()
-    {
-        if (!$this->_user) {
-            $this->_user = 1; /*\Yii::$app->user->id*/;
-        }
-        return $this->_user;
-    }
-
     /**
      * 删除查询缓存
      * @author thanatos <thanatos915@163.com>
@@ -164,20 +141,13 @@ class FolderTemplateSearch extends Model
     public function getTableModel()
     {
         if ($this->_tableModel === null) {
-            switch ($this->method) {
-                case static::FOLDER_TEMPLATE_MEMBER:
-                    //个人模板文件夹
-                    $this->_tableModel = FolderTemplateMember::class;
-                    $this->_condition = ['user_id'=>$this->user];
-                    break;
-                case static::FOLDER_TEMPLATE_TEAM:
-                    //团队模板文件夹
-                    $this->_tableModel = FolderTemplateTeam::class;
-                    $this->_condition = ['team_id'=>$this->team_id];
-                    break;
-                default:
-                    $this->_tableModel = false;
-                    break;
+            $user = \Yii::$app->user->identity;
+            if (!$user->team){
+                $this->_tableModel = FolderTemplateMember::class;
+                $this->_condition = ['team_id'=>$user->team->id];
+            }else{
+                $this->_tableModel = FolderTemplateTeam::class;
+                $this->_condition = ['user_id'=>\Yii::$app->user->id];
             }
         }
         return $this->_tableModel;

@@ -17,11 +17,6 @@ use common\models\MaterialTeam;
 class MaterialOperationForm extends \yii\base\Model
 {
     use ModelErrorTrait;
-    /** @var string 个人素材管理 */
-    const MATERIAL_MEMBER = 'material_member';
-    /** @var string 团队素材管理 */
-    const MATERIAL_TEAM = 'material_team';
-
 
     /* @var integer  重命名 */
     const RENAME = 1;
@@ -43,25 +38,27 @@ class MaterialOperationForm extends \yii\base\Model
     const STATUS_NORMAL = 10;
 
 
-    public $method;
     public $ids;
     public $name;
     public $folder;
-    public $team_id;
     public $type;
 
     private $_table;
-    private $_user;
+    private $_folderModel;
     private $_condition;
-    private $_tableModel;
 
     public function rules()
     {
         return [
-            [['ids', 'type', 'method'], 'required'],
-            [['folder', 'team_id'], 'integer'],
+            [['ids', 'type'], 'required'],
+            [['folder'], 'integer'],
             ['name', 'string'],
-            ['method', 'in', 'range' => [static::MATERIAL_MEMBER, static::MATERIAL_TEAM]],
+            ['folder', 'required', 'when' => function ($model) {
+                return $model->type == 2;
+            }],
+            ['name', 'required', 'when' => function ($model) {
+                return $model->type == 1;
+            }],
         ];
     }
 
@@ -103,10 +100,6 @@ class MaterialOperationForm extends \yii\base\Model
             $this->addError('', '不支持多个重命名');
             return false;
         }
-        if (!$this->name) {
-            $this->addError('', '重命名时文件名不能为空');
-            return false;
-        }
         return $this->batchProcessing('file_name', $this->name);
     }
 
@@ -117,14 +110,6 @@ class MaterialOperationForm extends \yii\base\Model
      */
     public function moveFolder()
     {
-        if (!$this->folder) {
-            $this->addError('', '移动到文件夹，文件夹id不能为空');
-            return false;
-        }
-        if (!$this->isFolder()) {
-            $this->addError('', '目标文件夹不存在');
-            return false;
-        }
         return $this->batchProcessing('folder_id', $this->folder);
     }
 
@@ -165,28 +150,18 @@ class MaterialOperationForm extends \yii\base\Model
     public function batchProcessing($key, $value)
     {
         if ($this->table) {
-            $result = \Yii::$app->db->createCommand()->update($this->_table, [$key => $value], $this->_condition)
+            $this->_condition = array_merge($this->_condition, ['id' => $this->ids]);
+            /** @var MaterialMember|MaterialTeam $this ->table */
+            $result = \Yii::$app->db->createCommand()->update(($this->table)::tableName(), [$key => $value], $this->_condition)
                 ->execute();
             if ($result) {
                 //更新缓存
-                \Yii::$app->dataCache->updateCache($this->_tableModel);
+                \Yii::$app->dataCache->updateCache($this->table);
                 return true;
             }
         }
         $this->addError('', '操作失败');
         return false;
-    }
-
-    /**
-     * @return int 获取用户信息
-     */
-    public function getUser()
-    {
-        if ($this->_user === null) {
-            $this->_user = 1/*\Yii::$app->user->id*/
-            ;
-        }
-        return $this->_user;
     }
 
     /**
@@ -196,43 +171,28 @@ class MaterialOperationForm extends \yii\base\Model
     public function getTable()
     {
         if ($this->_table === null) {
-            switch ($this->method) {
-                case static::MATERIAL_MEMBER:
-                    //个人素材
-                    $this->_table = MaterialMember::tableName();
-                    $this->_condition = ['id' => $this->ids, 'user_id' => $this->user];
-                    $this->_tableModel = MaterialMember::class;
-                    break;
-                case static::MATERIAL_TEAM:
-                    //团队素材
-                    $this->_table = MaterialTeam::tableName();
-                    $this->_condition = ['id' => $this->ids, 'team_id' => $this->team_id];
-                    $this->_tableModel = MaterialTeam::class;
-                    break;
-                default:
-                    $this->_table = false;
-                    break;
+            $user = \Yii::$app->user->identity;
+            if ($user->team) {
+                //团队
+                $this->_condition = ['team_id' => $user->team->id];
+                $tableModel = MaterialTeam::class;
+                $this->_folderModel = FolderMaterialTeam::class;
+            } else {
+                //个人
+                $this->_condition = ['user_id' => \Yii::$app->user->id];
+                $tableModel = MaterialMember::class;
+                $this->_folderModel = FolderMaterialMember::class;
             }
+            if ($this->type == 2) {
+                /** @var MaterialMember|MaterialTeam $this ->_folderModel */
+                $folder = ($this->_folderModel)::find()->where(['id' => $this->folder, 'status' => static::STATUS_NORMAL])->andWhere($this->_condition)->one();
+                if (!$folder) {
+                    $this->addError('folder', '目标文件夹不存在');
+                    $tableModel = false;
+                }
+            }
+            $this->_table = $tableModel;
         }
-        if ($this->_table) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 验证文件夹是否存在
-     * @return bool|FolderMaterialMember|FolderMaterialTeam|null
-     */
-    public function isFolder()
-    {
-        if ($this->method == static::MATERIAL_MEMBER) {
-            $is_folder = FolderMaterialMember::findOne(['id' => $this->folder, 'user_id' => $this->user, 'status' => FolderMaterialMember::NORMAL_STATUS]);
-        } elseif ($this->method == static::MATERIAL_TEAM) {
-            $is_folder = FolderMaterialTeam::findOne(['id' => $this->folder, 'team_id' => $this->team_id, 'status' => FolderMaterialTeam::NORMAL_STATUS]);
-        } else {
-            $is_folder = false;
-        }
-        return $is_folder;
+        return $this->_table;
     }
 }

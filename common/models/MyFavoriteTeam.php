@@ -59,7 +59,7 @@ class MyFavoriteTeam extends \yii\db\ActiveRecord
      */
     public function getTemplateOfficials()
     {
-        return $this->hasMany(TemplateOfficial::class, ['template_id' => 'template_id'])
+        return $this->hasOne(TemplateOfficial::class, ['template_id' => 'template_id'])
             ->where(['status' => TemplateOfficial::STATUS_ONLINE]);
     }
     /**

@@ -109,7 +109,7 @@ class MaterialTeam extends \yii\db\ActiveRecord
     public static function findById($id)
     {
         if (Yii::$app->request->isFrontend()) {
-            return static::find()->where(['status' => static::STATUS_NORMAL, 'id' => $id, 'team_id' => \Yii::$app->request->getTeam()])->one();
+            return static::find()->where(['status' => static::STATUS_NORMAL, 'id' => $id])->one();
         } else {
             return static::find()->where(['id' => $id])->one();
         }

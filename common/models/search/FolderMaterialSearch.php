@@ -15,17 +15,9 @@ use common\models\CacheDependency;
 
 class FolderMaterialSearch extends Model
 {
-    /** @var string 个人素材文件夹 */
-    const MATERIAL_FOLDER_MEMBER = 'material_folder_member';
-    /** @var string 团队素材文件夹 */
-    const MATERIAL_FOLDER_TEAM = 'material_folder_team';
-
-
     public $status;
     public $method;
-    public $team_id;
 
-    public $_user;
     private $_cacheKey;
     private $_tableModel;
     private $_condition;
@@ -35,8 +27,6 @@ class FolderMaterialSearch extends Model
     {
         return [
             [['status','team_id'], 'integer'],
-            ['method', 'required'],
-            ['method', 'in', 'range' => [static::MATERIAL_FOLDER_MEMBER, static::MATERIAL_FOLDER_TEAM]],
         ];
     }
 
@@ -46,9 +36,9 @@ class FolderMaterialSearch extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['method','team_id'],
-            static::SCENARIO_BACKEND => ['status', 'method','team_id'],
-            static::SCENARIO_FRONTEND => ['method','team_id']
+            static::SCENARIO_DEFAULT => [],
+            static::SCENARIO_BACKEND => ['status'],
+            static::SCENARIO_FRONTEND => []
         ];
     }
 
@@ -139,18 +129,6 @@ class FolderMaterialSearch extends Model
         }
         return $this->_cacheKey;
     }
-
-    /**
-     * @return int 获取用户id
-     */
-    public function getUser()
-    {
-        if (!$this->_user) {
-            $this->_user = 1; /*\Yii::$app->user->id*/;
-        }
-        return $this->_user;
-    }
-
     /**
      * 删除查询缓存
      * @author thanatos <thanatos915@163.com>
@@ -167,20 +145,13 @@ class FolderMaterialSearch extends Model
     public function getTableModel()
     {
         if ($this->_tableModel === null) {
-            switch ($this->method) {
-                //团队素材文件夹
-                case static::MATERIAL_FOLDER_TEAM:
-                    $this->_tableModel = FolderMaterialTeam::class;
-                    $this->_condition = ['team_id'=>$this->team_id];
-                    break;
-                //个人素材文件夹
-                case static::MATERIAL_FOLDER_MEMBER:
-                    $this->_tableModel = FolderMaterialMember::class;
-                    $this->_condition = ['user_id'=>$this->user];
-                    break;
-                default:
-                    $this->_tableModel = false;
-                    break;
+            $user = \Yii::$app->user->identity;
+            if ($user->team){
+                $this->_tableModel = FolderMaterialTeam::class;
+                $this->_condition = ['team_id'=>$user->team->id];
+            }else{
+                $this->_tableModel = FolderMaterialMember::class;
+                $this->_condition = ['user_id'=>\Yii::$app->user->id];
             }
         }
         return $this->_tableModel;

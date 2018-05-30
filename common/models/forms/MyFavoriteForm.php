@@ -13,14 +13,12 @@ use common\models\MyFavoriteTeam;
 use common\models\TemplateOfficial;
 use yii\base\Model;
 use common\components\traits\ModelErrorTrait;
+use common\components\traits\ModelAttributeTrait;
+
 class MyFavoriteForm extends Model
 {
     use ModelErrorTrait;
-
-    /** @var string 个人收藏 */
-    const FAVORITE_MEMBER = 'favorite_member';
-    /** @var string 团队收藏 */
-    const FAVORITE_TEAM = 'favorite_team';
+    use ModelAttributeTrait;
 
     /** @var int 到回收站状态 */
     const RECYCLE_BIN_STATUS = 7;
@@ -28,22 +26,29 @@ class MyFavoriteForm extends Model
     const DELETE_STATUS = 3;
 
 
-
     public $template_id;
     public $user_id;
     public $team_id;
-    public $method;
+    public $id;
+
+
+    private $_tableModel;
+    private $_condition;
 
     public function rules()
     {
         return [
-            [['template_id'], 'required'],
-            [['template_id','team_id'], 'integer'],
-            ['method','string'],
-            ['method', 'in', 'range' => [static::FAVORITE_MEMBER, static::FAVORITE_TEAM]],
+            [['template_id'], 'required', 'on' =>'create'],
+            [['template_id','id'], 'integer','on'=>['create','delete']],
+            ['id','required','on'=>'delete']
         ];
     }
-
+    public function scenarios(){
+        return [
+            'create' => ['template'],
+            'delete' => ['id'],
+        ];
+    }
     /** 添加收藏
      * @return bool
      * @throws \yii\db\Exception
@@ -53,35 +58,16 @@ class MyFavoriteForm extends Model
         if (!$this->validate()) {
             return false;
         }
-        if (!$this->user) {
-            $this->addError('unlogin', '获取用户信息失败，请登录');
+        if (!$model = $this->tableModel) {
             return false;
         }
-        $template_model = TemplateOfficial::findOne(['template_id' => $this->template_id]);
-        if (!$template_model){
+        $template_model = TemplateOfficial::findOne(['template_id' => $this->template_id, 'status' => TemplateOfficial::STATUS_ONLINE]);
+        if (!$template_model) {
             $this->addError('', '收藏的模板不存在');
             return false;
         }
-        if ($this->method == static::FAVORITE_TEAM){
-            //团队
-            if (MyFavoriteTeam::findOne(['template_id'=>$this->template_id,'team_id'=>$this->team_id])){
-                $this->addError('', '已收藏，不用重复收藏');
-                return false;
-            }
-            $model = new MyFavoriteTeam();
-            $model->team_id = $this->team_id;
-            $model->user_id = $this->user;
-            $model->template_id = $this->template_id;
-        }else{
-            //个人
-            if (MyFavoriteMember::findOne(['template_id'=>$this->template_id,'user_id'=>$this->user])){
-                $this->addError('', '已收藏，不用重复收藏');
-                return false;
-            }
-            $model = new MyFavoriteMember();
-            $model->user_id = $this->user;
-            $model->template_id = $this->template_id;
-        }
+        $model->load($this->getUpdateAttributes(), '');
+        $model->user_id = \Yii::$app->user->id;
         $transaction = \Yii::$app->db->beginTransaction();
         try {
             //保存收藏
@@ -108,25 +94,19 @@ class MyFavoriteForm extends Model
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function deleteMyFavorite($id)
+    public function deleteMyFavorite()
     {
-        if ($this->method == static::FAVORITE_TEAM){
-            //团队
-            $model = MyFavoriteTeam::findOne(['id'=>$id,'team_id'=>$this->team_id]);
-        }else{
-            //个人
-            $model= MyFavoriteMember::findOne(['id'=>$id,'user_id'=>$this->user]);
+        if (!$model = $this->tableModel) {
+            $this->addError('id','该收藏不存在');
+            return false;
         }
-        if (!$model) {
-            $this->addError('id', '该收藏不存在');
-        }
-       // $model->status = static::RECYCLE_BIN_STATUS;
         if ($model->delete()) {
             return true;
         }
         $this->addError('', '删除失败');
         return false;
     }
+
     /**
      * @return int 获取用户信息
      */
@@ -137,5 +117,41 @@ class MyFavoriteForm extends Model
             ;
         }
         return $this->user_id;
+    }
+
+    /**
+     * 获取模型
+     * @return bool|MyFavoriteMember|MyFavoriteTeam
+     */
+    public function getTableModel()
+    {
+        if ($this->_tableModel === null) {
+            $user = \Yii::$app->user->identity;
+            if ($user->team) {
+                //团队
+                $this->team_id = $user->team->id;
+                $tableModel = MyFavoriteTeam::class;
+                $this->_condition = ['team_id' => $user->team->id];
+            } else {
+                //个人
+                $tableModel = MyFavoriteMember::class;
+                $this->_condition = ['user_id' => \Yii::$app->user->id];
+            }
+            /** @var MyFavoriteTeam|MyFavoriteMember $tableModel */
+            if ($this->id) {
+                $tableModel = $tableModel::findOne(array_merge(['id' => $this->id], $this->_condition)) ?: false;
+            } else {
+                $is_favorite = $tableModel::findOne(array_merge(['template_id' => $this->template_id], $this->_condition));
+                if ($is_favorite) {
+                    $this->addError('template', '收藏已存在，无需重复收藏');
+                    $tableModel = false;
+                } else {
+                    $tableModel = new $tableModel;
+                }
+
+            }
+            $this->_tableModel = $tableModel;
+        }
+        return $this->_tableModel;
     }
 }
