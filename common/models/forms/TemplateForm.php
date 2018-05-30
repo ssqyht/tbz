@@ -50,6 +50,7 @@ class TemplateForm extends Model
     {
         return [
             [['cooperation_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite', 'sort', 'is_diy', 'edit_from', 'is_team','folder_id','team_id'], 'default', 'value' => 0],
+            [['template_id'], 'integer'],
             [['method', 'product', 'title'], 'required'],
             [['content'], 'default', 'value' => ''],
             ['method', 'default', 'value' => static::METHOD_SAVE_MEMBER],

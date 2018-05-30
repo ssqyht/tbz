@@ -7,8 +7,8 @@
  */
 namespace common\models\forms;
 
+use common\components\traits\ModelAttribute;
 use common\models\FileUsedRecord;
-use common\models\Member;
 use Yii;
 use common\models\MaterialMember;
 use common\components\traits\ModelErrorTrait;
@@ -25,14 +25,12 @@ use yii\helpers\Json;
 class MaterialForm extends \yii\base\Model
 {
     use ModelErrorTrait;
+    use ModelAttribute;
+
     /** @var string 个人素材 */
     const MATERIAL_MEMBER = 'material_member';
     /** @var string 团队素材 */
     const MATERIAL_TEAM = 'material_team';
-
-    const SCENARIO_SAVE = 'save';
-    const SCENARIO_CREATE = 'create';
-    const SCENARIO_DELETE = 'delete';
 
     /** @var int 到回收站状态 */
     const RECYCLE_BIN_STATUS = 7;
@@ -53,26 +51,16 @@ class MaterialForm extends \yii\base\Model
     {
         return [
             [['thumbnail', 'file_id'], 'required', 'when' => function($model){
-                return $model->id > 0;
+                return empty($model->id);
             }],
             [['folder_id', 'file_id', 'team_id', 'id'], 'integer'],
             [['file_name', 'thumbnail'], 'string', 'max' => 255],
-            [['folder_id'],'default','value'=>0],
             ['id', function(){
                 if (empty($this->activeModel)) {
                     $this->addError('id', '请求资源不存在');
                 }
             }]
         ];
-    }
-
-    public function scenarios()
-    {
-        $scenario = parent::scenarios();
-        $data = [
-            static::SCENARIO_CREATE => ['thumbnail', 'file_id'],
-        ];
-
     }
 
     /**
@@ -87,8 +75,9 @@ class MaterialForm extends \yii\base\Model
         if (!$this->validate()) {
             return false;
         }
+
         $model = $this->activeModel;
-        $model->load($this->getAttributes($this->safeAttributes()), '');
+        $model->load($this->getUpdateAttributes(), '');
         // 验证数据
         if (!$model->validate())
             return false;

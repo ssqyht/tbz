@@ -7,6 +7,7 @@ namespace api\common\controllers;
 
 
 use common\models\forms\FileUpload;
+use common\models\forms\MaterialForm;
 use Yii;
 use common\components\vendor\RestController;
 use yii\web\BadRequestHttpException;
@@ -75,10 +76,11 @@ class MainController extends RestController
      */
     public function actionIndex()
     {
-        $model = new FileUpload(['scenario' => FileUpload::SCENARIO_FRONTEND]);
-        $data = json_decode(file_get_contents('1.txt'), true);
-        var_dump($model->submit($data));
-        var_dump($model->getErrors());exit;
+        $model = new MaterialForm();
+        $model->submit([
+            'id' => 1,
+            'file_name' => 'test'
+        ]);
     }
 
 }
