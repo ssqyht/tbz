@@ -11,7 +11,7 @@ use Firebase\JWT\JWT;
 use Yii;
 use yii\helpers\Url;
 use yii\web\IdentityInterface;
-
+use yii\web\NotFoundHttpException;
 /**
  * 用户类
  * @SWG\Definition(type="object", @SWG\Xml(name="Member"))
@@ -262,14 +262,20 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
         }
     }
 
+    /**
+     * @return array|Team|false|null|\yii\db\ActiveRecord
+     * @throws NotFoundHttpException
+     */
     public function getTeam()
     {
         if ($this->_team === null) {
             $team_id = Yii::$app->request->headers->get('Team');
-            if ($team_id > 0 && $team = Team::findByIdFromMember($team_id))
+            if (!empty($team_id))
+            if ($team_id >0 && $team = Team::findByIdFromMember($team_id))
                 $this->_team = $team;
             else
-                $this->_team = false;
+                throw new NotFoundHttpException('获取团队信息失败',123);
+            else $this->_team = false;
         }
         return $this->_team;
     }
