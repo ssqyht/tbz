@@ -67,7 +67,7 @@ class TemplateForm extends Model
 
     public function validateTemplateId()
     {
-        if ($this->templateModel) {
+        if (empty($this->templateModel)) {
             $this->addError('template_id', Code::SOURCE_NOT_FOUND);
         }
     }

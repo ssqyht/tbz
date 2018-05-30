@@ -83,7 +83,6 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             ['status', 'default', 'value' => static::STATUS_EDITING],
             [['cooperation_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite'], 'default', 'value' => 0],
             [['sort', 'status', 'classify_id'], 'filter', 'filter' => 'intval'],
-            [['user_id', 'cooperation_id', 'created_at', 'updated_at', 'content'], 'required'],
             [['user_id', 'cooperation_id', 'classify_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort', 'status'], 'integer'],
             [['content'], 'string'],
             [['title'], 'string', 'max' => 50],
