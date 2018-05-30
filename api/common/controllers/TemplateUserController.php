@@ -92,9 +92,9 @@ class TemplateUserController extends BaseController
      */
     public function actionIndex()
     {
-        if ($team_id = \Yii::$app->request->getTeam()){
+        if ($team = \Yii::$app->user->identity->team){
             //团队
-            $method = ['method' => TemplateUserSearch::TEMPLATE_TEAM,'team_id'=>$team_id];
+            $method = ['method' => TemplateUserSearch::TEMPLATE_TEAM,'team_id'=>$team->id];
         }else{
             //个人
             $method = ['method' => TemplateUserSearch::TEMPLATE_MEMBER];
@@ -165,9 +165,9 @@ class TemplateUserController extends BaseController
      * @throws NotFoundHttpException
      */
     public function actionView($id){
-        if ($team_id = \Yii::$app->request->getTeam()){
+        if ($team = \Yii::$app->user->identity->team){
             //团队
-          $result = TemplateTeam::findById($id,$team_id);
+          $result = TemplateTeam::findById($id,$team->id);
         }else{
             //个人
             $result = TemplateMember::findById($id);
@@ -420,9 +420,9 @@ class TemplateUserController extends BaseController
     public function actionTemplateOperation()
     {
         $model = new TemplateOperationForm();
-        if ($team_id = \Yii::$app->request->getTeam()){
+        if ($team = \Yii::$app->user->identity->team){
             //团队
-            $method = ['method' => TemplateOperationForm::TEMPLATE_TEAM,'team_id'=>$team_id];
+            $method = ['method' => TemplateOperationForm::TEMPLATE_TEAM,'team_id'=>$team->id];
         }else{
             //个人
             $method = ['method' => TemplateOperationForm::TEMPLATE_MEMBER];

@@ -8,6 +8,7 @@
 
 namespace common\models\search;
 
+use common\models\MyFavoriteMember;
 use common\models\TemplateMember;
 use common\components\vendor\Model;
 use common\models\TemplateTeam;
@@ -90,7 +91,8 @@ class TemplateUserSearch extends Model
             $this->query->andWhere(['team_id' => $this->team_id]);
         } else {
             //个人模板查询
-            $this->query->andWhere(['user_id' => $this->user]);
+            $my = MyFavoriteMember::find()->select('template_id')->where(['user_id'=>$this->user]);
+            $this->query->andWhere(['or',['user_id' => $this->user],['template_id' => $my]]);
         }
 
         //按默认文件夹查询

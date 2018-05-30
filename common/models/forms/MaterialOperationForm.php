@@ -5,6 +5,7 @@
  * Date: 2018/5/22
  * Time: 9:34
  */
+
 namespace common\models\forms;
 
 use common\components\traits\ModelErrorTrait;
@@ -12,7 +13,7 @@ use common\models\FolderMaterialMember;
 use common\models\FolderMaterialTeam;
 use common\models\MaterialMember;
 use common\models\MaterialTeam;
-use common\models\TeamMember;
+
 class MaterialOperationForm extends \yii\base\Model
 {
     use ModelErrorTrait;
@@ -60,7 +61,7 @@ class MaterialOperationForm extends \yii\base\Model
             [['ids', 'type', 'method'], 'required'],
             [['folder', 'team_id'], 'integer'],
             ['name', 'string'],
-            ['method', 'in', 'range' => [static::MATERIAL_MEMBER,static::MATERIAL_TEAM]],
+            ['method', 'in', 'range' => [static::MATERIAL_MEMBER, static::MATERIAL_TEAM]],
         ];
     }
 
@@ -156,6 +157,7 @@ class MaterialOperationForm extends \yii\base\Model
     {
         return $this->batchProcessing('status', static::STATUS_NORMAL);
     }
+
     /**
      * @return bool
      * @throws \yii\db\Exception
@@ -163,7 +165,7 @@ class MaterialOperationForm extends \yii\base\Model
     public function batchProcessing($key, $value)
     {
         if ($this->table) {
-            $result = \Yii::$app->db->createCommand()->update($this->_table, [$key => $value],$this->_condition)
+            $result = \Yii::$app->db->createCommand()->update($this->_table, [$key => $value], $this->_condition)
                 ->execute();
             if ($result) {
                 //更新缓存
@@ -188,7 +190,7 @@ class MaterialOperationForm extends \yii\base\Model
     }
 
     /**
-     * 根据不同场景获取不同的文件名
+     * 获取model
      * @return array|bool
      */
     public function getTable()
@@ -198,18 +200,14 @@ class MaterialOperationForm extends \yii\base\Model
                 case static::MATERIAL_MEMBER:
                     //个人素材
                     $this->_table = MaterialMember::tableName();
-                    $this->_condition = ['id'=>$this->ids,'user_id'=>$this->user];
+                    $this->_condition = ['id' => $this->ids, 'user_id' => $this->user];
                     $this->_tableModel = MaterialMember::class;
                     break;
                 case static::MATERIAL_TEAM:
                     //团队素材
-                    if (!$this->isTeamMember()){
-                        $this->_table = false;
-                    }else{
-                        $this->_table = MaterialTeam::tableName();
-                        $this->_condition = ['id'=>$this->ids,'team_id'=>$this->team_id];
-                        $this->_tableModel = MaterialTeam::class;
-                    }
+                    $this->_table = MaterialTeam::tableName();
+                    $this->_condition = ['id' => $this->ids, 'team_id' => $this->team_id];
+                    $this->_tableModel = MaterialTeam::class;
                     break;
                 default:
                     $this->_table = false;
@@ -236,17 +234,5 @@ class MaterialOperationForm extends \yii\base\Model
             $is_folder = false;
         }
         return $is_folder;
-    }
-    /**
-     * 验证当前用户是否是所要操作的团队成员
-     * @return bool
-     */
-    public function isTeamMember(){
-        $current_role = TeamMember::findOne(['user_id' => $this->user,'team_id'=>$this->team_id,'status'=>TeamMember::NORMAL_STATUS]);
-        if (!$current_role) {
-            $this->addError('','当前用户不属于所要操作的团队');
-            return false;
-        }
-        return true;
     }
 }

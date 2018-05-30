@@ -96,9 +96,9 @@ class MaterialController extends BaseController
     public function actionIndex()
     {
         $model = new MaterialSearch();
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
+            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
@@ -167,7 +167,7 @@ class MaterialController extends BaseController
      * @throws NotFoundHttpException
      */
     public function actionView($id){
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
             $result = MaterialTeam::findById($id);
         } else {
@@ -265,9 +265,9 @@ class MaterialController extends BaseController
      */
     public function actionCreate()
     {
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => MaterialForm::MATERIAL_TEAM, 'team_id' => $team_id];
+            $method = ['method' => MaterialForm::MATERIAL_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => MaterialForm::MATERIAL_MEMBER];
@@ -375,9 +375,9 @@ class MaterialController extends BaseController
      */
     public function actionUpdate($id)
     {
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => MaterialForm::MATERIAL_TEAM, 'team_id' => $team_id];
+            $method = ['method' => MaterialForm::MATERIAL_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => MaterialForm::MATERIAL_MEMBER];
@@ -441,9 +441,9 @@ class MaterialController extends BaseController
      */
     public function actionDelete($id)
     {
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team_id];
+            $method = ['method' => MaterialSearch::MATERIAL_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => MaterialSearch::MATERIAL_MEMBER];
@@ -526,9 +526,9 @@ class MaterialController extends BaseController
      */
     public function actionMaterialOperation()
     {
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => MaterialOperationForm::MATERIAL_TEAM, 'team_id' => $team_id];
+            $method = ['method' => MaterialOperationForm::MATERIAL_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => MaterialOperationForm::MATERIAL_MEMBER];

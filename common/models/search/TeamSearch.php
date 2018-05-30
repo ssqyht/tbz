@@ -72,15 +72,13 @@ class TeamSearch extends Model
             $this->addError('', '团队标识team_id不能为空');
             return false;
         }
-        if (!$this->isTeamMember()){
-            $this->addError('', '该团队不包含此成员');
-            return false;
-        }
         $team_data = Team::find()
             ->where(['id' => $this->team_id, 'status' => Team::NORMAL_STATUS])
-            ->with(['members' => function($query) {
+            ->with(['members' => function ($query) {
                 /** @var $query ActiveQuery */
-                $query->with('memberMark');
+                $query->with('memberMark')
+                    ->where(['status' => TeamMember::NORMAL_STATUS])
+                    ->orderBy(['role' => SORT_ASC]);
             }]);
         try {
             $result = \Yii::$app->dataCache->cache(function () use ($team_data) {
@@ -94,11 +92,11 @@ class TeamSearch extends Model
     }
 
 
-
     public function searchBackend()
     {
         return false;
     }
+
     /**
      * 查询缓存Key
      * @return array|null
@@ -117,13 +115,15 @@ class TeamSearch extends Model
         }
         return $this->_cacheKey;
     }
+
     /**
      * 获取用户id
      */
     public function getUser()
     {
         if (!$this->user_id) {
-            $this->user_id = 1 /*\Yii::$app->user->id*/;
+            $this->user_id = 1 /*\Yii::$app->user->id*/
+            ;
         }
         return $this->user_id;
     }
@@ -135,18 +135,5 @@ class TeamSearch extends Model
     public function removeCache()
     {
         \Yii::$app->cache->delete($this->cacheKey);
-    }
-
-    /**
-     * 判断是否是此团队的成员
-     * @return bool
-     */
-    public function isTeamMember()
-    {
-        $result = TeamMember::online()->andWhere(['user_id' => $this->user,'team_id'=>$this->team_id])->one();
-        if ($result){
-            return true;
-        }
-        return false;
     }
 }

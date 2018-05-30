@@ -73,9 +73,9 @@ class FolderMaterialController extends BaseController
      */
     public function actionIndex()
     {
-        if ($team_id = \Yii::$app->request->getTeam()){
+        if ($team = \Yii::$app->user->identity->team){
             //团队
-            $method = ['method' => FolderMaterialSearch::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
+            $method = ['method' => FolderMaterialSearch::MATERIAL_FOLDER_TEAM,'team_id'=>$team->id];
         }else{
             //个人
             $method = ['method' => FolderMaterialSearch::MATERIAL_FOLDER_MEMBER];
@@ -152,9 +152,9 @@ class FolderMaterialController extends BaseController
      */
     public function actionCreate()
     {
-        if ($team_id = \Yii::$app->request->getTeam()){
+        if ($team = \Yii::$app->user->identity->team){
             //团队
-            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
+            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team->id];
         }else{
             //个人
             $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_MEMBER];
@@ -238,9 +238,9 @@ class FolderMaterialController extends BaseController
      */
     public function actionUpdate($id)
     {
-        if ($team_id = \Yii::$app->request->getTeam()){
+        if ($team = \Yii::$app->user->identity->team){
             //团队
-            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
+            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team->id];
         }else{
             //个人
             $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_MEMBER];
@@ -304,9 +304,9 @@ class FolderMaterialController extends BaseController
      */
     public function actionDelete($id)
     {
-        if ($team_id = \Yii::$app->request->getTeam()){
+        if ($team = \Yii::$app->user->identity->team){
             //团队
-            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team_id];
+            $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_TEAM,'team_id'=>$team->id];
         }else{
             //个人
             $method = ['method' => FolderMaterialForm::MATERIAL_FOLDER_MEMBER];

@@ -81,9 +81,9 @@ class MyFavoriteController extends BaseController
      */
     public function actionIndex()
     {
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => MyFavoriteSearch::FAVORITE_TEAM, 'team_id' => $team_id];
+            $method = ['method' => MyFavoriteSearch::FAVORITE_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => MyFavoriteSearch::FAVORITE_MEMBER];
@@ -148,9 +148,9 @@ class MyFavoriteController extends BaseController
      */
     public function actionCreate()
     {
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => MyFavoriteForm::FAVORITE_TEAM, 'team_id' => $team_id];
+            $method = ['method' => MyFavoriteForm::FAVORITE_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => MyFavoriteForm::FAVORITE_MEMBER];
@@ -220,9 +220,9 @@ class MyFavoriteController extends BaseController
      */
     public function actionDelete($id)
     {
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => MyFavoriteForm::FAVORITE_TEAM, 'team_id' => $team_id];
+            $method = ['method' => MyFavoriteForm::FAVORITE_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => MyFavoriteForm::FAVORITE_MEMBER];

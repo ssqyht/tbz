@@ -11,7 +11,6 @@ namespace common\models\forms;
 use common\components\traits\ModelErrorTrait;
 use common\models\FolderTemplateMember;
 use common\models\FolderTemplateTeam;
-use common\models\TeamMember;
 use common\models\TemplateMember;
 use common\models\TemplateTeam;
 
@@ -204,7 +203,7 @@ class TemplateOperationForm extends \yii\base\Model
         }
         $result = \Yii::$app->db->createCommand()->batchInsert(TemplateTeam::tableName(), ['classify_id', 'open_id', 'user_id', 'team_id', 'folder_id', 'cooperation_id', 'title', 'thumbnail_url', 'thumbnail_id', 'status', 'is_diy', 'edit_from', 'amount_print', 'created_at', 'updated_at'], $data)->execute();//执行批量添加
         //更新缓存
-        \Yii::$app->dataCache->updateCache( TemplateTeam::class);
+        \Yii::$app->dataCache->updateCache(TemplateTeam::class);
         return $result;
     }
 
@@ -250,18 +249,14 @@ class TemplateOperationForm extends \yii\base\Model
                 case static::TEMPLATE_MEMBER:
                     //个人模板
                     $this->_table = TemplateMember::tableName();
-                    $this->_condition = ['template_id'=>$this->ids,'user_id'=>$this->user];
+                    $this->_condition = ['template_id' => $this->ids, 'user_id' => $this->user];
                     $this->_tableModel = TemplateMember::class;
                     break;
                 case static::TEMPLATE_TEAM:
                     //团队模板
-                    if (!$this->isTeamMember()){
-                        $this->_table = false;
-                    }else{
-                        $this->_table = TemplateTeam::tableName();
-                        $this->_condition = ['template_id'=>$this->ids,'team_id'=>$this->team_id];
-                        $this->_tableModel = TemplateTeam::class;
-                    }
+                    $this->_table = TemplateTeam::tableName();
+                    $this->_condition = ['template_id' => $this->ids, 'team_id' => $this->team_id];
+                    $this->_tableModel = TemplateTeam::class;
                     break;
                 default:
                     $this->_table = false;
@@ -288,18 +283,5 @@ class TemplateOperationForm extends \yii\base\Model
             $is_folder = false;
         }
         return $is_folder;
-    }
-
-    /**
-     * 验证当前用户是否是所要操作的团队成员
-     * @return bool
-     */
-    public function isTeamMember(){
-        $current_role = TeamMember::findOne(['user_id' => $this->user,'team_id'=>$this->team_id,'status'=>TeamMember::NORMAL_STATUS]);
-        if (!$current_role) {
-            $this->addError('','当前用户不属于所要操作的团队');
-            return false;
-        }
-        return true;
     }
 }

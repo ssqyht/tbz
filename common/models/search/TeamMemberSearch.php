@@ -68,10 +68,6 @@ class TeamMemberSearch extends Model
             $this->addError('', '团队标识team_id不能为空');
             return false;
         }
-        if (!$this->isTeamMember()){
-            $this->addError('', '该团队不包含此成员');
-            return false;
-        }
         $team_data = TeamMember::find()
             ->where(['team_id' => $this->team_id, 'status' => TeamMember::NORMAL_STATUS])
             ->orderBy(['role'=>SORT_ASC])
@@ -129,18 +125,5 @@ class TeamMemberSearch extends Model
     public function removeCache()
     {
         \Yii::$app->cache->delete($this->cacheKey);
-    }
-
-    /**
-     * 判断是否是此团队的成员
-     * @return bool
-     */
-    public function isTeamMember()
-    {
-        $result = TeamMember::online()->andWhere(['user_id' => $this->user,'team_id'=>$this->team_id])->one();
-        if ($result){
-            return true;
-        }
-        return false;
     }
 }

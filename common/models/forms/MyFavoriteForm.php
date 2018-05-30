@@ -64,11 +64,11 @@ class MyFavoriteForm extends Model
         }
         if ($this->method == static::FAVORITE_TEAM){
             //团队
-            $model = new MyFavoriteTeam();
             if (MyFavoriteTeam::findOne(['template_id'=>$this->template_id,'team_id'=>$this->team_id])){
                 $this->addError('', '已收藏，不用重复收藏');
                 return false;
             }
+            $model = new MyFavoriteTeam();
             $model->team_id = $this->team_id;
             $model->user_id = $this->user;
             $model->template_id = $this->template_id;

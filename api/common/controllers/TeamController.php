@@ -69,8 +69,11 @@ class TeamController extends BaseController
      */
     public function actionIndex()
     {
+        if (!$team = \Yii::$app->user->identity->team){
+            throw new NotFoundHttpException('团队未找到', Code::SOURCE_NOT_FOUND);
+        }
         $model = new TeamSearch();
-        $result = $model->search(['team_id'=>\Yii::$app->request->getTeam()]);
+        $result = $model->search(['team_id'=>$team->id]);
         if ($result) {
             return $result;
         }
@@ -351,9 +354,13 @@ class TeamController extends BaseController
      * )
      * @return bool|\common\models\Team|null
      * @throws BadRequestHttpException
+     * @throws NotFoundHttpException
      */
     public function actionTeamOperation(){
-        $data = ArrayHelper::merge(\Yii::$app->request->post(),['team_id'=>\Yii::$app->request->getTeam()]);
+        if (!$team = \Yii::$app->user->identity->team){
+            throw new NotFoundHttpException('团队未找到', Code::SOURCE_NOT_FOUND);
+        }
+        $data = ArrayHelper::merge(\Yii::$app->request->post(),['team_id'=>$team->id]);
         $model = new TeamForm();
         if ($model->load($data, '') && ($result = $model->operation())) {
             return $result;

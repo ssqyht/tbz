@@ -146,7 +146,24 @@ class TemplateMember extends \yii\db\ActiveRecord
         $data['thumbnailUrl'] = function () {
             return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads' . $this->thumbnail_url;
         };
+        $data['isFavorite'] = function (){
+
+        };
+       /* if ($this->isRelationPopulated('myFavorite')) {
+            $data['isFavorite'] = function () {
+                if ($this->myFavorite){
+                    //有收藏，is_favorite值为1
+                    return 1;
+                }
+                //无收藏is_favorite值为0
+                return 0;
+            };
+        }*/
         return $data;
     }
 
+
+    public function getMyFavorite(){
+        return $this->hasOne(MyFavoriteMember::class, ['template_id' => 'template_id']);
+    }
 }

@@ -75,9 +75,9 @@ class FolderTemplateController extends BaseController
      */
     public function actionIndex()
     {
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_TEAM, 'team_id' => $team_id];
+            $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => FolderTemplateSearch::FOLDER_TEMPLATE_MEMBER];
@@ -154,9 +154,9 @@ class FolderTemplateController extends BaseController
      */
     public function actionCreate()
     {
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team_id];
+            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_MEMBER];
@@ -240,9 +240,9 @@ class FolderTemplateController extends BaseController
      */
     public function actionUpdate($id)
     {
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team_id];
+            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_MEMBER];
@@ -306,9 +306,9 @@ class FolderTemplateController extends BaseController
      */
     public function actionDelete($id)
     {
-        if ($team_id = \Yii::$app->request->getTeam()) {
+        if ($team = \Yii::$app->user->identity->team) {
             //团队
-            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team_id];
+            $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_TEAM, 'team_id' => $team->id];
         } else {
             //个人
             $method = ['method' => FolderTemplateForm::FOLDER_TEMPLATE_MEMBER];

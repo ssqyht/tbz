@@ -48,7 +48,7 @@ class TeamForm extends Model
     public function validateColorsFonts()
     {
         if (!$this->hasErrors()) {
-            if (!is_array($this->colors) && $this->colors) {
+            if ($this->colors && !is_array($this->colors) ) {
                 $this->addError('', '颜色必须是数组');
                 return false;
             }

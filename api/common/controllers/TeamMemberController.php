@@ -67,9 +67,11 @@ class TeamMemberController extends BaseController
      * @throws NotFoundHttpException
      */
     public function actionIndex(){
+        if (!$team = Yii::$app->user->identity->team){
+            throw new NotFoundHttpException('团队未找到', Code::SOURCE_NOT_FOUND);
+        }
         $model = new TeamMemberSearch();
-//        $result = $model->search(['team_id'=>\Yii::$app->request->getTeam()]);
-        $result = $model->search(['team_id'=>Yii::$app->request->getTeam()->id]);
+        $result = $model->search(['team_id'=>$team->id]);
         if ($result) {
             return $result;
         }
@@ -136,10 +138,13 @@ class TeamMemberController extends BaseController
      * )
      * @return bool|\common\models\TeamMember
      * @throws BadRequestHttpException
-     * 添加成员
+     * @throws NotFoundHttpException
      */
     public function actionCreate(){
-        $create_data= ArrayHelper::merge(\Yii::$app->request->post(),['team_id'=>\Yii::$app->request->getTeam()]);
+        if (!$team = Yii::$app->user->identity->team){
+            throw new NotFoundHttpException('团队未找到', Code::SOURCE_NOT_FOUND);
+        }
+        $create_data= ArrayHelper::merge(\Yii::$app->request->post(),['team_id'=>$team->id]);
         $model = new TeamMemberForm();
         if ($model->load($create_data, '') && ($result = $model->addMember())) {
             return $result;
@@ -206,12 +211,16 @@ class TeamMemberController extends BaseController
      *          ref="$/responses/Error",
      *     ),
      * )
+     * @param $id
      * @return bool|\common\models\TeamMember|null
      * @throws BadRequestHttpException
-     * 修改成员信息
+     * @throws NotFoundHttpException
      */
     public function actionUpdate($id){
-        $update_data = ArrayHelper::merge(\Yii::$app->request->post(),['team_id'=>\Yii::$app->request->getTeam(),'member_id'=>$id]);
+        if (!$team = Yii::$app->user->identity->team){
+            throw new NotFoundHttpException('团队未找到', Code::SOURCE_NOT_FOUND);
+        }
+        $update_data = ArrayHelper::merge(\Yii::$app->request->post(),['team_id'=>$team->id,'member_id'=>$id]);
         $model = new TeamMemberForm();
         if ($model->load($update_data, '') && ($result = $model->updateMember())) {
             return $result;
@@ -269,8 +278,11 @@ class TeamMemberController extends BaseController
      * 删除成员
      */
     public function actionDelete($id){
+        if (!$team = Yii::$app->user->identity->team){
+            throw new NotFoundHttpException('团队未找到', Code::SOURCE_NOT_FOUND);
+        }
         $model = new TeamMemberForm();
-        $data = ['team_id'=>\Yii::$app->request->getTeam(),'member_id'=>$id];
+        $data = ['team_id'=>$team->id,'member_id'=>$id];
         if ($model->load($data, '') && $model->deleteMember()) {
             return '';
         }

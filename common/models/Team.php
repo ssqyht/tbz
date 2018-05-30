@@ -103,12 +103,15 @@ class Team extends \yii\db\ActiveRecord
      */
     public static function findByIdFromMember($id)
     {
-        return static::online()
-            ->andWhere(['id' => $id])
-            ->joinWith(['members' => function($query){
+        return static::find()
+            ->alias('t')
+            ->andWhere(['t.id' => $id,'t.status'=>static::NORMAL_STATUS])
+            ->joinWith(['members m' => function($query){
                 /** @var $query ActiveQuery */
-                $query->andWhere(['user_id' => Yii::$app->user->id]);
-            }])->one();
+                $query->andWhere(['m.user_id' => Yii::$app->user->id]);
+            }])
+            ->andWhere(['m.status'=>TeamMember::NORMAL_STATUS])
+            ->one();
     }
 
     /**
@@ -147,9 +150,7 @@ class Team extends \yii\db\ActiveRecord
      */
     public function getMembers()
     {
-        return $this->hasMany(TeamMember::class, ['team_id' => 'id'])
-            ->where(['status' => TeamMember::NORMAL_STATUS])
-            ->orderBy(['role' => SORT_ASC]);
+        return $this->hasMany(TeamMember::class, ['team_id' => 'id']);
     }
     /**
      * @param bool $insert
