@@ -233,7 +233,6 @@ class TemplateOfficialController extends RestController
 
     /**
      * 新增模板
-     *
      * @SWG\POST(
      *     path="/template-official",
      *     operationId="createTemplateOfficial",
@@ -291,7 +290,6 @@ class TemplateOfficialController extends RestController
 
         return $result;
     }
-
 
     /**
      * 保存官方模板

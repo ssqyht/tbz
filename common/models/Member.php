@@ -7,9 +7,11 @@ use common\components\traits\ModelFieldsTrait;
 use common\components\traits\TimestampTrait;
 use common\components\validators\MobileValidator;
 use common\components\vendor\RestController;
+use common\extension\Code;
 use Firebase\JWT\JWT;
 use Yii;
 use yii\helpers\Url;
+use yii\web\BadRequestHttpException;
 use yii\web\IdentityInterface;
 use yii\web\NotFoundHttpException;
 /**
@@ -263,19 +265,22 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @return array|Team|false|null|\yii\db\ActiveRecord
-     * @throws NotFoundHttpException
+     * @return array|bool|Team|false|null|\yii\db\ActiveRecord
+     * @throws BadRequestHttpException
+     * @author thanatos <thanatos915@163.com>
      */
     public function getTeam()
     {
         if ($this->_team === null) {
             $team_id = Yii::$app->request->headers->get('Team');
-            if (!empty($team_id))
-            if ($team_id >0 && $team = Team::findByIdFromMember($team_id))
-                $this->_team = $team;
-            else
-                throw new NotFoundHttpException('获取团队信息失败',123);
-            else $this->_team = false;
+            if (!empty($team_id)) {
+                if ($team_id >0 && $team = Team::findByIdFromMember($team_id))
+                    $this->_team = $team;
+                else
+                    throw new BadRequestHttpException('系统错误', Code::SERVER_FAILED);
+            } else {
+              $this->_team = false;
+            }
         }
         return $this->_team;
     }

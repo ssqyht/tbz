@@ -7,7 +7,7 @@
  */
 namespace common\models\forms;
 
-use common\components\traits\ModelAttribute;
+use common\components\traits\ModelAttributeTrait;
 use common\models\FileUsedRecord;
 use Yii;
 use common\models\MaterialMember;
@@ -25,7 +25,7 @@ use yii\helpers\Json;
 class MaterialForm extends \yii\base\Model
 {
     use ModelErrorTrait;
-    use ModelAttribute;
+    use ModelAttributeTrait;
 
     /** @var string 个人素材 */
     const MATERIAL_MEMBER = 'material_member';

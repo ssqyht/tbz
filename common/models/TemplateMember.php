@@ -88,7 +88,7 @@ class TemplateMember extends \yii\db\ActiveRecord
 
     public function frontendFields()
     {
-        return ['template_id', 'open_id','folder_id', 'title','classify_id', 'thumbnail_url','thumbnail_id','status','is_diy','edit_from','amount_print'];
+        return ['template_id', 'user_id', 'open_id','folder_id', 'title', 'classify_id', 'thumbnail_url','thumbnail_id','status','is_diy','edit_from','amount_print'];
     }
 
     /**
@@ -143,9 +143,10 @@ class TemplateMember extends \yii\db\ActiveRecord
      */
     public function extraFields()
     {
-        $data['thumbnailUrl'] = function () {
-            return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads' . $this->thumbnail_url;
-        };
+        if ($this->thumbnail_url)
+            $data['thumbnailUrl'] = function () {
+                return Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url;
+            };
         $data['isFavorite'] = function (){
 
         };

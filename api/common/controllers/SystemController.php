@@ -20,6 +20,23 @@ class SystemController extends RestController
 
     /**
      * 获取Oss上传的JSSDK签名
+     * @SWG\Get(
+     *     path="/system/oss-policy",
+     *     operationId="getOssPolicy",
+     *     tags={"公共接口"},
+     *     summary="获取Oss上传的JSSDK签名",
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *     ),
+     * )
      * @author thanatos <thanatos915@163.com>
      */
     public function actionOssPolicy()

@@ -128,13 +128,13 @@ class RegisterForm extends Model
 
             // 添加文件使用日志
             $usedModel = new FileUsedRecord(['scenario' => FileUsedRecord::SCENARIO_CREATE]);
-            $usedModel->load([
+            $data = [
                 'user_id' => $member->id,
                 'file_id' => $member->headimg_id,
                 'purpose' => FileUsedRecord::PURPOSE_HEADIMG,
                 'purpose_id' => $member->id,
-            ], '');
-            if (!$usedModel->submit()) {
+            ];
+            if (!$usedModel->submit($data)) {
                 throw new Exception(json_encode($usedModel->getFirstErrors()));
             }
 

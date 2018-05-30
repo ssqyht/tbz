@@ -6,7 +6,7 @@
 namespace common\components\traits;
 
 
-trait ModelAttribute
+trait ModelAttributeTrait
 {
 
     /**

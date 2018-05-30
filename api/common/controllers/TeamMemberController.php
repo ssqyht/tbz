@@ -227,6 +227,7 @@ class TeamMemberController extends BaseController
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }
+    
     /**
      * @SWG\Delete(
      *     path="/team-member/{id}",

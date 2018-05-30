@@ -5,6 +5,7 @@
 
 namespace common\models\forms;
 
+use common\components\traits\ModelAttributeTrait;
 use common\components\vendor\Model;
 use Yii;
 use common\components\traits\ModelErrorTrait;
@@ -23,6 +24,7 @@ use yii\helpers\Json;
 class TemplateForm extends Model
 {
     use ModelErrorTrait;
+    use ModelAttributeTrait;
 
     /** @var string 官方模板保存 */
     const METHOD_SAVE_OFFICIAL = 'official';
@@ -32,7 +34,7 @@ class TemplateForm extends Model
     /** @var string 保存方式 (用户还是官方) */
     public $method;
     public $template_id;
-    public $product;
+    public $classify_id;
     public $title;
     public $price;
     public $virtual_edit;
@@ -51,13 +53,23 @@ class TemplateForm extends Model
         return [
             [['cooperation_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite', 'sort', 'is_diy', 'edit_from', 'is_team','folder_id','team_id'], 'default', 'value' => 0],
             [['template_id'], 'integer'],
-            [['method', 'product', 'title'], 'required'],
+            ['template_id', 'validateTemplateId'],
+            // 后台保存验证标题和分类
+            [['title', 'classify_id'], 'required', 'on' => static::SCENARIO_BACKEND],
+            [['method'], 'required'],
             [['content'], 'default', 'value' => ''],
             ['method', 'default', 'value' => static::METHOD_SAVE_MEMBER],
             [['virtual_edit', 'virtual_view', 'virtual_favorite', 'sort'], 'integer'],
             ['method', 'in', 'range' => [static::METHOD_SAVE_MEMBER, static::METHOD_SAVE_OFFICIAL]],
             ['content', 'validateContent']
         ];
+    }
+
+    public function validateTemplateId()
+    {
+        if ($this->templateModel) {
+            $this->addError('template_id', Code::SOURCE_NOT_FOUND);
+        }
     }
 
     /**
@@ -78,7 +90,7 @@ class TemplateForm extends Model
     {
         return [
             static::SCENARIO_FRONTEND => ['title', 'is_diy', 'edit_from', 'content', 'method', 'template_id','folder_id','team_id'],
-            static::SCENARIO_BACKEND => ['method', 'product', 'title', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite', 'sort', 'template_id','folder_id','team_id'],
+            static::SCENARIO_BACKEND => ['method', 'title', 'classify_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite', 'sort', 'template_id','folder_id','team_id'],
         ];
     }
 
@@ -91,8 +103,7 @@ class TemplateForm extends Model
         }
 
         // 保存模板数据
-        $data = ArrayHelper::merge($this->getAttributes($this->safeAttributes()), ['user_id' => Yii::$app->user->id]);
-        $data['user_id'] = 1;
+        $data = ArrayHelper::merge($this->getUpdateAttributes(), ['user_id' => Yii::$app->user->id]);
         $this->templateModel->load($data, '');
        if (!$this->templateModel->save()) {
             $this->addErrors($this->templateModel->getErrors());
@@ -110,17 +121,24 @@ class TemplateForm extends Model
     public function getTemplateModel()
     {
         if ($this->_templateModel === null) {
+            /** @var TemplateMember|TemplateOfficial $modelClass */
+            $modelClass = '';
             switch ($this->method) {
                 case static::METHOD_SAVE_OFFICIAL:
-                    $model = TemplateOfficial::class;
+                    $modelClass = TemplateOfficial::class;
                     break;
                 case static::METHOD_SAVE_MEMBER:
-                    $model = TemplateMember::class;
+                    $modelClass = TemplateMember::class;
                     break;
                 default:
                     $model = '';
             }
-            $this->_templateModel = $model ? ($this->template_id ? $model::findById(['template_id' => $this->template_id]) : new $model) : false;
+            if ($this->template_id) {
+                $model = $modelClass::findById($this->template_id);
+            } else {
+                $model = new $modelClass;
+            }
+            $this->_templateModel = $model ?: false;
         }
         return $this->_templateModel;
     }

@@ -6,7 +6,7 @@
 namespace api\modules\v1\controllers;
 
 
-class TemplateUserController extends \api\common\controllers\TemplateUserController
+class TemplateMemberController extends \api\common\controllers\TemplateMemberController
 {
 
 }
