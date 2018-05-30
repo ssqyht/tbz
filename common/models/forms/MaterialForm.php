@@ -30,6 +30,10 @@ class MaterialForm extends \yii\base\Model
     /** @var string 团队素材 */
     const MATERIAL_TEAM = 'material_team';
 
+    const SCENARIO_SAVE = 'save';
+    const SCENARIO_CREATE = 'create';
+    const SCENARIO_DELETE = 'delete';
+
     /** @var int 到回收站状态 */
     const RECYCLE_BIN_STATUS = 7;
 
@@ -48,7 +52,9 @@ class MaterialForm extends \yii\base\Model
     public function rules()
     {
         return [
-            [['thumbnail', 'file_id'], 'required'],
+            [['thumbnail', 'file_id'], 'required', 'when' => function($model){
+                return $model->id > 0;
+            }],
             [['folder_id', 'file_id', 'team_id', 'id'], 'integer'],
             [['file_name', 'thumbnail'], 'string', 'max' => 255],
             [['folder_id'],'default','value'=>0],
@@ -58,6 +64,15 @@ class MaterialForm extends \yii\base\Model
                 }
             }]
         ];
+    }
+
+    public function scenarios()
+    {
+        $scenario = parent::scenarios();
+        $data = [
+            static::SCENARIO_CREATE => ['thumbnail', 'file_id'],
+        ];
+
     }
 
     /**
@@ -73,7 +88,7 @@ class MaterialForm extends \yii\base\Model
             return false;
         }
         $model = $this->activeModel;
-        $model->load($this->attributes, '');
+        $model->load($this->getAttributes($this->safeAttributes()), '');
         // 验证数据
         if (!$model->validate())
             return false;

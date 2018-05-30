@@ -295,7 +295,7 @@ class TemplateOfficialController extends RestController
 
     /**
      * 保存官方模板
-     * @SWG\POST(
+     * @SWG\PUT(
      *     path="/template-official/{templateId}",
      *     operationId="updateTemplateOfficial",
      *     schemes={"http"},

@@ -152,123 +152,6 @@ class FileUpload extends Model
     }
 
     /**
-     * 提交图片信息
-     * @param $params
-     * @return bool|FileCommon|null
-     * @author thanatos <thanatos915@163.com>
-     */
-    /*
-    public function submit($params)
-    {
-        $this->load($params, '');
-        if (!$this->validate()) {
-            return false;
-        }
-
-        // 新的文件名
-        $filename = '';
-        // 原始的文件名
-        $oldPath = '';
-        // 根据不同的场景初始化变量
-        switch ($this->scenario) {
-            case static::SCENARIO_INTERNAL_REPLACE:
-                $filename = $this->replace;
-                $oldPath = $this->file_url;
-                break;
-
-            case static::SCENARIO_INTERNAL:
-                $filename = $this->generateFileName();
-                $oldPath = $this->file_url;
-                break;
-
-            case static::SCENARIO_FRONTEND:
-                // 检查文件唯一性
-                if ($file = FileCommon::findByEtag($this->etag)) {
-                    // 删除图片
-                    $this->rollbackFile($this->filename);
-                    return $file;
-                }
-                $filename = $this->generateFileName();
-                $oldPath = Url::to('@ossInternal') . DIRECTORY_SEPARATOR .  $this->filename;
-                break;
-        }
-        $fullFilename = UPLOAD_BASE_DIR . DIRECTORY_SEPARATOR . $filename;
-        $width = $height = 0;
-        if ($this->fileData->extType == FileCommon::EXT_SVG) {
-            // SVG 替换后上传
-            $content = static::repairSvgTag($this->fileData->content);
-            $result = Yii::$app->oss->putObject($fullFilename, $content);
-            list('height' => $height, 'width' => $width) = $this->fileData->getSvgSize();
-        } else {
-            // 其他文件直接上传
-            $result = Yii::$app->oss->putObjectOrigin($fullFilename, $oldPath);
-            // 设置图片的宽高信息
-            if ($this->scenario == static::SCENARIO_FRONTEND) {
-                $width = $this->width;
-                $height = $this->height;
-            } else {
-                list('height' => $height, 'width' => $width) = Yii::$app->oss->getObjectSize($fullFilename);
-            }
-        }
-
-        if (empty($result)) {
-            $this->addError('url', Code::SERVER_FAILED);
-            return false;
-        }
-
-        if ($this->scenario == static::SCENARIO_FRONTEND || $this->scenario == static::SCENARIO_INTERNAL_REPLACE) {
-            $this->rollbackFile($oldPath);
-        }
-
-        if ($this->scenario == static::SCENARIO_INTERNAL_REPLACE || $this->scenario == static::SCENARIO_INTERNAL) {
-            // 检查文件唯一性
-            if ($file = FileCommon::findByEtag($result->etag)) {
-                // 删除图片
-                $this->rollbackFile($fullFilename);
-                return $file;
-            }
-        }
-        // 文件信息
-        $params = [
-            'etag' => $result->etag,
-            'path' => $filename,
-            'size' => $result->size_upload,
-            'type' => $this->fileData->extType,
-            'width' => $width,
-            'height' => $height,
-        ];
-
-        // 添加记录
-        $model = new FileCommon();
-        if (!($fileModel = $model->create($params))) {
-            $this->addErrors($model->getErrors());
-            $this->rollbackFile($fullFilename);
-            return false;
-        }
-
-        // 前端上传的话处理后续步骤
-        if ($this->scenario == static::SCENARIO_FRONTEND) {
-            switch ($this->method) {
-                case static::METHOD_MEMBER_MATERIAL:
-                    $model = new MaterialForm();
-                    if ($result = $model->submit([
-                        'file_id' => $fileModel->file_id,
-                        'thumbnail' => $fileModel->path,
-                        'folder_id' => $this->folder_id,
-                    ])) {
-                        return $result;
-                    } else {
-                        $this->addErrors($model->getErrors());
-                        return false;
-                    }
-            }
-        }
-
-        return $fileModel;
-    }
-    */
-
-    /**
      * 上传文件
      * @param $params
      * @return bool|FileCommon|null
@@ -294,6 +177,11 @@ class FileUpload extends Model
 
     }
 
+    /**
+     *  系统自动上传处理
+     * @return bool|FileCommon|null
+     * @author thanatos <thanatos915@163.com>
+     */
     private function uploadInternal()
     {
         $filename = $this->generateFileName();
@@ -350,6 +238,11 @@ class FileUpload extends Model
 
     }
 
+    /**
+     * 前台上传文件处理
+     * @return bool|FileCommon|\common\models\MaterialMember|\common\models\MaterialTeam|null
+     * @author thanatos <thanatos915@163.com>
+     */
     private function uploadFrontend()
     {
         // 把文件信息写入fileData里
