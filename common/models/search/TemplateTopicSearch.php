@@ -15,7 +15,14 @@ use common\models\TemplateTopic;
 use yii\data\ActiveDataProvider;
 use common\components\traits\ModelErrorTrait;
 use common\models\CacheDependency;
+use yii\db\ActiveQuery;
 
+/**
+ * Class TemplateTopicSearch
+ * @property ActiveQuery $query
+ * @package common\models\search
+ * @author thanatos <thanatos915@163.com>
+ */
 class TemplateTopicSearch extends Model
 {
     use ModelErrorTrait;
@@ -32,7 +39,8 @@ class TemplateTopicSearch extends Model
     public function rules()
     {
         return [
-            [['status', 'classify_id', 'sort', 'price', 'topic_id'], 'integer'],
+            ['topic_id', 'string'],
+            [['status', 'classify_id', 'sort', 'price'], 'integer'],
             ['topic_id', 'required']
         ];
     }
@@ -96,9 +104,9 @@ class TemplateTopicSearch extends Model
             $result = \Yii::$app->dataCache->cache(function () use ($provider) {
                 $provider_model = $provider->getModels();
                 $result = [];
-                foreach ($provider_model as $key=>$value){
-                    if ($value->templates){
-                        $result[] = $value->templates;
+                foreach ($provider_model as $key => $value) {
+                    if ($value->templates) {
+                        $result = $value->templates;
                     }
                 }
                 return $result;
@@ -115,8 +123,8 @@ class TemplateTopicSearch extends Model
     public function searchBackend()
     {
         /** 后台按状态查询 */
-        if ($this->status){
-            $query = $this->query->andWhere(['status'=>$this->status]);
+        if ($this->status) {
+            $query = $this->query->andWhere(['status' => $this->status]);
         }
         $provider = new ActiveDataProvider([
             'query' => $query,
@@ -165,7 +173,7 @@ class TemplateTopicSearch extends Model
     {
         if ($this->_query === null) {
             $query = TbzSubject::find()
-                ->where(['id'=>$this->topic_id])
+                ->where(['product' => $this->topic_id])
                 ->with(['templates' => function ($query) {
                     //按小分类查询
                     if ($this->classify_id) {
@@ -177,8 +185,8 @@ class TemplateTopicSearch extends Model
                         $query->andWhere(($this->prices)[$this->price]);
                     }
                     //按热度查询
-                    if ($this->sort == 1){
-                        $query->orderBy(['sort'=>SORT_DESC]);
+                    if ($this->sort == 1) {
+                        $query->orderBy(['sort' => SORT_DESC]);
                     }
                 }]);
             $this->_query = $query;
@@ -188,17 +196,23 @@ class TemplateTopicSearch extends Model
 
     /**
      * 获取专题的小分类
-     * @param $topic_id
-     * @return array
+     * @param $product
+     * @return array|bool
+     * @author thanatos <thanatos915@163.com>
      */
-    public function getClassify($topic_id){
-       $data =  TemplateTopic::find()
-            ->where(['topic_id'=>$topic_id])
+    public function getClassify($product)
+    {
+        $topic = TbzSubject::findByProduct($product);
+        if (empty($topic))
+            return false;
+
+        $data = TemplateTopic::find()
+            ->where(['topic_id' => $topic->id])
             ->with('classifys')
             ->all();
-       $result = [];
-        foreach ($data as $key=>$value){
-            if ($value->classifys){
+        $result = [];
+        foreach ($data as $key => $value) {
+            if ($value->classifys) {
                 $result[] = $value->classifys;
             }
         }

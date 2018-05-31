@@ -41,14 +41,6 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        /** @var OauthPublicKeys $model */
-        $model = OauthPublicKeys::find()->one();
-
-
-
-
-       // $jwt = JWT::encode($array, $model->private_key, $model->encryption_algorithm);
-
         echo 'You must visit a module  "/v1"';
         exit;
     }

@@ -91,6 +91,7 @@ class TemplateTopicController extends RestController
         }
         throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
     }
+
     /**
      * @SWG\Post(
      *     path="/template-topic",
@@ -215,10 +216,11 @@ class TemplateTopicController extends RestController
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_FAILED);
     }
+
     /**
      * @SWG\Get(
-     *     path="/template-topic/{topic_id}",
-     *     operationId="getClassifyTopic",
+     *     path="/template-topic/topic-list",
+     *     operationId="getTemplateTopicList",
      *     schemes={"http"},
      *     tags={"模板相关接口"},
      *     summary="获取模板专题下的小分类",
@@ -238,9 +240,9 @@ class TemplateTopicController extends RestController
      *     ),
      *      @SWG\Parameter(
      *          in="path",
-     *          name="topic_id",
+     *          name="product",
      *          type="integer",
-     *          description="模板专题的唯一标识id",
+     *          description="模板专题的唯一标识product",
      *          required=true,
      *     ),
      *     @SWG\Response(
@@ -265,11 +267,14 @@ class TemplateTopicController extends RestController
      * @return array
      * @throws NotFoundHttpException
      */
-    public function actionView($id){
+    public function actionTopicList()
+    {
+        $product = \Yii::$app->request->get('product');
         $model = new TemplateTopicSearch();
-        if ($result = $model->getClassify($id)) {
+        if ($result = $model->getClassify($product)) {
             return $result;
         }
+        var_dump($result);exit;
         throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
     }
 }
