@@ -11,7 +11,7 @@ use yii\validators\Validator;
 class MobileValidator extends Validator
 {
     public $message;
-    public $pattern = "/^1[34578]{1}\d{9}$/";
+    public $pattern = "/^[1][3,4,5,7,8][0-9]{9}$/";
 
     public function init()
     {

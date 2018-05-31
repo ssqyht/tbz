@@ -31,7 +31,7 @@ class TemplateTopicSearch extends Model
     public $classify_id;
     public $sort;
     public $price;
-    public $topic_id;
+    public $product;
 
     private $_cacheKey;
     private $_query;
@@ -39,9 +39,9 @@ class TemplateTopicSearch extends Model
     public function rules()
     {
         return [
-            ['topic_id', 'string'],
+            ['product', 'string'],
             [['status', 'classify_id', 'sort', 'price'], 'integer'],
-            ['topic_id', 'required']
+            ['product', 'required']
         ];
     }
 
@@ -51,9 +51,9 @@ class TemplateTopicSearch extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['classify_id', 'sort', 'price', 'topic_id'],
+            static::SCENARIO_DEFAULT => ['classify_id', 'sort', 'price', 'product'],
             static::SCENARIO_BACKEND => ['status', 'classify_id', 'sort', 'price', 'topic_id'],
-            static::SCENARIO_FRONTEND => ['classify_id', 'sort', 'price', 'topic_id']
+            static::SCENARIO_FRONTEND => ['classify_id', 'sort', 'price', 'product']
         ];
     }
 
@@ -173,7 +173,7 @@ class TemplateTopicSearch extends Model
     {
         if ($this->_query === null) {
             $query = TbzSubject::find()
-                ->where(['product' => $this->topic_id])
+                ->where(['product' => $this->product])
                 ->with(['templates' => function ($query) {
                     //按小分类查询
                     if ($this->classify_id) {
