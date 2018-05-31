@@ -30,9 +30,11 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     const PURPOSE_MATERIAL = 13;
     /** @var int 分类缩略图 */
     const PURPOSE_CLASSIFY = 14;
+    /** @var int 字体 */
+    const PURPOSE_FONT = 15;
 
     /** @var int purpose 最大值 */
-    const PURPOSE_MAX = self::PURPOSE_MATERIAL;
+    const PURPOSE_MAX = self::PURPOSE_FONT;
 
     /** @var string 增加使用记录 */
     const SCENARIO_CREATE = 'create';

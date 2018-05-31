@@ -76,11 +76,9 @@ class MainController extends RestController
      */
     public function actionIndex()
     {
-        $model = new MaterialForm();
-        $model->submit([
-            'id' => 1,
-            'file_name' => 'test'
-        ]);
+        $path = 'updata/fonts/201805/a0.ttf';
+        $file = Yii::$app->oss->getObjectMeta($path);
+        var_dump($file);exit;
     }
 
 }
