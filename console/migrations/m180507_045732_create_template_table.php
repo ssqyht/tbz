@@ -23,6 +23,7 @@ class m180507_045732_create_template_table extends Migration
             'template_id' => $this->primaryKey(11)->unsigned(),
             'user_id' => $this->integer(11)->unsigned()->notNull()->comment('用户id'),
             'cooperation_id' => $this->integer(11)->unsigned()->notNull()->comment('商户id'),
+            'category_id' => $this->integer(11)->unsigned()->notNull()->comment('品类ID'),
             'classify_id' => $this->integer(11)->unsigned()->notNull()->defaultValue(0)->comment('分类id'),
             'title' => $this->string(50)->notNull()->defaultValue('')->comment('模板标题'),
             'thumbnail_url' => $this->string(255)->notNull()->defaultValue('')->comment('模板缩略图'),

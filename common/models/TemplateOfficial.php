@@ -15,6 +15,7 @@ use yii\helpers\Url;
  * @property int $template_id @SWG\Property(property="templateId", type="integer", description="")
  * @property int $user_id 用户id @SWG\Property(property="userId", type="integer", description=" 用户id")
  * @property int $cooperation_id 商户id @SWG\Property(property="cooperationId", type="integer", description=" 商户id")
+ * @property int $category_id 品类ID @SWG\Property(property="categoryId", type="integer", description=" 品类ID")
  * @property int $classify_id 分类id @SWG\Property(property="classifyId", type="integer", description=" 分类id")
  * @property string $title 模板标题 @SWG\Property(property="title", type="string", description=" 模板标题")
  * @property string $thumbnail_url 模板缩略图 @SWG\Property(property="thumbnailUrl", type="string", description=" 模板缩略图")
@@ -31,6 +32,7 @@ use yii\helpers\Url;
  * @property int $virtual_favorite 虚拟收藏量 @SWG\Property(property="virtualFavorite", type="integer", description=" 虚拟收藏量")
  * @property int $amount_buy 购买量 @SWG\Property(property="amountBuy", type="integer", description=" 购买量")
  * @property int $sort 排序 @SWG\Property(property="sort", type="integer", description=" 排序")
+ * @property int $is_recommend 是否推荐到热门场景 @SWG\Property(property="isRecommend", type="integer", description=" 是否推荐到热门场景")
  * @property string $content 模板数据 @SWG\Property(property="content", type="string", description=" 模板数据")
  */
 class TemplateOfficial extends \yii\db\ActiveRecord
@@ -82,8 +84,8 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             ['content', 'default', 'value' => ''],
             ['status', 'default', 'value' => static::STATUS_EDITING],
             [['cooperation_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite'], 'default', 'value' => 0],
-            [['sort', 'status', 'classify_id'], 'filter', 'filter' => 'intval'],
-            [['user_id', 'cooperation_id', 'classify_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort', 'status'], 'integer'],
+            [['sort', 'status', 'category_id', 'classify_id'], 'filter', 'filter' => 'intval'],
+            [['user_id', 'cooperation_id', 'category_id', 'classify_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort', 'status'], 'integer'],
             [['content'], 'string'],
             [['title'], 'string', 'max' => 50],
             [['thumbnail_url'], 'string', 'max' => 255],
@@ -99,6 +101,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             'template_id' => 'Template ID',
             'user_id' => '用户id',
             'cooperation_id' => '商户id',
+            'category_id' => '品类ID',
             'classify_id' => '分类id',
             'title' => '模板标题',
             'thumbnail_url' => '模板缩略图',
