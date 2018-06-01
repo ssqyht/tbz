@@ -26,7 +26,6 @@ class RestController extends Controller
      */
     public function init()
     {
-        \Yii::$app->user->login(Member::findIdentity(1));
         parent::init();
         // 设置OSS图片网址别名
         Yii::setAlias('@oss', Yii::$app->params['ossUrl']);

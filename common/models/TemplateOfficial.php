@@ -239,7 +239,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
      * 关联classify，获取小分类的name
      * @return \yii\db\ActiveQuery
      */
-    public function getClassifyName(){
+    public function getClassify(){
         return $this->hasOne(Classify::class, ['classify_id' => 'classify_id']);
     }
 }
