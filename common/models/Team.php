@@ -124,7 +124,7 @@ class Team extends \yii\db\ActiveRecord
         ];
     }
 
-    public function extraFields()
+    public function expandFields()
     {
         $data['teamMark'] = function () {
             return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads' . $this->team_mark;

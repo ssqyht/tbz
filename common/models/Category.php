@@ -65,7 +65,7 @@ class Category extends \yii\db\ActiveRecord
         return ['name', 'class_name', 'sort'];
     }
 
-    public function extraFields()
+    public function expandFields()
     {
         $data = [];
         // 添加classify属性

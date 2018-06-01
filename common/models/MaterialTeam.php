@@ -117,7 +117,7 @@ class MaterialTeam extends \yii\db\ActiveRecord
     /**
      * @return array|mixed
      */
-    public function extraFields()
+    public function expandFields()
     {
         $data = ['thumbnail' => function() {
             return Url::to('@oss') . DIRECTORY_SEPARATOR .'uploads'. $this->thumbnail;

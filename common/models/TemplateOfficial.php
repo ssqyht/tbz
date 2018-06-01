@@ -34,6 +34,9 @@ use yii\helpers\Url;
  * @property int $sort 排序 @SWG\Property(property="sort", type="integer", description=" 排序")
  * @property int $is_recommend 是否推荐到热门场景 @SWG\Property(property="isRecommend", type="integer", description=" 是否推荐到热门场景")
  * @property string $content 模板数据 @SWG\Property(property="content", type="string", description=" 模板数据")
+ * @property MyFavoriteMember|MyFavoriteTeam $myFavorite
+ * @property Classify $classify
+ * @property Category $category
  */
 class TemplateOfficial extends \yii\db\ActiveRecord
 {
@@ -125,25 +128,25 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     public function frontendFields()
     {
         return [
-            'template_id', 'user_id', 'title','classify_id','thumbnail_id','price', 'amount_edit', 'amount_view', 'amount_favorite','category_id'
+            'template_id', 'user_id', 'title','classify_id','thumbnail_id','price', 'amount_edit', 'amount_view', 'amount_favorite'
         ];
     }
 
-    public function extraFields()
+    public function expandFields()
     {
         $data = [
-          'thumbnailUrl' => function(){
-            return $this->thumbnail_url ? Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url : '';
-          }
+            'thumbnailUrl' => function () {
+                return $this->thumbnail_url ? Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url : '';
+            },
         ];
         if (Yii::$app->request->isFrontend()) {
-            $data['content'] = function (){
+            $data['content'] = function () {
                 return $this->content;
             };
         }
         if ($this->isRelationPopulated('myFavorite')) {
             $data['isFavorite'] = function () {
-                if ($this->myFavorite){
+                if ($this->myFavorite) {
                     //有收藏，is_favorite值为1
                     return 1;
                 }
@@ -151,12 +154,22 @@ class TemplateOfficial extends \yii\db\ActiveRecord
                 return 0;
             };
         }
-        if ($this->isRelationPopulated('classifyName')) {
-            $data['classifyName'] = function () {
-               return $this->classifyName->name;
+        if ($this->isRelationPopulated('classify')) {
+            $data['classify'] = function () {
+                return $this->classify->name;
             };
         }
         return $data;
+    }
+
+    public function extraFields()
+    {
+        return ['classify', 'category'];
+    }
+
+    public function deleteFields()
+    {
+        return ['template_id'];
     }
 
     /**
@@ -215,10 +228,10 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     {
         if ($team = Yii::$app->user->identity->team){
             return $this->hasOne(MyFavoriteTeam::class, ['template_id' => 'template_id'])
-                ->onCondition([MyFavoriteTeam::tableName().'.team_id' => $team->id]);
+                ->where(['team_id' => $team->id]);
         }else{
             return $this->hasOne(MyFavoriteMember::class, ['template_id' => 'template_id'])
-                ->onCondition([MyFavoriteMember::tableName().'.user_id' =>\Yii::$app->user->id ]);
+                ->where(['user_id' =>1/*\Yii::$app->user->id */]);
         }
     }
 

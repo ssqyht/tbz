@@ -146,7 +146,7 @@ class TemplateTeam extends \yii\db\ActiveRecord
     /**
      * @return array|mixed
      */
-    public function extraFields()
+    public function expandFields()
     {
         $data['thumbnailUrl'] = function () {
             return Url::to('@oss') . DIRECTORY_SEPARATOR . 'uploads' . $this->thumbnail_url;

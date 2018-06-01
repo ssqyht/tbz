@@ -125,7 +125,7 @@ class Member extends \yii\db\ActiveRecord implements IdentityInterface
         ];
     }
 
-    public function extraFields()
+    public function expandFields()
     {
         return [
             'headimgUrl' => function () {

@@ -141,7 +141,7 @@ class TemplateMember extends \yii\db\ActiveRecord
     /**
      * @return array|mixed
      */
-    public function extraFields()
+    public function expandFields()
     {
         if ($this->thumbnail_url)
             $data['thumbnailUrl'] = function () {
