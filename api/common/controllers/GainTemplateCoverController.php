@@ -8,6 +8,7 @@ namespace api\common\controllers;
 use common\models\forms\TbzSubjectForm;
 use common\models\TbzSubject;
 use common\components\vendor\RestController;
+use yii\helpers\ArrayHelper;
 use yii\web\NotFoundHttpException;
 use common\models\search\TbzSubjectSearch;
 use common\extension\Code;
@@ -60,9 +61,7 @@ class GainTemplateCoverController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return array|\common\components\vendor\Response|\yii\console\Response
-     * @throws NotFoundHttpException
-     * @author swz
+     * @return bool|TbzSubject[]|null|string
      */
     public function actionIndex()
     {
@@ -71,7 +70,7 @@ class GainTemplateCoverController extends RestController
         if ($result_data) {
             return $result_data;
         } else {
-            throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+            return '';
         }
     }
     /**
@@ -120,15 +119,14 @@ class GainTemplateCoverController extends RestController
      *     ),
      * )
      * @param $id
-     * @return array|null|\yii\db\ActiveRecord
-     * @throws BadRequestHttpException
+     * @return array|null|string|\yii\db\ActiveRecord
      */
     public function actionView($id){
         $result = TbzSubject::findById($id);
         if ($result){
             return $result;
         }
-        throw new BadRequestHttpException('未找到', Code::SERVER_UNAUTHORIZED);
+        return '';
     }
     /**
      * @SWG\Post(
@@ -168,15 +166,15 @@ class GainTemplateCoverController extends RestController
      *      @SWG\Parameter(
      *          in="formData",
      *          name="banner",
-     *          type="string",
-     *          description="专题内页banner图",
+     *          type="integer",
+     *          description="专题内页banner图的文件id",
      *          required=true,
      *     ),
      *      @SWG\Parameter(
      *          in="formData",
      *          name="thumbnail",
-     *          type="string",
-     *          description="缩略图",
+     *          type="integer",
+     *          description="缩略图的文件id",
      *          required=true,
      *     ),
      *      @SWG\Parameter(
@@ -239,10 +237,11 @@ class GainTemplateCoverController extends RestController
     {
         $add_data = \Yii::$app->request->post();
         $tbz_subject = new TbzSubjectForm();
-        if ($tbz_subject->load($add_data, '') && ($result = $tbz_subject->TbzSubjectAdd())) {
+        $tbz_subject->scenario = 'create';
+        if ($result = $tbz_subject->submit($add_data)) {
             return $result;
         } else {
-            throw new BadRequestHttpException('', Code::SERVER_UNAUTHORIZED);
+            throw new BadRequestHttpException($tbz_subject->getStringErrors(), Code::SERVER_UNAUTHORIZED);
         }
     }
 
@@ -279,63 +278,48 @@ class GainTemplateCoverController extends RestController
      *          name="title",
      *          type="string",
      *          description="模板标题",
-     *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="description",
      *          type="string",
      *          description="专题描述",
-     *          required=true,
      *     ),
      *      @SWG\Parameter(
      *          in="formData",
      *          name="banner",
-     *          type="string",
-     *          description="专题内页banner图",
-     *          required=true,
+     *          type="integer",
+     *          description="专题内页banner图的文件id",
      *     ),
      *      @SWG\Parameter(
      *          in="formData",
      *          name="thumbnail",
-     *          type="string",
-     *          description="缩略图",
-     *          required=true,
+     *          type="integer",
+     *          description="缩略图的文件id",
      *     ),
      *      @SWG\Parameter(
      *          in="formData",
      *          name="seo_title",
      *          type="string",
      *          description="seo标题",
-     *          required=true,
      *     ),
      *      @SWG\Parameter(
      *          in="formData",
      *          name="seo_keyword",
      *          type="string",
      *          description="seo关键词",
-     *          required=true,
      *     ),
      *      @SWG\Parameter(
      *          in="formData",
      *          name="seo_description",
      *          type="string",
      *          description="seo描述",
-     *          required=true,
-     *     ),
-     *       @SWG\Parameter(
-     *          in="formData",
-     *          name="status",
-     *          type="integer",
-     *          description="是否上线，10为线下，20为线上",
-     *          required=true,
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
      *          name="sort",
      *          type="integer",
      *          description="热度，值越大热度越高",
-     *          required=true,
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -360,12 +344,13 @@ class GainTemplateCoverController extends RestController
      */
     public function actionUpdate($id)
     {
-        $update_data = \Yii::$app->request->post();
+        $update_data = ArrayHelper::merge(\Yii::$app->request->post(), ['id' => $id]);
         $tbz_subject = new TbzSubjectForm();
-        if ($tbz_subject->load($update_data, '') && ($result = $tbz_subject->TbzSubjectUpdate($id))) {
+        $tbz_subject->scenario = 'update';
+        if ($result = $tbz_subject->submit($update_data)) {
             return $result;
         }
-        throw new BadRequestHttpException('', Code::SERVER_UNAUTHORIZED);
+        throw new BadRequestHttpException($tbz_subject->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }
 
     /**
@@ -423,7 +408,9 @@ class GainTemplateCoverController extends RestController
     public function actionDelete($id)
     {
         $tbz_subject = new TbzSubjectForm();
-        if ($tbz_subject->TbzSubjectDelete($id)) {
+        $tbz_subject->scenario = 'delete';
+        $data = ArrayHelper::merge(['status'=>$tbz_subject::DELETE_STATUS], ['id' => $id]);
+        if ($tbz_subject->submit($data)) {
             return '';
         }
         throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);

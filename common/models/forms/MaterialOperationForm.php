@@ -59,6 +59,11 @@ class MaterialOperationForm extends \yii\base\Model
             ['name', 'required', 'when' => function ($model) {
                 return $model->type == 1;
             }],
+            ['ids',function (){
+                if (!is_int($this->ids) && !is_array($this->ids)){
+                    $this->addError('ids','ids必须是整数或者数组');
+                }
+            }]
         ];
     }
 

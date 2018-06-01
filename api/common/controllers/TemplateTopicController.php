@@ -39,9 +39,9 @@ class TemplateTopicController extends RestController
      *     ),
      *      @SWG\Parameter(
      *          in="query",
-     *          name="topic_id",
-     *          type="integer",
-     *          description="前后台参数，模板专题的唯一标识id",
+     *          name="product",
+     *          type="string",
+     *          description="前后台参数，模板专题的唯一标识product",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
@@ -263,9 +263,7 @@ class TemplateTopicController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @param $id
-     * @return array
-     * @throws NotFoundHttpException
+     * @return array|bool|string
      */
     public function actionTopicList()
     {
@@ -274,7 +272,6 @@ class TemplateTopicController extends RestController
         if ($result = $model->getClassify($product)) {
             return $result;
         }
-        var_dump($result);exit;
-        throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
+      return '';
     }
 }

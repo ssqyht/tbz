@@ -70,8 +70,7 @@ class FolderTemplateController extends BaseController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return array|bool
-     * @throws NotFoundHttpException
+     * @return array|mixed|null|string
      */
     public function actionIndex()
     {
@@ -80,7 +79,7 @@ class FolderTemplateController extends BaseController
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+        return '';
     }
 
     /**

@@ -24,8 +24,11 @@ use yii\helpers\Url;
  * @property int $sort 排序逆序 @SWG\Property(property="sort", type="integer", description=" 排序逆序")
  * @property int $created_at 创建日期 @SWG\Property(property="createdAt", type="integer", description=" 创建日期")
  * @property int $updated_at 修改时间 @SWG\Property(property="updatedAt", type="integer", description=" 修改时间")
+ * @property TemplateOfficial[] $templates
+ * @property FileCommon $thumbnailFile
+ * @property $bannerFile
  */
-class TbzSubject extends \yii\db\ActiveRecord
+class  TbzSubject extends \yii\db\ActiveRecord
 {
 
     use TimestampTrait;
@@ -48,12 +51,11 @@ class TbzSubject extends \yii\db\ActiveRecord
     {
         return [
             [['product'], 'default', 'value' => ''],
-            [['status', 'sort', 'created_at', 'updated_at'], 'integer'],
+            [['status', 'sort', 'created_at', 'updated_at','thumbnail','banner'], 'integer'],
             [['product'], 'string', 'max' => 30],
             [['title'], 'string', 'max' => 150],
             [['description', 'seo_keyword', 'seo_description'], 'string', 'max' => 255],
-            [['thumbnail', 'seo_title'], 'string', 'max' => 100],
-            [['banner'], 'string', 'max' => 60],
+            [['seo_title'], 'string', 'max' => 100],
         ];
     }
 
@@ -66,8 +68,8 @@ class TbzSubject extends \yii\db\ActiveRecord
             'id' => '唯一标识',
             'title' => '模板标题',
             'description' => '描述',
-            'thumbnail' => '缩略图路径',
-            'banner' => '专题内页banner图路径',
+            'thumbnail' => '缩略图路径的文件id',
+            'banner' => '专题内页banner图路径的文件id',
             'seo_title' => 'Seo标题',
             'seo_keyword' => 'Seo关键词',
             'seo_description' => 'Seo描述',
@@ -127,7 +129,7 @@ class TbzSubject extends \yii\db\ActiveRecord
      */
     public static function findById($id)
     {
-        return static::online()->andWhere(['id' => $id])->one;
+        return static::online()->andWhere(['id' => $id])->with(['thumbnailFile','bannerFile'])->one();
     }
 
     /**
@@ -145,11 +147,16 @@ class TbzSubject extends \yii\db\ActiveRecord
      */
     public function extraFields()
     {
-        $data['thumbnail'] = function () {
-            return Url::to('@oss') . DIRECTORY_SEPARATOR  . $this->thumbnail;
+        if ($this->isRelationPopulated('templates')) {
+            $data['templates'] = function (){
+                return $this->templates;
+            };
+        }
+        $data['thumbnail'] = function (){
+            return $this->thumbnailFile ? Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnailFile->path : '';
         };
-        $data['banner'] = function () {
-            return Url::to('@oss') . DIRECTORY_SEPARATOR  . $this->banner;
+        $data['banner'] = function (){
+            return $this->bannerFile ? Url::to('@oss') . DIRECTORY_SEPARATOR . $this->bannerFile->path : '';
         };
         return $data;
     }
@@ -161,5 +168,18 @@ class TbzSubject extends \yii\db\ActiveRecord
     {
         return $this->hasMany(TemplateOfficial::class, ['template_id' => 'template_id'])
             ->viaTable(TemplateTopic::tableName(),['topic_id'=>'id']);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getThumbnailFile(){
+        return $this->hasOne(FileCommon::class, ['file_id' => 'thumbnail']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getBannerFile(){
+        return $this->hasOne(FileCommon::class, ['file_id' => 'banner']);
     }
 }

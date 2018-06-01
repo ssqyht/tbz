@@ -162,8 +162,7 @@ class ClassifyController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return array|bool
-     * @throws NotFoundHttpException
+     * @return array|bool|string
      */
     public function actionClassifyTag(){
         $model = new ClassifySearch();
@@ -172,7 +171,7 @@ class ClassifyController extends RestController
         if ($result){
             return $result;
         }
-        throw new NotFoundHttpException($model->getStringErrors(), Code::SOURCE_NOT_FOUND);
+        return '';
     }
 
 }

@@ -69,8 +69,7 @@ class MessageController extends  BaseController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return array|bool
-     * @throws NotFoundHttpException
+     * @return array|mixed|null|string
      */
     public function actionIndex()
     {
@@ -79,7 +78,7 @@ class MessageController extends  BaseController
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+       return '';
     }
     /**
      * @SWG\Get(
@@ -127,15 +126,14 @@ class MessageController extends  BaseController
      *     ),
      * )
      * @param $id
-     * @return array|null|\yii\db\ActiveRecord
-     * @throws NotFoundHttpException
+     * @return array|null|string|\yii\db\ActiveRecord
      */
     public function actionView($id){
         $result = TbzLetter::findById($id);
         if ($result){
             return $result;
         }
-        throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
+        return '';
     }
     /**
      * @SWG\Post(

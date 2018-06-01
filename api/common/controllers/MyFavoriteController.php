@@ -74,9 +74,7 @@ class MyFavoriteController extends BaseController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return bool|mixed|null
-     * @throws NotFoundHttpException
-     * 查询收藏
+     * @return bool|mixed|null|string
      */
     public function actionIndex()
     {
@@ -85,7 +83,7 @@ class MyFavoriteController extends BaseController
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+        return '';
     }
     /**
      * @SWG\Post(

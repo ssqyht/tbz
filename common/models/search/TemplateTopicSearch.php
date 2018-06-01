@@ -175,6 +175,10 @@ class TemplateTopicSearch extends Model
             $query = TbzSubject::find()
                 ->where(['product' => $this->product])
                 ->with(['templates' => function ($query) {
+                    /** @var $query \yii\db\ActiveQuery */
+                    $query->where(['status' => TemplateOfficial::STATUS_ONLINE])
+                        ->orderBy(['created_at' => SORT_DESC])
+                        ->with(['myFavorite', 'classifyName']);
                     //按小分类查询
                     if ($this->classify_id) {
                         /** @var $query \yii\db\ActiveQuery */

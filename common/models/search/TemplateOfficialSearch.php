@@ -181,13 +181,12 @@ class TemplateOfficialSearch extends Model
     {
         if ($this->_query === null) {
             $query = TemplateOfficial::active();
+            if ($this->category){
+                $query->andWhere(['category_id' => $this->category]);
+            }
             if ($this->classify) {
                 //按小分类查询
                 $query->andWhere(['classify_id' => $this->classify]);
-            }else{
-                //按大分类查询
-                $classify = Classify::find()->select('classify_id')->where(['category_id'=>$this->category]);
-                $query->andWhere(['classify_id' =>$classify]);
             }
             //按价格区间查询
             if ($this->price && array_key_exists($this->price, $this->prices)) {

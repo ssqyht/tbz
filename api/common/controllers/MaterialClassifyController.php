@@ -72,7 +72,7 @@ class MaterialClassifyController extends BaseController
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException($model->getStringErrors(), Code::SOURCE_NOT_FOUND);
+        return '';
     }
     /**
      * 新增素材分类

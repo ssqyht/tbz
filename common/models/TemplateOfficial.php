@@ -125,7 +125,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     public function frontendFields()
     {
         return [
-            'template_id', 'user_id', 'title','classify_id','thumbnail_id','price', 'amount_edit', 'amount_view', 'amount_favorite'
+            'template_id', 'user_id', 'title','classify_id','thumbnail_id','price', 'amount_edit', 'amount_view', 'amount_favorite','category_id'
         ];
     }
 
@@ -215,10 +215,10 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     {
         if ($team = Yii::$app->user->identity->team){
             return $this->hasOne(MyFavoriteTeam::class, ['template_id' => 'template_id'])
-                ->where(['team_id' => $team->id]);
+                ->onCondition([MyFavoriteTeam::tableName().'.team_id' => $team->id]);
         }else{
             return $this->hasOne(MyFavoriteMember::class, ['template_id' => 'template_id'])
-                ->where(['user_id' =>1/*\Yii::$app->user->id */]);
+                ->onCondition([MyFavoriteMember::tableName().'.user_id' =>\Yii::$app->user->id ]);
         }
     }
 

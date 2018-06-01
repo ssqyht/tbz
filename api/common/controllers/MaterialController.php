@@ -100,7 +100,7 @@ class MaterialController extends BaseController
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException($model->getStringErrors(), Code::SOURCE_NOT_FOUND);
+       return '';
     }
 
     /**
@@ -155,8 +155,7 @@ class MaterialController extends BaseController
      *     ),
      * )
      * @param $id
-     * @return array|null|\yii\db\ActiveRecord
-     * @throws NotFoundHttpException
+     * @return array|null|string|\yii\db\ActiveRecord
      */
     public function actionView($id)
     {
@@ -170,7 +169,7 @@ class MaterialController extends BaseController
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
+        return '';
     }
 
     /**

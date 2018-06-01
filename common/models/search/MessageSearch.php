@@ -127,7 +127,7 @@ class MessageSearch extends Model
      */
    public function getUser(){
         if (!$this->_user){
-            $this->_user = 1/*\Yii::$app->user->id*/;
+            $this->_user = \Yii::$app->user->id;
         }
         return $this->_user;
     }

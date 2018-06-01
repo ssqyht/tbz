@@ -6,13 +6,13 @@
 namespace common\components\vendor;
 
 use common\extension\Code;
+use common\models\Member;
 use common\models\OauthPublicKeys;
 use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\filters\Cors;
 use yii\rest\Controller;
 use yii\web\ForbiddenHttpException;
-
 class RestController extends Controller
 {
     /** @var OauthPublicKeys */
@@ -26,15 +26,16 @@ class RestController extends Controller
      */
     public function init()
     {
+        \Yii::$app->user->login(Member::findIdentity(1));
         parent::init();
         // 设置OSS图片网址别名
         Yii::setAlias('@oss', Yii::$app->params['ossUrl']);
         // 设置OSS内网图片网址别名
         Yii::setAlias('@ossInternal', Yii::$app->params['ossInternal']);
 
-        if (!Yii::$app->request->isOptions && Yii::$app->request->client === false) {
+       /* if (!Yii::$app->request->isOptions && Yii::$app->request->client === false) {
             throw new ForbiddenHttpException('没有仅限', Code::SERVER_NOT_PERMISSION);
-        }
+        }*/
 
     }
 

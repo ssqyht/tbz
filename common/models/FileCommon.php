@@ -2,8 +2,10 @@
 
 namespace common\models;
 
+use common\components\traits\ModelFieldsTrait;
 use common\components\traits\TimestampTrait;
 use Yii;
+use yii\helpers\Url;
 use yii\validators\UrlValidator;
 
 /**
@@ -21,7 +23,7 @@ use yii\validators\UrlValidator;
 class FileCommon extends \yii\db\ActiveRecord
 {
     use TimestampTrait;
-
+    use ModelFieldsTrait;
     /**
      * @inheritdoc
      */

@@ -9,10 +9,13 @@
 namespace common\models\search;
 
 use common\components\vendor\Model;
+use common\models\FileCommon;
 use common\models\TbzSubject;
+use function GuzzleHttp\Promise\all;
 use yii\data\ActiveDataProvider;
 use Yii;
 use common\models\CacheDependency;
+
 class TbzSubjectSearch extends Model
 {
     public $status;
@@ -22,9 +25,10 @@ class TbzSubjectSearch extends Model
     public function rules()
     {
         return [
-            ['status','integer']
+            ['status', 'integer']
         ];
     }
+
     public function scenarios()
     {
         return [
@@ -33,6 +37,7 @@ class TbzSubjectSearch extends Model
             static::SCENARIO_FRONTEND => []
         ];
     }
+
     /**
      * 查询数据
      * @param $params
@@ -42,7 +47,7 @@ class TbzSubjectSearch extends Model
     public function search($params)
     {
         $this->load($params, '');
-        if (!$this->validate()){
+        if (!$this->validate()) {
             return false;
         }
         switch ($this->scenario) {
@@ -62,7 +67,8 @@ class TbzSubjectSearch extends Model
      */
     public function searchFrontend()
     {
-        $cover_data = TbzSubject::online();
+        $cover_data = TbzSubject::online()
+            ->with(['thumbnailFile', 'bannerFile']);
         $provider = new ActiveDataProvider([
             'query' => $cover_data,
             'pagination' => [
@@ -85,11 +91,13 @@ class TbzSubjectSearch extends Model
      * @return array|bool
      * 后台查询模板专题
      */
-    public function searchBackend(){
-        $cover_data = TbzSubject::sortHot();
+    public function searchBackend()
+    {
+        $cover_data = TbzSubject::sortHot()
+            ->with(['thumbnailFile', 'bannerFile']);;
         //根据状态查询模板专题
-        if ($this->status){
-            $cover_data->andWhere(['status'=>$this->status]);
+        if ($this->status) {
+            $cover_data->andWhere(['status' => $this->status]);
         }
         $provider = new ActiveDataProvider([
             'query' => $cover_data,
@@ -104,6 +112,7 @@ class TbzSubjectSearch extends Model
             return false;
         }
     }
+
     /**
      * 查询缓存Key
      * @return array|null
@@ -123,6 +132,7 @@ class TbzSubjectSearch extends Model
         }
         return $this->_cacheKey;
     }
+
     /**
      * 删除查询缓存
      * @author thanatos <thanatos915@163.com>
