@@ -20,6 +20,47 @@ class UserController extends RestController
 
     /**
      * 用户账号密码登录
+     * @SWG\Post(
+     *     path="/user/login",
+     *     tags={"用户相关接口"},
+     *     summary="账号密码登录",
+     *     @SWG\Parameter(
+     *         name="client",
+     *         in="header",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="mobile",
+     *         description="手机号",
+     *         in="formData",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Parameter(
+     *         name="password",
+     *         description="密码",
+     *         in="formData",
+     *         required=true,
+     *         type="string"
+     *     ),
+     *     @SWG\Response(
+     *          response=200,
+     *          description="请求成功",
+     *          ref="$/responses/Success",
+     *          @SWG\Schema(
+     *              @SWG\Property(
+     *                  property="data",
+     *                  ref="#/definitions/Member"
+     *              )
+     *          )
+     *     ),
+     *     @SWG\Response(
+     *          response="default",
+     *          description="请求失败",
+     *          ref="$/responses/Error",
+     *     ),
+     * )
      * @return array|bool
      * @throws BadRequestHttpException
      * @author thanatos <thanatos915@163.com>
