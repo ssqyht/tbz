@@ -85,7 +85,7 @@ class TeamMember extends \yii\db\ActiveRecord
     /**
      * @return array|mixed
      */
-    public function extraFields()
+    public function expandFields()
     {
         if ($this->isRelationPopulated('memberMark')) {
             $data['userMark'] = function () {

@@ -16,6 +16,7 @@ use common\components\traits\ModelFieldsTrait;
  * @property int $topic_id 模板专题id @SWG\Property(property="topicId", type="integer", description=" 模板专题id")
  * @property int $created_at 创建日期 @SWG\Property(property="createdAt", type="integer", description=" 创建日期")
  * @property int $updated_at 修改时间 @SWG\Property(property="updatedAt", type="integer", description=" 修改时间")
+ * @property Classify[] $classifies
  */
 class TemplateTopic extends \yii\db\ActiveRecord
 {
@@ -73,7 +74,7 @@ class TemplateTopic extends \yii\db\ActiveRecord
      * 关联小分类表，获取小分类信息
      * @return \yii\db\ActiveQuery
      */
-    public function getClassifys()
+    public function getClassifies()
     {
         return $this->hasOne(Classify::class, ['classify_id' => 'classify_id'])
             ->via('tempClassify');

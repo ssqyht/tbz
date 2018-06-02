@@ -28,7 +28,7 @@ use yii\helpers\Url;
  * @property FileCommon $thumbnailFile
  * @property $bannerFile
  */
-class  TbzSubject extends \yii\db\ActiveRecord
+class TbzSubject extends \yii\db\ActiveRecord
 {
 
     use TimestampTrait;
@@ -51,11 +51,12 @@ class  TbzSubject extends \yii\db\ActiveRecord
     {
         return [
             [['product'], 'default', 'value' => ''],
-            [['status', 'sort', 'created_at', 'updated_at','thumbnail','banner'], 'integer'],
+            [['status', 'sort', 'created_at', 'updated_at'], 'integer'],
             [['product'], 'string', 'max' => 30],
             [['title'], 'string', 'max' => 150],
             [['description', 'seo_keyword', 'seo_description'], 'string', 'max' => 255],
-            [['seo_title'], 'string', 'max' => 100],
+            [['thumbnail', 'seo_title'], 'string', 'max' => 100],
+            [['banner'], 'string', 'max' => 60],
         ];
     }
 
@@ -129,7 +130,7 @@ class  TbzSubject extends \yii\db\ActiveRecord
      */
     public static function findById($id)
     {
-        return static::online()->andWhere(['id' => $id])->with(['thumbnailFile','bannerFile'])->one();
+        return static::online()->andWhere(['id' => $id])->one;
     }
 
     /**
@@ -145,7 +146,7 @@ class  TbzSubject extends \yii\db\ActiveRecord
     /**
      * @return array
      */
-    public function extraFields()
+    public function expandFields()
     {
         if ($this->isRelationPopulated('templates')) {
             $data['templates'] = function (){

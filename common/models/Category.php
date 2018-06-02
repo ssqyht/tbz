@@ -62,10 +62,10 @@ class Category extends \yii\db\ActiveRecord
 
     public function frontendFields()
     {
-        return ['name', 'class_name', 'sort'];
+        return ['name', 'class_name', 'sort', 'id'];
     }
 
-    public function extraFields()
+    public function expandFields()
     {
         $data = [];
         // 添加classify属性

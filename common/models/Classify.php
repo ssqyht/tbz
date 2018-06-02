@@ -83,7 +83,7 @@ class Classify extends \yii\db\ActiveRecord
         ];
     }
 
-    public function extraFields()
+    public function expandFields()
     {
         $data = ['thumbnail' => function() {
             return Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail;

@@ -178,7 +178,7 @@ class TemplateTopicSearch extends Model
                     /** @var $query \yii\db\ActiveQuery */
                     $query->where(['status' => TemplateOfficial::STATUS_ONLINE])
                         ->orderBy(['created_at' => SORT_DESC])
-                        ->with(['myFavorite', 'classifyName']);
+                        ->with(['myFavorite', 'classify']);
                     //按小分类查询
                     if ($this->classify_id) {
                         /** @var $query \yii\db\ActiveQuery */
@@ -209,15 +209,15 @@ class TemplateTopicSearch extends Model
         $topic = TbzSubject::findByProduct($product);
         if (empty($topic))
             return false;
-
+        /** @var TemplateTopic[] $data */
         $data = TemplateTopic::find()
             ->where(['topic_id' => $topic->id])
-            ->with('classifys')
+            ->with('classifies')
             ->all();
         $result = [];
         foreach ($data as $key => $value) {
-            if ($value->classifys) {
-                $result[] = $value->classifys;
+            if ($value->classifies) {
+                $result[] = $value->classifies;
             }
         }
         return $result;
