@@ -12,20 +12,19 @@ use common\models\Team;
 use common\components\vendor\Model;
 use common\models\TeamMember;
 use common\models\CacheDependency;
+use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 
 class TeamSearch extends Model
 {
-    public $team_id;
     public $status;
-    public $user_id;
 
     private $_cacheKey;
 
     public function rules()
     {
         return [
-            [['status', 'team_id'], 'integer']
+            [['status'], 'integer']
         ];
     }
 
@@ -35,9 +34,9 @@ class TeamSearch extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['status'],
+            static::SCENARIO_DEFAULT => [],
             static::SCENARIO_BACKEND => ['status'],
-            static::SCENARIO_FRONTEND => ['team_id']
+            static::SCENARIO_FRONTEND => []
         ];
     }
 
@@ -68,12 +67,12 @@ class TeamSearch extends Model
      */
     public function searchFrontend()
     {
-        if (!$this->team_id) {
-            $this->addError('', '团队标识team_id不能为空');
+        if (!$team = \Yii::$app->user->identity->team) {
+            $this->addError('', '无法获取团队信息');
             return false;
         }
         $team_data = Team::find()
-            ->where(['id' => $this->team_id, 'status' => Team::NORMAL_STATUS])
+            ->where(['id' => $team->id, 'status' => Team::NORMAL_STATUS])
             ->with(['members' => function ($query) {
                 /** @var $query ActiveQuery */
                 $query->with('memberMark')
@@ -82,7 +81,7 @@ class TeamSearch extends Model
             }]);
         try {
             $result = \Yii::$app->dataCache->cache(function () use ($team_data) {
-                $result = $team_data->all();
+                $result = $team_data->one();
                 return $result;
             }, $this->cacheKey, CacheDependency::TEAM);
         } catch (\Throwable $e) {
@@ -94,7 +93,17 @@ class TeamSearch extends Model
 
     public function searchBackend()
     {
-        return false;
+        $team_data = Team::find()
+            ->orderBy(['role'=>SORT_ASC])
+            ->with('memberMark');
+        $provider = new ActiveDataProvider([
+            'query' => $team_data,
+            'pagination' => [
+                'pageSize' => 16,
+            ],
+        ]);
+        $result = $provider->getModels();
+        return $result;
     }
 
     /**

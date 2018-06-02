@@ -5,10 +5,14 @@
  * Date: 2018/5/21
  * Time: 18:11
  */
+
 namespace common\models\forms;
 
 use common\components\traits\ModelAttributeTrait;
 use common\models\FileUsedRecord;
+use common\models\FolderMaterialMember;
+use common\models\FolderMaterialTeam;
+use Monolog\Handler\IFTTTHandler;
 use Yii;
 use common\models\MaterialMember;
 use common\components\traits\ModelErrorTrait;
@@ -27,11 +31,6 @@ class MaterialForm extends \yii\base\Model
     use ModelErrorTrait;
     use ModelAttributeTrait;
 
-    /** @var string 个人素材 */
-    const MATERIAL_MEMBER = 'material_member';
-    /** @var string 团队素材 */
-    const MATERIAL_TEAM = 'material_team';
-
     /** @var int 到回收站状态 */
     const RECYCLE_BIN_STATUS = 7;
 
@@ -44,22 +43,21 @@ class MaterialForm extends \yii\base\Model
     public $folder_id;
     public $id;
 
-    private $_user;
     private $_activeModel;
 
     public function rules()
     {
         return [
-            [['thumbnail', 'file_id'], 'required', 'when' => function($model){
+            [['thumbnail', 'file_id'], 'required', 'when' => function ($model) {
                 return empty($model->id);
             }],
             [['folder_id', 'file_id', 'team_id', 'id'], 'integer'],
             [['file_name', 'thumbnail'], 'string', 'max' => 255],
-            ['id', function(){
+            ['id', function () {
                 if (empty($this->activeModel)) {
                     $this->addError('id', '请求资源不存在');
                 }
-            }]
+            }],
         ];
     }
 
@@ -75,50 +73,55 @@ class MaterialForm extends \yii\base\Model
         if (!$this->validate()) {
             return false;
         }
-
         $model = $this->activeModel;
-        $model->load($this->getUpdateAttributes(), '');
-        // 验证数据
-        if (!$model->validate())
-            return false;
-
-        $model->user_id = Yii::$app->user->id;
-        // 添加Team信息
-        if ($model instanceof MaterialTeam)
-            $model->team_id = Yii::$app->user->identity->team->id;
-
-        $transaction = Yii::$app->getDb()->beginTransaction();
-
-        // 保存素材信息
-        if (!($model->validate() && $model->save())) {
-            $this->addErrors($model->getErrors());
+        if (!$model) {
             return false;
         }
-
+        $model->load($this->getUpdateAttributes(), '');
+        $model->user_id = Yii::$app->user->id;
+        $purpose = FileUsedRecord::PURPOSE_MATERIAL_MEMBER;   //个人素材文件引用类型
+        // 添加Team信息
+        if ($model instanceof MaterialTeam) {
+            $model->team_id = Yii::$app->user->identity->team->id;
+            $purpose = FileUsedRecord::PURPOSE_MATERIAL_TEAM;    //团队素材引用类型
+        }
+        //新增素材时，只添加素材引用记录
+        if ($model->isNewRecord) {
+            $create_file = $model->file_id;
+        }
+        //修改素材，且文件有变化时，删除原来文件引用记录
+        if ($model->isAttributeChanged('thumbnail') && $model->isAttributeChanged('file_id')) {
+            $drop_file = $model->getOldAttribute('file_id');
+            $create_file = $model->file_id;
+            $old_key = $model->oldPrimaryKey;
+        }
+        $transaction = Yii::$app->getDb()->beginTransaction();
         try {
-            $purpose = FileUsedRecord::PURPOSE_MATERIAL;
-            // 处理素材源文件信息, 如果文件变化了。则处理文件引用信息
-            if ($model->isAttributeChanged('thumbnail') && $model->isAttributeChanged('file_id')) {
-                // 处理修改素材文件流程
-                if ($model->primaryKey) {
-                    // 删除原来的文件引用信息
-                    $file_id = $model->getOldAttribute('file_id');
-                    if (!$result = FileUsedRecord::dropRecord($model->user_id, $file_id, $purpose, $model->oldPrimaryKey)) {
-                        throw new Exception('Drop old File Use failed'. $result->getStringErrors());
-                    }
+            //素材的添加或修改操作
+            if (!($model->validate() && $model->save())) {
+                throw new \Exception('素材操作失败' . $model->getStringErrors());
+            }
+            //素材文件变化，删除原来的文件引用信息
+            if ($drop_file) {
+                $result = FileUsedRecord::dropRecord($drop_file, $purpose, $old_key);
+                if (!$result || (is_object($result) && $result->getErrors())) {
+                    throw new \Exception('删除素材引用文件记录失败' . (is_object($result) ? $result->getStringErrors() : ''));
                 }
             }
-
-            // 增加文件引用记录
-            if (!$result = FileUsedRecord::createRecord($model->user_id, $model->file_id, $purpose, $model->primaryKey)) {
-                throw new \Exception('Create File Use failed'. $result->getStringErrors());
+            // 添加素材文件引用类型
+            if ($create_file) {
+                $file_result = FileUsedRecord::createRecord(\Yii::$app->user->id, $create_file, $purpose, $model->primaryKey);
+                if (!$file_result || (is_object($file_result) && $file_result->getErrors())) {
+                    throw new \Exception('创建素材引用文件记录失败' . (is_object($file_result) ? $file_result->getStringErrors() : ''));
+                }
             }
             $transaction->commit();
             return $model;
         } catch (\Throwable $e) {
             try {
                 $transaction->rollBack();
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+            }
             $message = $e->getMessage();
             // 添加错误信息
             if (strpos($message, '=') === false)
@@ -129,6 +132,7 @@ class MaterialForm extends \yii\base\Model
         }
 
     }
+
     /**
      * 把素材放入回收站
      * @param $id
@@ -136,7 +140,7 @@ class MaterialForm extends \yii\base\Model
      */
     public function deleteMaterial()
     {
-        if($this->validate()){
+        if (!$this->validate()) {
             return false;
         }
         $model = $this->activeModel;
@@ -160,27 +164,29 @@ class MaterialForm extends \yii\base\Model
             $modelClass = '';
             if ($user->team) {
                 $modelClass = MaterialTeam::class;
+                $folderClass = FolderMaterialTeam::class;
+                $condition = ['team_id' => $user->team->id];
             } else {
                 $modelClass = MaterialMember::class;
+                $folderClass = FolderMaterialMember::class;
+                $condition = ['user_id' => \Yii::$app->user->id];
             }
-
             if ($this->id) {
                 $model = $modelClass::findById($this->id);
             } else {
                 $model = new $modelClass();
             }
+            /** @var FolderMaterialMember|FolderMaterialTeam $folderClass */
+            if ($this->folder_id) {
+                //验证目标文件夹是否存在
+                $folder = $folderClass::find()->where(['id' => $this->folder_id])->andWhere($condition)->one();
+                if (!$folder) {
+                    $this->addError('', '目标文件夹不存在');
+                    $model = false;
+                }
+            }
             $this->_activeModel = $model;
         }
         return $this->_activeModel;
-    }
-
-    /**
-     * 获取用户id
-     */
-    public function getUser(){
-        if ($this->_user === null){
-            $this->_user =1; /*\Yii::$app->user->id*/;
-        }
-        return $this->_user;
     }
 }

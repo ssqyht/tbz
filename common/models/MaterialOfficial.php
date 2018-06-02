@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\traits\ModelErrorTrait;
 use Yii;
 use common\components\traits\TimestampTrait;
 use yii\helpers\Url;
@@ -27,7 +28,7 @@ use common\components\traits\ModelFieldsTrait;
  */
 class MaterialOfficial extends \yii\db\ActiveRecord
 {
-
+    use ModelErrorTrait;
     use TimestampTrait;
     use ModelFieldsTrait;
 
@@ -53,7 +54,6 @@ class MaterialOfficial extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'cid', 'file_id', 'file_type', 'created_at', 'updated_at', 'extra_contents'], 'required'],
             [['user_id', 'cid', 'file_id', 'file_type', 'width', 'height', 'status', 'created_at', 'updated_at'], 'integer'],
             [['extra_contents'], 'string'],
             [['name'], 'string', 'max' => 50],

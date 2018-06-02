@@ -75,7 +75,7 @@ class TeamMemberController extends BaseController
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+        return '';
     }
 
     /**
@@ -108,9 +108,9 @@ class TeamMemberController extends BaseController
      *     ),
      *      @SWG\Parameter(
      *          in="formData",
-     *          name="member_id",
+     *          name="user_id",
      *          type="integer",
-     *          description="成员的唯一标识member_id",
+     *          description="成员的唯一标识id",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
@@ -141,12 +141,9 @@ class TeamMemberController extends BaseController
      * @throws NotFoundHttpException
      */
     public function actionCreate(){
-        if (!$team = Yii::$app->user->identity->team){
-            throw new NotFoundHttpException('团队未找到', Code::SOURCE_NOT_FOUND);
-        }
-        $create_data= ArrayHelper::merge(\Yii::$app->request->post(),['team_id'=>$team->id]);
         $model = new TeamMemberForm();
-        if ($model->load($create_data, '') && ($result = $model->addMember())) {
+        $model->scenario = 'create';
+        if ($result = $model->editMember(\Yii::$app->request->post())) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -154,7 +151,7 @@ class TeamMemberController extends BaseController
 
     /**
      * @SWG\Put(
-     *     path="/team-member/{member_id}",
+     *     path="/team-member/{id}",
      *     operationId="updateTeamMember",
      *     schemes={"http"},
      *     tags={"团队接口"},
@@ -182,9 +179,9 @@ class TeamMemberController extends BaseController
      *     ),
      *      @SWG\Parameter(
      *          in="path",
-     *          name="member_id",
+     *          name="id",
      *          type="integer",
-     *          description="成员的唯一标识member_id",
+     *          description="成员在会员表（member）的唯一标识id",
      *          required=true,
      *     ),
      *     @SWG\Parameter(
@@ -217,12 +214,10 @@ class TeamMemberController extends BaseController
      * @throws NotFoundHttpException
      */
     public function actionUpdate($id){
-        if (!$team = Yii::$app->user->identity->team){
-            throw new NotFoundHttpException('团队未找到', Code::SOURCE_NOT_FOUND);
-        }
-        $update_data = ArrayHelper::merge(\Yii::$app->request->post(),['team_id'=>$team->id,'member_id'=>$id]);
+        $update_data = ArrayHelper::merge(\Yii::$app->request->post(),['user_id'=>$id]);
         $model = new TeamMemberForm();
-        if ($model->load($update_data, '') && ($result = $model->updateMember())) {
+        $model->scenario = 'update';
+        if ($result = $model->editMember($update_data)) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -260,7 +255,7 @@ class TeamMemberController extends BaseController
      *          in="path",
      *          name="id",
      *          type="integer",
-     *          description="成员的唯一标识member_id",
+     *          description="成员在会员表（member）的唯一标识",
      *          required=true,
      *     ),
      *      @SWG\Response(
@@ -279,12 +274,10 @@ class TeamMemberController extends BaseController
      * 删除成员
      */
     public function actionDelete($id){
-        if (!$team = Yii::$app->user->identity->team){
-            throw new NotFoundHttpException('团队未找到', Code::SOURCE_NOT_FOUND);
-        }
         $model = new TeamMemberForm();
-        $data = ['team_id'=>$team->id,'member_id'=>$id];
-        if ($model->load($data, '') && $model->deleteMember()) {
+        $model->scenario = 'delete';
+        $data = ['status'=>TeamMemberForm::DELETE_STATUS,'user_id'=>$id];
+        if ($model->editMember($data)) {
             return '';
         }
         throw new HttpException(500, $model->getStringErrors(), Code::SERVER_FAILED);

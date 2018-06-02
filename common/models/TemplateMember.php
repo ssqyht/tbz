@@ -107,7 +107,7 @@ class TemplateMember extends \yii\db\ActiveRecord
     public static function active()
     {
         if (Yii::$app->request->isFrontend()) {
-            return static::find()->where(['status'=>static::STATUS_NORMAL,'user_id'=>1/*\Yii::$app->user->id*/]);
+            return static::find()->where(['status'=>static::STATUS_NORMAL,'user_id'=>\Yii::$app->user->id]);
         } else {
             return static::find();
         }
@@ -147,9 +147,6 @@ class TemplateMember extends \yii\db\ActiveRecord
             $data['thumbnailUrl'] = function () {
                 return Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url;
             };
-        $data['isFavorite'] = function (){
-
-        };
        /* if ($this->isRelationPopulated('myFavorite')) {
             $data['isFavorite'] = function () {
                 if ($this->myFavorite){

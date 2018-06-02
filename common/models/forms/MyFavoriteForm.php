@@ -108,18 +108,6 @@ class MyFavoriteForm extends Model
     }
 
     /**
-     * @return int 获取用户信息
-     */
-    public function getUser()
-    {
-        if ($this->user_id === null) {
-            $this->user_id = 1/*\Yii::$app->user->id*/
-            ;
-        }
-        return $this->user_id;
-    }
-
-    /**
      * 获取模型
      * @return bool|MyFavoriteMember|MyFavoriteTeam
      */

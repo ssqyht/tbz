@@ -32,7 +32,7 @@ $restUrls = [
             'extraPatterns' => [
                 'POST,OPTIONS template-operation' =>'template-operation',
                 'POST,OPTIONS material-operation' =>'material-operation',
-                'POST team-operation' =>'team-operation',
+                'POST,OPTIONS team-operation' =>'team-operation',
             ]
         ],
         [

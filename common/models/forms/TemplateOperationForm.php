@@ -9,7 +9,7 @@
 namespace common\models\forms;
 
 use common\components\traits\ModelErrorTrait;
-use common\models\FolderTemplateMember;
+use common\models\FolderMaterialMember;
 use common\models\FolderTemplateTeam;
 use common\models\TemplateMember;
 use common\models\TemplateTeam;
@@ -17,13 +17,6 @@ use common\models\TemplateTeam;
 class TemplateOperationForm extends \yii\base\Model
 {
     use ModelErrorTrait;
-
-
-    /** @var string 个人模板管理 */
-    const TEMPLATE_MEMBER = 'template_member';
-    /** @var string 团队模板管理 */
-    const TEMPLATE_TEAM = 'template_team';
-
 
     /* @var integer  重命名 */
     const RENAME = 1;
@@ -46,7 +39,6 @@ class TemplateOperationForm extends \yii\base\Model
     /** @var int 还原 */
     const STATUS_NORMAL = 10;
 
-    public $method;
     public $ids;
     public $name;
     public $folder;
@@ -62,10 +54,20 @@ class TemplateOperationForm extends \yii\base\Model
     public function rules()
     {
         return [
-            [['ids', 'type', 'method'], 'required'],
+            [['ids', 'type'], 'required'],
             [['folder', 'team_id'], 'integer'],
             ['name', 'string'],
-            ['method', 'in', 'range' => [static::TEMPLATE_MEMBER, static::TEMPLATE_TEAM]],
+            ['folder', 'required', 'when' => function ($model) {
+                return $model->type == static::MOVE_FOLDER;
+            }],
+            ['name', 'required', 'when' => function ($model) {
+                return $model->type == static::RENAME;
+            }],
+            ['ids', function () {
+                if (!is_integer($this->ids) && !is_numeric($this->ids) && !is_array($this->ids)) {
+                    $this->addError('ids', 'ids必须是整数或者数组');
+                }
+            }]
         ];
     }
 
@@ -109,10 +111,6 @@ class TemplateOperationForm extends \yii\base\Model
             $this->addError('', '不支持多个重命名');
             return false;
         }
-        if (!$this->name) {
-            $this->addError('', '重命名时文件名不能为空');
-            return false;
-        }
         return $this->batchProcessing('title', $this->name);
     }
 
@@ -123,14 +121,6 @@ class TemplateOperationForm extends \yii\base\Model
      */
     public function moveFolder()
     {
-        if (!$this->folder) {
-            $this->addError('', '移动到文件夹，文件夹id不能为空');
-            return false;
-        }
-        if (!$this->isFolder()) {
-            $this->addError('', '目标文件夹不存在');
-            return false;
-        }
         return $this->batchProcessing('folder_id', $this->folder);
     }
 
@@ -178,7 +168,7 @@ class TemplateOperationForm extends \yii\base\Model
         //查询将要复制的模板
         $template_data = TemplateMember::find()
             ->where(['template_id' => $this->ids])
-            ->andWhere(['user_id' => $this->user])
+            ->andWhere(['user_id' => \Yii::$app->user->id])
             ->andWhere(['status' => TemplateMember::STATUS_NORMAL])
             ->all();
         $data = [];
@@ -186,7 +176,7 @@ class TemplateOperationForm extends \yii\base\Model
             $data[] = [
                 'classify_id' => $value->classify_id,
                 'open_id' => $value->open_id,
-                'user_id' => $value->user_id,
+                'user_id' => \Yii::$app->user->id,
                 'team_id' => $this->team_id,
                 'folder_id' => $this->folder ? $this->folder : 0,
                 'cooperation_id' => $value->cooperation_id,
@@ -214,11 +204,12 @@ class TemplateOperationForm extends \yii\base\Model
     public function batchProcessing($key, $value)
     {
         if ($this->table) {
-            $result = \Yii::$app->db->createCommand()->update($this->_table, [$key => $value], $this->_condition)
+            $this->_condition = array_merge($this->_condition,['template_id' => $this->ids]);
+            $result = \Yii::$app->db->createCommand()->update(($this->table)::tableName(), [$key => $value], $this->_condition)
                 ->execute();
             if ($result) {
                 //更新缓存
-                \Yii::$app->dataCache->updateCache($this->_tableModel);
+                \Yii::$app->dataCache->updateCache($this->table);
                 return true;
             }
         }
@@ -227,61 +218,33 @@ class TemplateOperationForm extends \yii\base\Model
     }
 
     /**
-     * @return int 获取用户信息
-     */
-    public function getUser()
-    {
-        if ($this->_user === null) {
-            $this->_user = 1/*\Yii::$app->user->id*/
-            ;
-        }
-        return $this->_user;
-    }
-
-    /**
-     * 根据不同场景获取不同的文件名
-     * @return array|bool
+     * @return bool|string
      */
     public function getTable()
     {
         if ($this->_table === null) {
-            switch ($this->method) {
-                case static::TEMPLATE_MEMBER:
-                    //个人模板
-                    $this->_table = TemplateMember::tableName();
-                    $this->_condition = ['template_id' => $this->ids, 'user_id' => $this->user];
-                    $this->_tableModel = TemplateMember::class;
-                    break;
-                case static::TEMPLATE_TEAM:
-                    //团队模板
-                    $this->_table = TemplateTeam::tableName();
-                    $this->_condition = ['template_id' => $this->ids, 'team_id' => $this->team_id];
-                    $this->_tableModel = TemplateTeam::class;
-                    break;
-                default:
-                    $this->_table = false;
-                    break;
+            $user = \Yii::$app->user->identity;
+            if ($user->team) {
+                //团队
+                $this->_condition = ['team_id' => $this->team_id];
+                $tableModel = TemplateTeam::class;
+                $this->_folderModel = FolderTemplateTeam::class;
+            } else {
+                //个人
+                $this->_condition = ['user_id' => \Yii::$app->user->id];
+                $tableModel = TemplateMember::class;
+                $this->_folderModel = FolderMaterialMember::class;
             }
+            if ($this->type == 2) {
+                /** @var FolderMaterialMember|FolderTemplateTeam $this ->_folderModel */
+                $folder = ($this->_folderModel)::find()->where(['id' => $this->folder, 'status' => static::STATUS_NORMAL])->andWhere($this->_condition)->one();
+                if (!$folder) {
+                    $this->addError('folder', '目标文件夹不存在');
+                    $tableModel = false;
+                }
+            }
+            $this->_table = $tableModel;
         }
-        if ($this->_table) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 判断文件夹是否存在
-     * @return bool|FolderTemplateMember|FolderTemplateTeam|null
-     */
-    public function isFolder()
-    {
-        if ($this->method == static::TEMPLATE_MEMBER) {
-            $is_folder = FolderTemplateMember::findOne(['id' => $this->folder, 'user_id' => $this->user, 'status' => FolderTemplateMember::NORMAL_STATUS]);
-        } elseif ($this->method == static::TEMPLATE_TEAM) {
-            $is_folder = FolderTemplateTeam::findOne(['id' => $this->folder, 'team_id' => $this->user, 'status' => FolderTemplateTeam::NORMAL_STATUS]);
-        } else {
-            $is_folder = false;
-        }
-        return $is_folder;
+        return $this->_table;
     }
 }

@@ -9,6 +9,7 @@
 namespace api\common\controllers;
 
 use common\models\search\TeamSearch;
+use common\models\Team;
 use yii\helpers\ArrayHelper;
 use yii\web\NotFoundHttpException;
 use common\extension\Code;
@@ -25,7 +26,7 @@ class TeamController extends BaseController
      *     schemes={"http"},
      *     tags={"团队接口"},
      *     summary="获取团队信息",
-     *     description="此接口用来前台获取团队信息，成功返回对应团队的信息()",
+     *     description="此接口用来前台获取团队信息，成功返回对应团队的信息，后台会根据状态值返回所有符合条件的团队信息",
      *     @SWG\Parameter(
      *         name="Client",
      *         in="header",
@@ -43,8 +44,14 @@ class TeamController extends BaseController
      *         name="Team",
      *         in="header",
      *         type="integer",
+     *         description="前台参数(必传)，团队的唯一标识team_id",
+     *     ),
+     *     @SWG\Parameter(
+     *         name="status",
+     *         in="query",
+     *         type="integer",
      *         required=true,
-     *         description="团队的唯一标识team_id",
+     *         description="后台参数,团队状态",
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -69,11 +76,8 @@ class TeamController extends BaseController
      */
     public function actionIndex()
     {
-        if (!$team = \Yii::$app->user->identity->team){
-            throw new NotFoundHttpException('团队未找到', Code::SOURCE_NOT_FOUND);
-        }
         $model = new TeamSearch();
-        $result = $model->search(['team_id'=>$team->id]);
+        $result = $model->search(\Yii::$app->request->get());
         if ($result) {
             return $result;
         }
@@ -113,6 +117,12 @@ class TeamController extends BaseController
      *          type="string",
      *          description="团队头像，默认为创建者头像",
      *     ),
+     *     @SWG\Parameter(
+     *          in="formData",
+     *          name="file_id",
+     *          type="integer",
+     *          description="团队头像的文件id",
+     *     ),
      *      @SWG\Response(
      *          response=200,
      *          description="请求成功",
@@ -136,9 +146,9 @@ class TeamController extends BaseController
      */
     public function actionCreate()
     {
-        $create_data = \Yii::$app->request->post();
         $model = new TeamForm();
-        if ($model->load($create_data, '') && ($result = $model->addTeam())) {
+        $model->scenario = 'create';
+        if ($result = $model->editTeam(\Yii::$app->request->post())) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -193,15 +203,9 @@ class TeamController extends BaseController
      *     ),
      *     @SWG\Parameter(
      *          in="formData",
-     *          name="colors",
-     *          type="string",
-     *          description="团队颜色,为数组，如果填写将覆盖原来的颜色数组",
-     *     ),
-     *      @SWG\Parameter(
-     *          in="formData",
-     *          name="fonts",
-     *          type="string",
-     *          description="团队字体,为数组，如果填写将覆盖原来的团队字体",
+     *          name="file_id",
+     *          type="integer",
+     *          description="团队头像的文件id，此项在team_mark有值时必传",
      *     ),
      *      @SWG\Response(
      *          response=200,
@@ -227,9 +231,10 @@ class TeamController extends BaseController
      */
     public function actionUpdate($id)
     {
-        $update_data = \Yii::$app->request->post();
+        $update_data = ArrayHelper::merge(['id'=>$id],\Yii::$app->request->post());
         $model = new TeamForm();
-        if ($model->load($update_data, '') && ($result = $model->updateTeam($id))) {
+        $model->scenario = 'update';
+        if ($result = $model->editTeam($update_data)) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -289,7 +294,8 @@ class TeamController extends BaseController
     public function actionDelete($id)
     {
         $model = new TeamForm();
-        if ($model->deleteTeam($id)) {
+        $model->scenario = 'delete';
+        if ($model->editTeam(['id'=>$id,'status'=>Team::RECYCLE_BIN_STATUS])) {
             return '';
         }
         throw new HttpException(500, $model->getStringErrors(), Code::SERVER_FAILED);
@@ -360,10 +366,11 @@ class TeamController extends BaseController
         if (!$team = \Yii::$app->user->identity->team){
             throw new NotFoundHttpException('团队未找到', Code::SOURCE_NOT_FOUND);
         }
-        $data = ArrayHelper::merge(\Yii::$app->request->post(),['team_id'=>$team->id]);
+        $data = ArrayHelper::merge(\Yii::$app->request->post(),['id'=>$team->id]);
         $model = new TeamForm();
+        $model->scenario = 'operation';
         if ($model->load($data, '') && ($result = $model->operation())) {
-            return $result;
+            return '';
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
     }

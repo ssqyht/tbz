@@ -56,8 +56,7 @@ class TagController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return $result
-     * @throws NotFoundHttpException
+     * @return array|bool|string
      */
     public function actionIndex()
     {
@@ -65,7 +64,7 @@ class TagController extends RestController
         if ($result = $tag_search->search()) {
             return $result;
         }
-        throw new NotFoundHttpException('查询tag表信息失败', Code::SOURCE_NOT_FOUND);
+        return '';
     }
 
     /**
@@ -114,15 +113,14 @@ class TagController extends RestController
      *     ),
      * )
      * @param $id
-     * @return Tag|null
-     * @throws NotFoundHttpException
+     * @return Tag|null|string
      */
     public function actionView($id){
         $result = Tag::findOne(['tag_id'=>$id]);
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
+        return '';
     }
     /**
      * @SWG\Post(

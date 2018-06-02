@@ -8,6 +8,7 @@ use common\components\traits\ModelErrorTrait;
 use common\components\traits\ModelFieldsTrait;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
+
 /**
  * This is the model class for table "{{%team}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="Team"))
@@ -19,6 +20,7 @@ use yii\helpers\Url;
  * @property string $colors 颜色 @SWG\Property(property="colors", type="string", description=" 颜色")
  * @property string $fonts 字体 @SWG\Property(property="fonts", type="string", description=" 字体")
  * @property string $team_mark 团队头像 @SWG\Property(property="teamMark", type="string", description=" 团队头像")
+ * @property string $file_id 团队头像的文件id @SWG\Property(property="fileId", type="integer", description=" 团队头像的文件id")
  * @property int $team_level 团队等级 @SWG\Property(property="teamLevel", type="integer", description=" 团队等级")
  * @property int $status 团队状态 @SWG\Property(property="status", type="integer", description=" 团队状态")
  * @property int $created_at 创建日期 @SWG\Property(property="createdAt", type="integer", description=" 创建日期")
@@ -52,7 +54,7 @@ class Team extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['coin', 'founder_id', 'team_level', 'status', 'created_at', 'updated_at'], 'integer'],
+            [['coin', 'founder_id', 'team_level', 'status', 'created_at', 'updated_at', 'file_id'], 'integer'],
             [['team_name'], 'string', 'max' => 100],
             [['colors', 'fonts'], 'string', 'max' => 500],
             [['team_mark'], 'string', 'max' => 200],
@@ -74,6 +76,7 @@ class Team extends \yii\db\ActiveRecord
             'colors' => '颜色',
             'fonts' => '字体',
             'team_mark' => '团队头像',
+            'file_id' => '团队头像的文件id',
             'team_level' => '团队等级',
             'status' => '团队状态',
             'created_at' => '创建时间',
@@ -105,12 +108,12 @@ class Team extends \yii\db\ActiveRecord
     {
         return static::find()
             ->alias('t')
-            ->andWhere(['t.id' => $id,'t.status'=>static::NORMAL_STATUS])
-            ->joinWith(['members m' => function($query){
+            ->andWhere(['t.id' => $id, 't.status' => static::NORMAL_STATUS])
+            ->joinWith(['members m' => function ($query) {
                 /** @var $query ActiveQuery */
                 $query->andWhere(['m.user_id' => Yii::$app->user->id]);
             }])
-            ->andWhere(['m.status'=>TeamMember::NORMAL_STATUS])
+            ->andWhere(['m.status' => TeamMember::NORMAL_STATUS])
             ->one();
     }
 
@@ -120,7 +123,7 @@ class Team extends \yii\db\ActiveRecord
     public function frontendFields()
     {
         return [
-            'id', 'team_name', 'coin', 'founder_id', 'colors', 'fonts', 'team_mark', 'team_level', 'created_at'
+            'id', 'team_name', 'coin', 'founder_id', 'colors', 'fonts', 'team_mark', 'team_level', 'created_at','file_id'
         ];
     }
 
@@ -152,6 +155,7 @@ class Team extends \yii\db\ActiveRecord
     {
         return $this->hasMany(TeamMember::class, ['team_id' => 'id']);
     }
+
     /**
      * @param bool $insert
      * @param array $changedAttributes

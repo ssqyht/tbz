@@ -124,9 +124,9 @@ class TemplateTeam extends \yii\db\ActiveRecord
     public static function findById($id, $team_id = 0)
     {
         if (Yii::$app->request->isFrontend()) {
-            return static::find()->where(['status' => static::STATUS_NORMAL,'template_id' => $id,'team_id'=>$team_id])->one();
+            return static::active()->andWhere(['template_id' => $id,'team_id'=>$team_id])->one();
         } else {
-            return static::find()->where(['template_id' => $id])->one();
+            return static::active()->andWhere(['template_id' => $id])->one();
         }
     }
 

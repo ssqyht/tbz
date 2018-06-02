@@ -2,7 +2,8 @@
 
 namespace common\models\forms;
 
-use common\models\Member;
+use common\components\traits\ModelAttributeTrait;
+use common\models\FileUsedRecord;
 use common\models\Team;
 use common\models\TeamMember;
 use yii\base\Model;
@@ -11,205 +12,173 @@ use common\components\traits\ModelErrorTrait;
 class TeamForm extends Model
 {
     use ModelErrorTrait;
+    use ModelAttributeTrait;
     /** @var int 允许最大创建数量 */
     const MAX_TEAM_NUMBER = 5;
     /** @var int 创建者角色 */
     const CREATED_ROLE = 1;
     /** @var int 普通成员角色 */
     const MEMBER_ROLE = 4;
+    /** @var string 默认头像 */
+    const DEFAULT_MARK = 'dXBsb2Fkcw==/other/201805/C4U24nXDmTJjLL9mfFFB.jpeg';
+    /** @var int 默认头像的文件id */
+    const DEFAULT_FILE = 1;
 
+    public $id;
     public $team_name;
     public $founder_id;
-    public $colors;
-    public $fonts;
     public $team_mark;
+    public $file_id;
     public $status;
-    public $member_id;
-    public $team_id;
-    public $role;
+
     public $color;
     public $font;
     public $operation_type;
+
     public function rules()
     {
         return [
-            [['founder_id', 'status', 'team_id', 'member_id', 'role','operation_type'], 'integer'],
-            [['team_name'], 'string', 'max' => 100],
-            [['team_mark'], 'string', 'max' => 200],
-            [['color','font'],'string'],
-            [['colors', 'fonts'], 'validateColorsFonts'],
+            [['id', 'operation_type', 'file_id', 'status'], 'integer', 'on' => ['create', 'update', 'delete', 'operation']],
+            [['team_name'], 'string', 'max' => 100, 'on' => ['create', 'update']],
+            [['team_mark'], 'string', 'max' => 200, 'on' => ['create', 'update']],
+            [['color', 'font'], 'string', 'on' => ['operation']],
+            [['team_name'], 'required', 'on' => ['create']],
+            ['id', 'required', 'on' => ['update', 'delete', 'operation']],
+            ['status', 'required', 'on' => 'delete']
         ];
     }
 
-    /**
-     * 验证颜色和字体的格式是否为数组
-     * @return bool
-     */
-    public function validateColorsFonts()
+    public function scenarios()
     {
-        if (!$this->hasErrors()) {
-            if ($this->colors && !is_array($this->colors) ) {
-                $this->addError('', '颜色必须是数组');
-                return false;
-            }
-            if ($this->fonts && !is_array($this->colors)) {
-                $this->addError('', '字体必须是数组');
-                return false;
-            }
-        }
-        return true;
+        return [
+            'create' => ['team_name', 'team_mark', 'file_id'],
+            'update' => ['team_name', 'team_mark', 'file_id', 'id'],
+            'delete' => ['id', 'status'],
+            'operation' => ['id', 'color', 'font']
+        ];
     }
 
     /**
      * 创建团队
      * @return bool|Team
      */
-    public function addTeam()
+    public function editTeam($params)
     {
+        $this->load($params, '');
         if (!$this->validate()) {
             return false;
         }
-        if (!$this->team_name) {
-            $this->addError('', '团队名称不能为空');
-            return false;
+        if ($this->id) {
+            $team_model = Team::findOne(['id' => $this->id]);
+            if ($team_model->founder_id != \Yii::$app->user->id) {
+                $this->addError('', '非团队创建者无权操作团队信息');
+            }
+        } else {
+            if (!$this->isBeyondLimit()) {
+                $this->addError('', '同一用户只能创建最多5个团队');
+                return false;
+            }
+            $team_model = new Team();
+            if (!$this->team_mark) {
+                //团队头像为默认头像
+                $this->team_mark = static::DEFAULT_MARK;
+                $this->file_id = static::DEFAULT_FILE;
+            }
+            $this->founder_id = \Yii::$app->user->id;
         }
-        if (!$this->user) {
-            $this->addError('unlogin', '获取用户信息失败，请登录');
-            return false;
+        $team_model->load($this->getUpdateAttributes(), '');
+        //新创建团队只添加文件引用记录
+        if ($is_new = $team_model->isNewRecord) {
+            $create_file = $team_model->file_id;
         }
-        if (!$this->isBeyondLimit()) {
-            $this->addError('', '同一用户只能创建最多5个团队');
-            return false;
+        //修改团队头像先删除文件引用记录，再添加文件引用记录
+        if ($team_model->isAttributeChanged('team_mark') && $team_model->isAttributeChanged('file_id')) {
+            $drop_file = $team_model->getOldAttribute('file_id');
+            $create_file = $team_model->file_id;
+            $old_key = $team_model->oldPrimaryKey;
         }
-        if (!$this->team_mark) {
-            //团队头像默认为创建者的头像
-            $team_mark = Member::findIdentity($this->user);
-            $this->team_mark = $team_mark->headimg_url;
+        //删除团队时，只删除文件引用记录
+        if ($team_model->isAttributeChanged('status') && $team_model->status == Team::RECYCLE_BIN_STATUS) {
+            $drop_file = $team_model->getOldAttribute('file_id');
+            $old_key = $team_model->oldPrimaryKey;
         }
-        $team_model = new Team();
-        if ($team_model->load($this->attributes, '') && $team_model->save()) {
-            //把创建者信息存入团队会员表
-            $team_member_model = new TeamMember();
-            $team_member_model->user_id = $this->user;
-            $team_member_model->team_id = $team_model->id;
-            $team_member_model->role = static::CREATED_ROLE;         //创建者角色
-            $team_member_model->save();
+        $transaction = \Yii::$app->getDb()->beginTransaction();
+        try {
+            if (!($team_model->validate() && $team_model->save())) {
+                throw new \Exception('团队操作失败' . $team_model->getStringErrors());
+            }
+            $purpose = FileUsedRecord::PURPOSE_TEAM_MARK;
+            //删除文件记录
+            if ($drop_file) {
+                $result = FileUsedRecord::dropRecord($drop_file, $purpose, $old_key);
+                if (!$result || (is_object($result) && $result->getErrors())) {
+                    throw new \Exception('删除团队头像引用文件记录失败' . (is_object($result) ? $result->getStringErrors() : ''));
+                }
+            }
+            //创建文件记录
+            if ($create_file) {
+                $file_result = FileUsedRecord::createRecord(\Yii::$app->user->id, $create_file, $purpose, $team_model->primaryKey);
+                if (!$file_result || (is_object($file_result) && $file_result->getErrors())) {
+                    throw new \Exception('创建团队头像引用文件记录失败' . (is_object($file_result) ? $file_result->getStringErrors() : ''));
+                }
+            }
+            //新创建团队把创建者信息存入团队会员表
+            if ($is_new) {
+                $team_member_model = new TeamMember();
+                $team_member_model->user_id = \Yii::$app->user->id;
+                $team_member_model->team_id = $team_model->id;
+                $team_member_model->role = static::CREATED_ROLE;         //创建者角色
+                $team_member_model->save();
+            }
+            $transaction->commit();
             return $team_model;
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            $this->addError('', $e->getMessage());
+            return false;
         }
-        return false;
     }
 
     /**
-     * 编辑团队信息
-     * @param $id
+     * 添加、剔除颜色或字体
      * @return bool|Team|null
      */
-    public function updateTeam($id)
+    public function operation()
     {
         if (!$this->validate()) {
             return false;
         }
-        if (!$this->user) {
-            $this->addError('unlogin', '获取用户信息失败，请登录');
+        $team_model = Team::findOne(['id' => $this->id, 'status' => Team::NORMAL_STATUS]);
+        if (!$team_model) {
+            $this->addError('', '当前团队不存在');
             return false;
         }
-        $team_model = Team::findOne(['id' => $id]);
-        if ($this->user != $team_model->founder_id) {
-            $this->addError('unlogin', '非团队创建者无权对团队名称和头像进行修改');
-            return false;
+        if ($this->color) {
+            $colors = explode(',', $team_model->colors);
+            if ($this->operation_type == 1) {
+                //剔除团队颜色
+                $colors = array_diff($colors, [$this->color]);
+            } else {
+                //添加颜色
+                array_push($colors, $this->color);
+            }
+            $team_model->colors = trim(implode(',', $colors), ',');
         }
-        //修改团队名称
-        if ($this->team_name) {
-            $team_model->team_name = $this->team_name;
-        }
-        //修改团队头像
-        if ($this->team_mark) {
-            $team_model->team_mark = $this->team_mark;
-        }
-        //修改团队颜色
-        if ($this->colors) {
-            $team_model->colors = implode(',', $this->colors);
-        }
-        //修改团队字体
-        if ($this->fonts) {
-            $team_model->fonts = implode(',', $this->fonts);
+        if ($this->font) {
+            $fonts = explode(',', $team_model->fonts);
+            if ($this->operation_type == 1) {
+                //剔除团队字体
+                $fonts = array_diff($fonts, [$this->font]);
+            } else {
+                //添加团队字体
+                array_push($fonts, $this->font);
+            }
+            $team_model->fonts = trim(implode(',', $fonts), ',');
         }
         if ($team_model->save()) {
             return $team_model;
         }
         return false;
-    }
-
-    /**
-     * 删除团队
-     * @param $id
-     * @return bool
-     */
-    public function deleteTeam($id)
-    {
-        $team_model = Team::findOne(['id' => $id]);
-        if ($this->user != $team_model->founder_id) {
-            $this->addError('unlogin', '非团队创建者无权删除团队');
-            return false;
-        }
-        $team_model->status = Team::RECYCLE_BIN_STATUS;
-        if ($team_model->save(false)) {
-            return true;
-        }
-        $this->addError('', '删除失败');
-        return false;
-    }
-
-    /**
-     * 添加新的颜色或字体
-     * @return bool|Team|null
-     */
-    public function operation(){
-        if (!$this->validate()){
-            return false;
-        }
-        $team_model = Team::findOne(['id'=>$this->team_id,'status'=>Team::NORMAL_STATUS]);
-        if (!$team_model){
-            $this->addError('','当前团队不存在');
-            return false;
-        }
-        if ($this->color){
-            $colors = explode(',',$team_model->colors);
-           if ($this->operation_type == 1){
-                //剔除团队颜色
-                $colors = array_diff($colors,[$this->color]);
-            }else{
-                //添加颜色
-                array_push($colors,$this->color);
-            }
-            $team_model->colors = trim(implode(',',$colors),',');
-        }
-        if ($this->font){
-            $fonts = explode(',',$team_model->fonts);
-            if ($this->operation_type == 1){
-                //剔除团队字体
-                $fonts = array_diff($fonts ,[$this->font]);
-            }else{
-                //添加团队字体
-                array_push($fonts,$this->font);
-            }
-            $team_model->fonts = trim(implode(',',$fonts),',');
-        }
-        if ($team_model->save()){
-            return $team_model;
-        }
-        return false;
-    }
-    /**
-     * @return int 获取用户信息
-     */
-    public function getUser()
-    {
-        if ($this->founder_id === null) {
-            $this->founder_id = 1/*\Yii::$app->user->id*/
-            ;
-        }
-        return $this->founder_id;
     }
 
     /**
@@ -220,7 +189,7 @@ class TeamForm extends Model
     {
         $number = $count = (new \yii\db\Query())
             ->from(Team::tableName())
-            ->where(['founder_id' => $this->user, 'status' => Team::NORMAL_STATUS])
+            ->where(['founder_id' => \Yii::$app->user->id, 'status' => Team::NORMAL_STATUS])
             ->count();
         if ($number >= static::MAX_TEAM_NUMBER) {
             return false;

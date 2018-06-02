@@ -54,14 +54,14 @@ class MaterialOperationForm extends \yii\base\Model
             [['folder'], 'integer'],
             ['name', 'string'],
             ['folder', 'required', 'when' => function ($model) {
-                return $model->type == 2;
+                return $model->type == static::MOVE_FOLDER;
             }],
             ['name', 'required', 'when' => function ($model) {
-                return $model->type == 1;
+                return $model->type == static::RENAME;
             }],
-            ['ids',function (){
-                if (!is_int($this->ids) && !is_array($this->ids)){
-                    $this->addError('ids','ids必须是整数或者数组');
+            ['ids', function () {
+                if (!is_int($this->ids) && !is_numeric($this->ids) && !is_array($this->ids)) {
+                    $this->addError('ids', 'ids必须是整数或者数组');
                 }
             }]
         ];
@@ -188,7 +188,7 @@ class MaterialOperationForm extends \yii\base\Model
                 $tableModel = MaterialMember::class;
                 $this->_folderModel = FolderMaterialMember::class;
             }
-            if ($this->type == 2) {
+            if ($this->type == static::MOVE_FOLDER) {
                 /** @var MaterialMember|MaterialTeam $this ->_folderModel */
                 $folder = ($this->_folderModel)::find()->where(['id' => $this->folder, 'status' => static::STATUS_NORMAL])->andWhere($this->_condition)->one();
                 if (!$folder) {

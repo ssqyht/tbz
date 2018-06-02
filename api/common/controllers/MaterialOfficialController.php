@@ -5,16 +5,14 @@
  * Date: 2018/5/28
  * Time: 9:01
  */
+
 namespace api\common\controllers;
 
 use common\models\forms\MaterialOfficialForm;
 use common\models\MaterialMember;
 use common\models\MaterialOfficial;
-use common\models\MaterialTeam;
 use common\models\search\MaterialOfficialSearch;
-use yii\web\NotFoundHttpException;
 use common\extension\Code;
-use common\models\forms\MaterialOperationForm;
 use yii\web\BadRequestHttpException;
 use yii\helpers\ArrayHelper;
 use yii\web\HttpException;
@@ -84,8 +82,7 @@ class MaterialOfficialController extends BaseController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return array|mixed|null
-     * @throws NotFoundHttpException
+     * @return array|mixed|null|string
      */
     public function actionIndex()
     {
@@ -94,7 +91,7 @@ class MaterialOfficialController extends BaseController
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException($model->getStringErrors(), Code::SOURCE_NOT_FOUND);
+        return '';
     }
 
     /**
@@ -143,16 +140,17 @@ class MaterialOfficialController extends BaseController
      *     ),
      * )
      * @param $id
-     * @return array|null|\yii\db\ActiveRecord
-     * @throws NotFoundHttpException
+     * @return array|null|string|\yii\db\ActiveRecord
      */
-    public function actionView($id){
+    public function actionView($id)
+    {
         $result = MaterialOfficial::findById($id);
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException('未找到', Code::SOURCE_NOT_FOUND);
+        return '';
     }
+
     /**
      * 新增素材
      * @SWG\POST(
@@ -199,7 +197,7 @@ class MaterialOfficialController extends BaseController
      *     @SWG\Parameter(
      *          in="formData",
      *          name="file_id",
-     *          type="string",
+     *          type="integer",
      *          description="文件id",
      *          required=true,
      *     ),
@@ -235,7 +233,8 @@ class MaterialOfficialController extends BaseController
     public function actionCreate()
     {
         $model = new MaterialOfficialForm();
-        if ($model->load(\Yii::$app->request->post(), '') && ($result = $model->addMaterial())) {
+        $model->scenario = 'create';
+        if ($result = $model->editOfficialMaterial(\Yii::$app->request->post())) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -294,7 +293,7 @@ class MaterialOfficialController extends BaseController
      *     @SWG\Parameter(
      *          in="formData",
      *          name="file_id",
-     *          type="string",
+     *          type="integer",
      *          description="文件id",
      *          required=true,
      *     ),
@@ -329,7 +328,9 @@ class MaterialOfficialController extends BaseController
     public function actionUpdate($id)
     {
         $model = new MaterialOfficialForm();
-        if ($model->load(\Yii::$app->request->post(), '') && ($result = $model->updateMaterial($id))) {
+        $model->scenario = 'update';
+        $data = ArrayHelper::merge(['id' => $id], \Yii::$app->request->post());
+        if ($result = $model->editOfficialMaterial($data)) {
             return $result;
         }
         throw new BadRequestHttpException($model->getStringErrors(), Code::SERVER_UNAUTHORIZED);
@@ -381,7 +382,9 @@ class MaterialOfficialController extends BaseController
     public function actionDelete($id)
     {
         $model = new MaterialOfficialForm();
-        if (($result = $model->deleteMaterial($id))) {
+        $model->scenario = 'delete';
+        $data = ['id' => $id, 'status' => MaterialOfficialForm::RECYCLE_BIN_STATUS];
+        if (($result = $model->editOfficialMaterial($data))) {
             return "";
         }
         throw new HttpException(500, $model->getStringErrors(), Code::SERVER_FAILED);

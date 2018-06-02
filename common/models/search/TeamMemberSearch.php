@@ -11,11 +11,11 @@ use common\models\Team;
 use common\components\vendor\Model;
 use common\models\TeamMember;
 use common\models\CacheDependency;
+use yii\data\ActiveDataProvider;
 
 class TeamMemberSearch extends Model
 {
     public $team_id;
-    public $user_id;
     private $_cacheKey;
 
     public function rules()
@@ -64,10 +64,6 @@ class TeamMemberSearch extends Model
      */
     public function searchFrontend()
     {
-        if (!$this->team_id) {
-            $this->addError('', '团队标识team_id不能为空');
-            return false;
-        }
         $team_data = TeamMember::find()
             ->where(['team_id' => $this->team_id, 'status' => TeamMember::NORMAL_STATUS])
             ->orderBy(['role'=>SORT_ASC])
@@ -83,11 +79,23 @@ class TeamMemberSearch extends Model
         return $result;
     }
 
-
-
+    /**
+     * 后台查询所有团队
+     * @return array
+     */
     public function searchBackend()
     {
-        return false;
+        $team_data = TeamMember::find()
+            ->orderBy(['role'=>SORT_ASC])
+            ->with('memberMark');
+        $provider = new ActiveDataProvider([
+            'query' => $team_data,
+            'pagination' => [
+                'pageSize' => 16,
+            ],
+        ]);
+        $result = $provider->getModels();
+        return $result;
     }
     /**
      * 查询缓存Key
@@ -107,17 +115,6 @@ class TeamMemberSearch extends Model
         }
         return $this->_cacheKey;
     }
-    /**
-     * 获取用户id
-     */
-    public function getUser()
-    {
-        if (!$this->user_id) {
-            $this->user_id = 1 /*\Yii::$app->user->id*/;
-        }
-        return $this->user_id;
-    }
-
     /**
      * 删除查询缓存
      * @author thanatos <thanatos915@163.com>

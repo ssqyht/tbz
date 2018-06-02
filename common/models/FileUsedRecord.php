@@ -24,17 +24,22 @@ class FileUsedRecord extends \yii\db\ActiveRecord
 
     /** @var int 用户头像 */
     const PURPOSE_HEADIMG = 10;
+    /** @var int 团队头像文件使用类型 */
+    const PURPOSE_TEAM_MARK = 11;
     /** @var int 模板使用类型 */
     const PURPOSE_TEMPLATE = 12;
-    /** @var int 素材使用类型 */
-    const PURPOSE_MATERIAL = 13;
+    /** @var int 个人素材使用类型 */
+    const PURPOSE_MATERIAL_MEMBER = 13;
     /** @var int 分类缩略图 */
     const PURPOSE_CLASSIFY = 14;
     /** @var int 字体 */
     const PURPOSE_FONT = 15;
-
+    /** @var int 团队素材使用类型 */
+    const PURPOSE_MATERIAL_TEAM = 16;
+    /** @var int 官方素材使用类型 */
+    const PURPOSE_MATERIAL_OFFICIAL = 17;
     /** @var int purpose 最大值 */
-    const PURPOSE_MAX = self::PURPOSE_FONT;
+    const PURPOSE_MAX = self::PURPOSE_MATERIAL_OFFICIAL;
 
     /** @var string 增加使用记录 */
     const SCENARIO_CREATE = 'create';
@@ -55,7 +60,8 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'file_id', 'purpose', 'purpose_id'], 'required'],
+            [['file_id', 'purpose', 'purpose_id'], 'required'],
+            ['user_id','required','on'=>static::SCENARIO_CREATE],
             [['user_id', 'file_id', 'purpose_id', 'created_at'], 'integer'],
             [['purpose'], 'integer', 'min' => 1, 'max' => static::PURPOSE_MAX],
         ];
@@ -66,7 +72,7 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     {
         $scenarios = [
             static::SCENARIO_CREATE => ['user_id', 'file_id', 'purpose', 'purpose_id'],
-            static::SCENARIO_DROP => ['user_id', 'file_id', 'purpose', 'purpose_id'],
+            static::SCENARIO_DROP => ['file_id', 'purpose', 'purpose_id'],
         ];
         return ArrayHelper::merge(parent::scenarios(), $scenarios);
     }
@@ -95,11 +101,10 @@ class FileUsedRecord extends \yii\db\ActiveRecord
      * @return bool|FileUsedRecord|false|int|null|string
      * @author thanatos <thanatos915@163.com>
      */
-    public static function dropRecord($user_id, $file_id, $purpose, $purpose_id)
+    public static function dropRecord($file_id, $purpose, $purpose_id)
     {
         $model = new static(['scenario' => static::SCENARIO_DROP]);
         $data = [
-            'user_id' => $user_id,
             'file_id' => $file_id,
             'purpose' => $purpose,
             'purpose_id'  => $purpose_id
@@ -174,7 +179,7 @@ class FileUsedRecord extends \yii\db\ActiveRecord
             }
         }
         // 我的素材只能添加一个
-        if ($this->purpose === static::PURPOSE_MATERIAL) {
+        if ($this->purpose === static::PURPOSE_MATERIAL_MEMBER) {
             $model = $this->findByUserUsed();
         }
 
@@ -191,7 +196,7 @@ class FileUsedRecord extends \yii\db\ActiveRecord
      */
     protected function drop()
     {
-        $model = static::findOne($this->getAttributes(['user_id', 'file_id', 'purpose', 'purpose_id']));
+        $model = static::findOne($this->getAttributes(['file_id', 'purpose', 'purpose_id']));
         if (empty($model)) {
             return true;
         }
@@ -214,7 +219,6 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     private function findByUserUsed()
     {
         $condition = [
-            'user_id' => $this->user_id,
             'purpose' => $this->purpose,
             'purpose_id' => $this->purpose_id,
         ];
@@ -222,7 +226,14 @@ class FileUsedRecord extends \yii\db\ActiveRecord
             case static::PURPOSE_HEADIMG:
                 $method = 'findOne';
                 break;
-            case static::PURPOSE_MATERIAL:
+            case static::PURPOSE_TEAM_MARK:
+            $method = 'findOne';
+            break;
+            case static::PURPOSE_MATERIAL_TEAM:
+                $method = 'findOne';
+                $condition['file_id'] = $this->file_id;
+                break;
+            case static::PURPOSE_MATERIAL_MEMBER:
                 $method = 'findOne';
                 $condition['file_id'] = $this->file_id;
                 break;

@@ -135,6 +135,7 @@ class MaterialController extends BaseController
      *          name="id",
      *          type="integer",
      *          description="素材唯一标识id",
+     *          required=true,
      *     ),
      *     @SWG\Response(
      *          response=200,
@@ -420,7 +421,7 @@ class MaterialController extends BaseController
     {
         $model = new MaterialForm();
         if ($model->load(['id'=>$id], '') && ($result = $model->deleteMaterial())) {
-            return "";
+            return '';
         }
         throw new HttpException(500, $model->getStringErrors(), Code::SERVER_FAILED);
     }

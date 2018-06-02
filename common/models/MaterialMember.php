@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\traits\ModelErrorTrait;
 use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelFieldsTrait;
@@ -23,7 +24,7 @@ class MaterialMember extends \yii\db\ActiveRecord
 
     use TimestampTrait;
     use ModelFieldsTrait;
-
+    use ModelErrorTrait;
     /** @var string 素材正常状态 */
     const STATUS_NORMAL = '10';
 

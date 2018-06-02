@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\traits\ModelErrorTrait;
 use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelFieldsTrait;
@@ -24,12 +25,10 @@ class TeamMember extends \yii\db\ActiveRecord
 {
     use ModelFieldsTrait;
     use TimestampTrait;
+    use ModelErrorTrait;
     /** @var int 团队正常状态值 */
     const NORMAL_STATUS = 10;
-    /** @var int 到回收站状态 */
-    const RECYCLE_BIN_STATUS = 7;
-    /** @var int 拉黑状态 */
-    const DELETE_STATUS = 3;
+
     /**
      * @inheritdoc
      */

@@ -5,7 +5,6 @@ namespace common\models\forms;
 use common\models\FileCommon;
 use common\models\FileUsedRecord;
 use common\models\TbzSubject;
-use yii\helpers\Json;
 use yii\base\Model;
 use common\components\traits\ModelErrorTrait;
 use common\components\traits\ModelAttributeTrait;
@@ -127,7 +126,7 @@ class TbzSubjectForm extends Model
             if ($drop_data) {
                 foreach ($drop_data as $key => $value) {
                     if ($model->primaryKey) {
-                        $result = FileUsedRecord::dropRecord(\Yii::$app->user->id, $value, $purpose, $model->oldPrimaryKey);
+                        $result = FileUsedRecord::dropRecord($value, $purpose, $model->oldPrimaryKey);
                         if (!$result || (is_object($result) && $result->getErrors())) {
                             throw new \Exception('删除' . $key . '引用文件记录失败'.(is_object($result) ? $result->getStringErrors() : ''));
                         }
@@ -146,6 +145,7 @@ class TbzSubjectForm extends Model
             $transaction->commit();
             return $model;
         } catch (\Throwable $e) {
+            $transaction->rollBack();
             $this->addError('',$e->getMessage());
             return false;
         }
