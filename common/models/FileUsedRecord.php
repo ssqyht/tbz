@@ -26,8 +26,8 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     const PURPOSE_HEADIMG = 10;
     /** @var int 团队头像文件使用类型 */
     const PURPOSE_TEAM_MARK = 11;
-    /** @var int 模板使用类型 */
-    const PURPOSE_TEMPLATE = 12;
+    /** @var int 个人模板使用类型 */
+    const PURPOSE_TEMPLATE_MEMBER = 12;
     /** @var int 个人素材使用类型 */
     const PURPOSE_MATERIAL_MEMBER = 13;
     /** @var int 分类缩略图 */
@@ -38,9 +38,12 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     const PURPOSE_MATERIAL_TEAM = 16;
     /** @var int 官方素材使用类型 */
     const PURPOSE_MATERIAL_OFFICIAL = 17;
+    /** @var int 团队模板使用类型 */
+    const PURPOSE_TEMPLATE_TEAM = 18;
+    /** @var int 官方模板使用类型 */
+    const PURPOSE_TEMPLATE_OFFICIAL = 19;
     /** @var int purpose 最大值 */
     const PURPOSE_MAX = self::PURPOSE_MATERIAL_OFFICIAL;
-
     /** @var string 增加使用记录 */
     const SCENARIO_CREATE = 'create';
     /** @var string 删除使用记录 */
