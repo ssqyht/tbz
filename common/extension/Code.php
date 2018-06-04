@@ -4,6 +4,8 @@
  */
 namespace common\extension;
 
+use yii\helpers\ArrayHelper;
+
 class Code
 {
     /** @var int 用户已经存在 */
@@ -69,5 +71,16 @@ class Code
     public $template = [
         self::TEMPLATE_FORMAT_ERROR => '模板数据格式错误',
     ];
+
+    /**
+     * 获取平台错误信息
+     * @return array
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function getErrors()
+    {
+        $data = ArrayHelper::merge($this->common, $this->system, $this->user, $this->template);
+        return $data;
+    }
 
 }

@@ -169,7 +169,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
 
     public function deleteFields()
     {
-        return ['template_id'];
+        return [];
     }
 
     /**

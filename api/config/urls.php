@@ -48,6 +48,7 @@ $restUrls = [
         // 验证码
         'POST,OPTIONS main/send-sms' => 'main/send-sms',
         'GET,POST,OPTIONS system/oss-policy' => 'system/oss-policy',
+        'GET,OPTIONS system/get-errors' => 'system/get-errors',
         'GET,OPTIONS main/<action>' => 'main/<action>',
 
         // 开始文档
