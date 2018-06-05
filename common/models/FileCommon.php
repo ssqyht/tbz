@@ -18,6 +18,7 @@ use yii\validators\UrlValidator;
  * @property int $type 文件类型
  * @property int $width 图片宽度
  * @property int $height 图片高度
+ * @property int $sum 文件使用次数
  * @property int $created_at 创建时间
  */
 class FileCommon extends \yii\db\ActiveRecord
@@ -38,10 +39,10 @@ class FileCommon extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['width', 'height'], 'default', 'value' => 0],
-            [['width', 'height', 'size'], 'filter', 'filter'=> 'intval'],
+            [['width', 'height', 'sum'], 'default', 'value' => 0],
+            [['width', 'height', 'size', 'sum'], 'filter', 'filter'=> 'intval'],
             [['etag', 'path', 'size', 'type'], 'required'],
-            [['size', 'width', 'height', 'created_at'], 'integer'],
+            [['size', 'width', 'height', 'sum', 'created_at'], 'integer'],
             [['etag'], 'string', 'max' => 32, 'min' => 32],
             [['path'], 'string', 'max' => 255],
             [['type'], 'integer', 'min' => 1, 'max' => static::EXT_SVG],
@@ -92,6 +93,20 @@ class FileCommon extends \yii\db\ActiveRecord
     public static function findByEtag($etag)
     {
         return static::findOne(['etag' => $etag]);
+    }
+
+    /**
+     * 批量更新
+     * @param $params
+     * @return bool|int
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function updateSum($params)
+    {
+        if (empty($params) || !is_array($params)) {
+            return false;
+        }
+        return static::updateAllCounters(['sum' => -1], ['file_id' => $params]);
     }
 
     const EXT_DOC = 1;

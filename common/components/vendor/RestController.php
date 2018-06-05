@@ -29,8 +29,6 @@ class RestController extends Controller
         parent::init();
         // 设置OSS图片网址别名
         Yii::setAlias('@oss', Yii::$app->params['ossUrl']);
-        // 设置OSS内网图片网址别名
-        Yii::setAlias('@ossInternal', Yii::$app->params['ossInternal']);
 
        /* if (!Yii::$app->request->isOptions && Yii::$app->request->client === false) {
             throw new ForbiddenHttpException('没有仅限', Code::SERVER_NOT_PERMISSION);

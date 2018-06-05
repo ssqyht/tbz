@@ -11,12 +11,19 @@ use common\models\forms\FileUpload;
 use common\models\Member;
 use common\models\MemberOauth;
 use common\models\Tag;
+use console\models\OfficialTemplate;
 use Yii;
 use yii\base\Exception;
 use yii\console\Controller;
+use yii\data\ActiveDataProvider;
 use yii\data\SqlDataProvider;
 use yii\db\Query;
+use yii\debug\models\timeline\DataProvider;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
+use yii\httpclient\Client;
+use yii\httpclient\CurlTransport;
+use yii\httpclient\Response;
 
 /**
  * 5.0数据迁移类
@@ -27,17 +34,18 @@ class MigrateTableController extends Controller
 {
 
     public $test;
+    public $server = 'http://localhost';
 
     private $defaultPageSize = 5000;
 
     public function options($actionID)
     {
-        return ['test'];
+        return ['test', 'server'];
     }
 
     public function optionAliases()
     {
-        return ['t' => 'test'];
+        return ['t' => 'test', 's' => 'server'];
     }
 
     /**
@@ -395,6 +403,59 @@ class MigrateTableController extends Controller
         Tag::getDb()->createCommand()->batchInsert(Tag::tableName(), ['name', 'type', 'sort', 'created_at', 'updated_at'], $data)->execute();
 
         $this->stdout('迁移成功' . "\n", Console::FG_GREEN);
+
+    }
+
+    /**
+     * 转移模板
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function actionTemplate()
+    {
+        // 设置OSS图片网址别名
+        Yii::setAlias('@oss', Yii::$app->params['ossUrl']);
+        $db = Yii::$app->dbMigrateTbz;
+        // 官方模板
+        $query = OfficialTemplate::find()->where([
+            'status' => OfficialTemplate::STATUS_ONLINE,
+            'coop_id' => 0
+        ])->with('pages.elements');
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => $this->getPageSize(),
+            ],
+        ]);
+        // 查询一次
+        $dataProvider->prepare();
+
+        for($currentPage = 0; $currentPage < $dataProvider->pagination->getPageCount(); $currentPage++) {
+            if ($currentPage > 0) {
+                $dataProvider->pagination->setPage($currentPage);
+                $dataProvider->prepare(true);
+            }
+            /** @var OfficialTemplate[] $models */
+            $models = $dataProvider->getModels();
+            $data = [];
+            foreach ($models as $k => $val) {
+                $data[$k] = $val->toArray();
+                foreach($val->pages as $key => $item){
+                    $data[$k]['pages'][$key] = $item->toArray();
+                    foreach ($item->elements as $ke => $ve){
+                        $data[$k]['pages'][$key]['elements'][$ke] = $ve->toArray();
+                    }
+                }
+            }
+            $client = new Client(['transport' => CurlTransport::class]);
+            /** @var Response $response */
+            $response = $client->createRequest()->setMethod('POST')->setUrl($this->server . ':8001/api/get-v5-json')
+                ->setData(['list' => $data])->send();
+            if ($response->isOk) {
+                $result = $response->data;
+            }
+            var_dump($response);exit;
+        }
 
     }
 

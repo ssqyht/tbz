@@ -11,5 +11,3 @@ require __DIR__ . '/../config/constant.php';
 
 // 设置OSS图片网址别名
 Yii::setAlias('@oss', 'http://image.tbz.com/' . UPLOAD_BASE_DIR);
-// 设置OSS内网图片网址别名
-Yii::setAlias('@ossInternal', 'http://image-internal.tbz.com/' . UPLOAD_BASE_DIR);

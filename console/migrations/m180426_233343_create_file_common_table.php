@@ -21,6 +21,7 @@ class m180426_233343_create_file_common_table extends Migration
             'type' => $this->tinyInteger(1)->unsigned()->notNull()->comment('文件类型'),
             'width' => $this->smallInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('图片宽度'),
             'height' => $this->smallInteger(1)->unsigned()->notNull()->defaultValue(0)->comment('图片高度'),
+            'sum' => $this->integer(11)->unsigned()->notNull()->defaultValue(0)->comment('文件使用次数'),
             'created_at' => $this->integer(10)->unsigned()->notNull()->comment('创建时间'),
         ]);
         $this->addCommentOnTable($this->tableName, '上传文件总记录表');
