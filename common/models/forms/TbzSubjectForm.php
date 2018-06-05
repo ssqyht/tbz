@@ -3,7 +3,6 @@
 namespace common\models\forms;
 
 use common\models\FileCommon;
-use common\models\FileUsedRecord;
 use common\models\TbzSubject;
 use yii\base\Model;
 use common\components\traits\ModelErrorTrait;
@@ -89,64 +88,54 @@ class TbzSubjectForm extends Model
         }
         $model->load($this->getUpdateAttributes(), '');
         //保存模板专题数据
-        $purpose = FileUsedRecord::PURPOSE_CLASSIFY;
         $drop_data = [];
         $create_data = [];
         //创建新的模板专题时的操作
         if ($model->isNewRecord) {
-            $create_data['banner'] = $model->banner;
-            $create_data['thumbnail'] = $model->thumbnail;
-        }else{
+            $create_data[] = $model->banner;
+            $create_data[] = $model->thumbnail;
+        } else {
             /** 修改和删除时的操作 */
             //缩略图有变化时的操作
             if ($model->isAttributeChanged('thumbnail')) {
-                $drop_data['thumbnail'] = $model->getOldAttribute('thumbnail');
-                $create_data['thumbnail'] = $model->thumbnail;
+                $drop_data[] = $model->getOldAttribute('thumbnail');
+                $create_data[] = $model->thumbnail;
             }
             //banner图有变化时的操作
             if ($model->isAttributeChanged('banner')) {
-                $drop_data['banner'] = $model->getOldAttribute('banner');
-                $create_data['banner'] = $model->banner;
+                $drop_data[] = $model->getOldAttribute('banner');
+                $create_data[] = $model->banner;
             }
             //删除模板时的操作
-            if ($model->isAttributeChanged('status')) {
-                if ($model->status == static::DELETE_STATUS) {
-                    $drop_data['thumbnail'] = $model->getOldAttribute('thumbnail');
-                    $drop_data['banner'] = $model->getOldAttribute('banner');
-                }
+            if ($model->isAttributeChanged('status') && $model->status == static::DELETE_STATUS) {
+                $drop_data[] = $model->getOldAttribute('thumbnail');
+                $drop_data[] = $model->getOldAttribute('banner');
             }
-        }
-        if (!($model->validate() && $model->save())) {
-            $this->addErrors($model->getErrors());
-            return false;
         }
         $transaction = \Yii::$app->getDb()->beginTransaction();
         try {
+            if (!($model->validate() && $model->save())) {
+                throw new \Exception('模板操作失败' . $model->getStringErrors());
+            }
             /** 删除文件引用记录 */
             if ($drop_data) {
-                foreach ($drop_data as $key => $value) {
-                    if ($model->primaryKey) {
-                        $result = FileUsedRecord::dropRecord($value, $purpose, $model->oldPrimaryKey);
-                        if (!$result || (is_object($result) && $result->getErrors())) {
-                            throw new \Exception('删除' . $key . '引用文件记录失败'.(is_object($result) ? $result->getStringErrors() : ''));
-                        }
-                    }
+                $drop_result = FileCommon::reduceSum($drop_data);
+                if (!$drop_result) {
+                    throw new \Exception('文件引用记录删除失败');
                 }
             }
             /** 创建文件引用记录 */
             if ($create_data) {
-                foreach ($create_data as $key => $value) {
-                    $result = FileUsedRecord::createRecord(\Yii::$app->user->id, $value, $purpose, $model->primaryKey);
-                    if (!$result  ||  (is_object($result) && $result->getErrors())) {
-                        throw new \Exception('创建' . $key . '引用文件记录失败'.(is_object($result) ? $result->getStringErrors() : ''));
-                    }
+                $create_result = FileCommon::increaseSum($create_data);
+                if (!$create_result) {
+                    throw new \Exception('新文件引用记录添加失败');
                 }
             }
             $transaction->commit();
             return $model;
         } catch (\Throwable $e) {
             $transaction->rollBack();
-            $this->addError('',$e->getMessage());
+            $this->addError('', $e->getMessage());
             return false;
         }
     }

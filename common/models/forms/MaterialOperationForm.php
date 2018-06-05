@@ -9,6 +9,7 @@
 namespace common\models\forms;
 
 use common\components\traits\ModelErrorTrait;
+use common\models\FileCommon;
 use common\models\FolderMaterialMember;
 use common\models\FolderMaterialTeam;
 use common\models\MaterialMember;
@@ -155,15 +156,41 @@ class MaterialOperationForm extends \yii\base\Model
     public function batchProcessing($key, $value)
     {
         if ($this->table) {
-            $this->_condition = array_merge($this->_condition, ['id' => $this->ids]);
-            /** @var MaterialMember|MaterialTeam $this ->table */
-            $result = \Yii::$app->db->createCommand()->update(($this->table)::tableName(), [$key => $value], $this->_condition)
-                ->execute();
-            if ($result) {
+            $transaction = \Yii::$app->getDb()->beginTransaction();
+            try {
+                $this->_condition = array_merge($this->_condition, ['id' => $this->ids]);
+                /** @var MaterialMember|MaterialTeam $this ->table */
+                $result = \Yii::$app->db->createCommand()->update(($this->table)::tableName(), [$key => $value], $this->_condition)
+                    ->execute();
+                if (!$result) {
+                    throw new \Exception('无操作执行');
+                }
                 //更新缓存
                 \Yii::$app->dataCache->updateCache($this->table);
+                if ($this->type == static::RECYCLE_BIN || $this->type == static::REDUCTION) {
+                    $file_data = ($this->table)::find()->where(['id' => $this->ids])->all();
+                    $file = [];
+                    foreach ($file_data as $key => $value) {
+                        $file[] = $value->file_id;
+                    }
+                    if (!$file || count($file) != $result) {
+                        throw new \Exception('系统内部错误');
+                    }
+                    //素材到回收站的同时，同时删除对应的文件引用记录,还原时，增加文件引用记录
+                    $file_result = $this->type == static::RECYCLE_BIN ? FileCommon::reduceSum($file) : FileCommon::increaseSum($file);
+                    if (!$file_result) {
+                        throw new \Exception('文件引用记录操作失败');
+                    }
+                }
+                $transaction->commit();
                 return true;
+            } catch
+            (\Throwable $e) {
+                $transaction->rollBack();
+                $this->addError('', $e->getMessage());
+                return false;
             }
+
         }
         $this->addError('', '操作失败');
         return false;
@@ -173,7 +200,8 @@ class MaterialOperationForm extends \yii\base\Model
      * 获取model
      * @return array|bool
      */
-    public function getTable()
+    public
+    function getTable()
     {
         if ($this->_table === null) {
             $user = \Yii::$app->user->identity;

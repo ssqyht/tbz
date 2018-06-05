@@ -26,8 +26,10 @@ trait ModelFieldsTrait
             $fields = $this->frontendFields();
 
         // 整合其它值
-        foreach ($this->expandFields() as $field => $definition) {
-            $fields[$field] = $definition;
+        if (method_exists($this,'expandFields')){
+            foreach ($this->expandFields() as $field => $definition) {
+                $fields[$field] = $definition;
+            }
         }
         // 删除掉一些敏感信息
         $newFields = [];
@@ -121,7 +123,6 @@ trait ModelFieldsTrait
                 $newFields[$k] = $item;
             }
         }
-
         return $newFields;
     }
 

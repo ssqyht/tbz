@@ -420,7 +420,7 @@ class MaterialController extends BaseController
     public function actionDelete($id)
     {
         $model = new MaterialForm();
-        if ($model->load(['id'=>$id], '') && ($result = $model->deleteMaterial())) {
+        if ($result = $model->submit(['id'=>$id,'status'=>MaterialForm::RECYCLE_BIN_STATUS])) {
             return '';
         }
         throw new HttpException(500, $model->getStringErrors(), Code::SERVER_FAILED);

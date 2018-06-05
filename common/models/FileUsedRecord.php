@@ -43,12 +43,13 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     /** @var int 官方模板使用类型 */
     const PURPOSE_TEMPLATE_OFFICIAL = 19;
     /** @var int purpose 最大值 */
-    const PURPOSE_MAX = self::PURPOSE_MATERIAL_OFFICIAL;
+    const PURPOSE_MAX = self::PURPOSE_TEMPLATE_OFFICIAL;
     /** @var string 增加使用记录 */
     const SCENARIO_CREATE = 'create';
     /** @var string 删除使用记录 */
     const SCENARIO_DROP = 'drop';
-
+    /** @var string 批量添加文件使用记录 */
+    const SCENARIO_BATCH_CREATE = 'batch_create';
     /**
      * @inheritdoc
      */
@@ -64,8 +65,10 @@ class FileUsedRecord extends \yii\db\ActiveRecord
     {
         return [
             [['file_id', 'purpose', 'purpose_id'], 'required'],
-            ['user_id','required','on'=>static::SCENARIO_CREATE],
-            [['user_id', 'file_id', 'purpose_id', 'created_at'], 'integer'],
+            ['user_id','required','on'=>[static::SCENARIO_CREATE,static::SCENARIO_BATCH_CREATE]],
+            [['user_id','created_at'], 'integer'],
+            [['file_id', 'purpose_id'], 'integer','on'=>[static::SCENARIO_CREATE,static::SCENARIO_DROP]],
+            [['file_id', 'purpose_id'], 'validateArray','on'=>[static::SCENARIO_BATCH_CREATE]],
             [['purpose'], 'integer', 'min' => 1, 'max' => static::PURPOSE_MAX],
         ];
     }
@@ -76,6 +79,7 @@ class FileUsedRecord extends \yii\db\ActiveRecord
         $scenarios = [
             static::SCENARIO_CREATE => ['user_id', 'file_id', 'purpose', 'purpose_id'],
             static::SCENARIO_DROP => ['file_id', 'purpose', 'purpose_id'],
+            static::SCENARIO_BATCH_CREATE => ['file_id', 'purpose', 'purpose_id','user_id'],
         ];
         return ArrayHelper::merge(parent::scenarios(), $scenarios);
     }
@@ -160,6 +164,9 @@ class FileUsedRecord extends \yii\db\ActiveRecord
         if ($this->scenario == static::SCENARIO_CREATE) {
             return $this->create();
         }
+        if ($this->scenario == static::SCENARIO_BATCH_CREATE) {
+            return $this->batchCreate();
+        }
         // 删除使用记录
         elseif ($this->scenario === static::SCENARIO_DROP) {
             return $this->drop();
@@ -240,9 +247,54 @@ class FileUsedRecord extends \yii\db\ActiveRecord
                 $method = 'findOne';
                 $condition['file_id'] = $this->file_id;
                 break;
+            case static::PURPOSE_MATERIAL_OFFICIAL:
+                $method = 'findOne';
+                $condition['file_id'] = $this->file_id;
+                break;
         }
         return static::findOne($condition);
     }
 
+    /**
+     * 验证文件id和引用处唯一标识id
+     * @return bool
+     */
+    public function validateArray(){
+        if (!is_numeric($this->file_id) && !is_array($this->file_id)){
+            $this->addError('file_id','file_id必须是数字或者数组');
+            return false;
+        }
+        if (!is_numeric($this->purpose_id) && !is_array($this->purpose_id)){
+            $this->addError('purpose_id','purpose_id必须是数字或者数组');
+            return false;
+        }
+        return true;
+    }
 
+    /**
+     * @param $user_id
+     * @param $file_id
+     * @param $purpose
+     * @param $purpose_id
+     * @return bool|FileUsedRecord|false|int|null|string
+     */
+    public static function batchCreateRecord($user_id, $file_id, $purpose, $purpose_id)
+    {
+        $model = new static(['scenario' => static::SCENARIO_BATCH_CREATE]);
+        $data = [
+            'user_id' => $user_id,
+            'file_id' => $file_id,
+            'purpose' => $purpose,
+            'purpose_id'  => $purpose_id
+        ];
+        if ($result = $model->submit($data)) {
+            return $result;
+        } else {
+            return $model;
+        }
+    }
+    public function batchCreate(){
+
+        $result = \Yii::$app->db->createCommand()->batchInsert(TemplateTeam::tableName(), ['classify_id', 'open_id', 'user_id', 'team_id', 'folder_id', 'cooperation_id', 'title', 'thumbnail_url', 'thumbnail_id', 'status', 'is_diy', 'edit_from', 'amount_print', 'created_at', 'updated_at'], $data)->execute();//执行批量添加
+    }
 }

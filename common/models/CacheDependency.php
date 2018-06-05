@@ -40,7 +40,8 @@ class CacheDependency extends \yii\db\ActiveRecord
     const MATERIAL_OFFICIAL = 'material_official';
     /** @var string 官方素材分类缓存 */
     const MATERIAL_CLASSIFY = 'material_classify';
-
+    /** @var string 个人分享缓存 */
+    const TEMPLATE_SHARE = 'template_share';
     /**
      * @inheritdoc
      */

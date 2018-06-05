@@ -231,7 +231,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
                 ->where(['team_id' => $team->id]);
         }else{
             return $this->hasOne(MyFavoriteMember::class, ['template_id' => 'template_id'])
-                ->where(['user_id' =>1/*\Yii::$app->user->id */]);
+                ->where(['user_id' =>\Yii::$app->user->id]);
         }
     }
 

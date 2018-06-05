@@ -3,7 +3,7 @@
 namespace common\models\forms;
 
 use common\components\traits\ModelAttributeTrait;
-use common\models\FileUsedRecord;
+use common\models\FileCommon;
 use common\models\Team;
 use common\models\TeamMember;
 use yii\base\Model;
@@ -95,31 +95,28 @@ class TeamForm extends Model
         if ($team_model->isAttributeChanged('team_mark') && $team_model->isAttributeChanged('file_id')) {
             $drop_file = $team_model->getOldAttribute('file_id');
             $create_file = $team_model->file_id;
-            $old_key = $team_model->oldPrimaryKey;
         }
         //删除团队时，只删除文件引用记录
         if ($team_model->isAttributeChanged('status') && $team_model->status == Team::RECYCLE_BIN_STATUS) {
             $drop_file = $team_model->getOldAttribute('file_id');
-            $old_key = $team_model->oldPrimaryKey;
         }
         $transaction = \Yii::$app->getDb()->beginTransaction();
         try {
             if (!($team_model->validate() && $team_model->save())) {
                 throw new \Exception('团队操作失败' . $team_model->getStringErrors());
             }
-            $purpose = FileUsedRecord::PURPOSE_TEAM_MARK;
             //删除文件记录
             if ($drop_file) {
-                $result = FileUsedRecord::dropRecord($drop_file, $purpose, $old_key);
-                if (!$result || (is_object($result) && $result->getErrors())) {
-                    throw new \Exception('删除团队头像引用文件记录失败' . (is_object($result) ? $result->getStringErrors() : ''));
+                $drop_result = FileCommon::reduceSum($drop_file);
+                if (!$drop_result) {
+                    throw new \Exception('原文件引用记录删除失败');
                 }
             }
             //创建文件记录
             if ($create_file) {
-                $file_result = FileUsedRecord::createRecord(\Yii::$app->user->id, $create_file, $purpose, $team_model->primaryKey);
-                if (!$file_result || (is_object($file_result) && $file_result->getErrors())) {
-                    throw new \Exception('创建团队头像引用文件记录失败' . (is_object($file_result) ? $file_result->getStringErrors() : ''));
+                $create_result = FileCommon::increaseSum($create_file);
+                if (!$create_result) {
+                    throw new \Exception('新文件引用记录添加失败');
                 }
             }
             //新创建团队把创建者信息存入团队会员表
@@ -128,7 +125,9 @@ class TeamForm extends Model
                 $team_member_model->user_id = \Yii::$app->user->id;
                 $team_member_model->team_id = $team_model->id;
                 $team_member_model->role = static::CREATED_ROLE;         //创建者角色
-                $team_member_model->save();
+                if (!($team_member_model->validate() &&$team_member_model->save())){
+                    throw new \Exception('新文件引用记录添加失败'. $team_member_model->getStringErrors());
+                }
             }
             $transaction->commit();
             return $team_model;

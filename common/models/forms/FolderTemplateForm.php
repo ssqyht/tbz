@@ -86,6 +86,7 @@ class FolderTemplateForm extends Model
         $transaction = \Yii::$app->db->beginTransaction();
         try {
             $this->_condition = array_merge($this->_condition, ['folder_id' => $this->id]);
+            //把所删文件夹内的模板文件夹改为默认文件夹
             /** @var TemplateTeam|TemplateMember $this ->_cacheModel */
             \Yii::$app->db->createCommand()->update($this->_cacheModel::tableName(), ['folder_id' => static::DEFAULT_FOLDER], $this->_condition)->execute();
             $folder->status = static::FALSE_DELETE;

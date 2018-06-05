@@ -244,9 +244,13 @@ class m180530_081509_create_font_table extends Migration
 
         /** @var \common\models\Font[] $models */
         $models = \common\models\Font::find()->all();
+        $file_path = [];
         foreach ($models as $model) {
-            \common\models\FileUsedRecord::createRecord(1, $model->path_id, \common\models\FileUsedRecord::PURPOSE_FONT, $model->font_id);
+            //\common\models\FileUsedRecord::createRecord(1, $model->path_id, \common\models\FileUsedRecord::PURPOSE_FONT, $model->font_id);
+            $file_path[] = $model->path_id;
         }
+        //增加文件引用记录
+       \common\models\FileCommon::increaseSum($file_path);
 
     }
 

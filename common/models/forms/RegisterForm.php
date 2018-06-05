@@ -127,7 +127,7 @@ class RegisterForm extends Model
             }
 
             // 添加文件使用日志
-            $usedModel = new FileUsedRecord(['scenario' => FileUsedRecord::SCENARIO_CREATE]);
+           /* $usedModel = new FileUsedRecord(['scenario' => FileUsedRecord::SCENARIO_CREATE]);
             $data = [
                 'user_id' => $member->id,
                 'file_id' => $member->headimg_id,
@@ -136,6 +136,10 @@ class RegisterForm extends Model
             ];
             if (!$usedModel->submit($data)) {
                 throw new Exception(json_encode($usedModel->getFirstErrors()));
+            }*/
+            $file_result = FileCommon::increaseSum($member->headimg_id);
+            if (!$file_result) {
+                throw new Exception('新文件引用记录添加失败');
             }
 
             // 创建第三方授权记录

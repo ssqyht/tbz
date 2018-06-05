@@ -8,6 +8,7 @@
 
 namespace common\models\search;
 
+use common\models\ShareTemplate;
 use common\models\TemplateMember;
 use common\components\vendor\Model;
 use common\models\TemplateTeam;
@@ -77,14 +78,27 @@ class TemplateUserSearch extends Model
      */
     public function searchFrontend()
     {
-        /** 查询当前用户或团队的模板信息 */
-        $this->query->andWhere($this->_condition);
-        //按默认文件夹查询
-        if (!$this->folder) {
-            $this->query->andWhere(['folder_id' => static::DEFAULT_FOLDER]);
+
+        $query = $this->query;
+        //按默认文件夹查询，个人查询时，如果按文件夹查询，只查个人模板，如果按默认文件夹查询，则两个都查，且分享过来的文件夹不受文件夹限制
+        if ($query instanceof TemplateMember) {
+            if (!$this->folder) {
+                $query->andWhere(['or', ['and', $this->_condition, [TemplateMember::tableName() . '.folder_id' => static::DEFAULT_FOLDER]], [ShareTemplate::tableName() . '.shared_person' => \Yii::$app->user->id]]);
+            } else {
+                $query->andWhere($this->_condition);
+                $query->andWhere([TemplateMember::tableName() . '.folder_id' => $this->folder]);
+            }
+        } else {
+            $query->andWhere($this->_condition);
+            $query->andWhere(['folder_id' => $this->folder ?: static::DEFAULT_FOLDER]);
         }
+        //按默认文件夹查询
+        /*  if (!$this->folder) {
+              $this->query->andWhere([TemplateMember::tableName().'.folder_id' => static::DEFAULT_FOLDER]);
+          }*/
+        return $query->all();
         $provider = new ActiveDataProvider([
-            'query' => $this->query,
+            'query' => $query,
             'pagination' => [
                 'pageSize' => 18,
             ],
@@ -111,6 +125,7 @@ class TemplateUserSearch extends Model
         ]);
         return $provider;
     }
+
     /**
      * 查询缓存Key
      * @return array|null
@@ -141,50 +156,36 @@ class TemplateUserSearch extends Model
     }
 
     /**
-     * @return mixed|\yii\db\ActiveQuery 拼接查询条件
+     * @return \yii\db\ActiveQuery
      */
     public function getQuery()
     {
         if ($this->_query === null) {
-            $query = $this->tableModel;
+            $user = \Yii::$app->user->identity;
+            if ($user->team) {
+                $query = TemplateTeam::sort();
+                $table_name = TemplateTeam::tableName();
+                $this->_condition = ['team_id' => $user->team->id];
+            } else {
+                $query = TemplateMember::sort();
+                $table_name = TemplateMember::tableName();
+                $this->_condition = [$table_name . '.user_id' => \Yii::$app->user->id];
+                $query->leftJoin(ShareTemplate::tableName(), ShareTemplate::tableName() . '.template_id = ' . $table_name . '.template_id');
+            }
             //按小分类查询
             if ($this->classify_id) {
-                $query->where(['classify_id' => $this->classify_id]);
-            }
-            //按文件夹查询
-            if ($this->folder) {
-                $query->andWhere(['folder_id' => $this->folder]);
+                $query->where([$table_name . '.classify_id' => $this->classify_id]);
             }
             //按状态查询
-            $query->andWhere(['status' => $this->status ?: static::NORMAL_STATUS]);
+            $query->andWhere([$table_name . '.status' => $this->status ?: static::NORMAL_STATUS]);
             //按时间排序
             if ($this->sort && $this->sort == 1) {
-                $query->orderBy(['updated_at' => SORT_ASC]);
+                $query->orderBy([$table_name . '.updated_at' => SORT_ASC]);
             } else {
-                $query->orderBy(['updated_at' => SORT_DESC]);
+                $query->orderBy([$table_name . '.updated_at' => SORT_DESC]);
             }
-
             $this->_query = $query;
         }
         return $this->_query;
-    }
-    /***
-     * 获取模板模型
-     * @return mixed|\yii\db\ActiveQuery
-     */
-    public function getTableModel()
-    {
-        if ($this->_tableModel === null) {
-            $user = \Yii::$app->user->identity;
-            if ($user->team){
-                $tableModel =TemplateTeam::sort();
-                $this->_condition = ['team_id'=>$user->team->id];
-            }else{
-                $tableModel =TemplateMember::sort();
-                $this->_condition = ['user_id'=>\Yii::$app->user->id];
-            }
-            $this->_tableModel = $tableModel;
-        }
-        return $this->_tableModel;
     }
 }

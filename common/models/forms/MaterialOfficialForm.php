@@ -11,9 +11,7 @@ namespace common\models\forms;
 use common\components\traits\ModelAttributeTrait;
 use common\models\FileCommon;
 use common\components\traits\ModelErrorTrait;
-use common\models\FileUsedRecord;
 use common\models\MaterialOfficial;
-use Monolog\Handler\IFTTTHandler;
 
 class MaterialOfficialForm extends \yii\base\Model
 {
@@ -98,31 +96,28 @@ class MaterialOfficialForm extends \yii\base\Model
         if ($model->isAttributeChanged('thumbnail') && $model->isAttributeChanged('file_id')) {
             $drop_file = $model->getOldAttribute('file_id');
             $create_file = $model->file_id;
-            $old_key = $model->oldPrimaryKey;
         }
         //删除素材时（假删除）
         if ($model->status && $model->status == static::RECYCLE_BIN_STATUS) {
             $drop_file = $model->getOldAttribute('file_id');
-            $old_key = $model->oldPrimaryKey;
         }
         $transaction = \Yii::$app->getDb()->beginTransaction();
         try {
-            $purpose = FileUsedRecord::PURPOSE_MATERIAL_OFFICIAL;
             if (!($model->validate() && $model->save())) {
                 throw new \Exception('官方素材操作失败' . $model->getStringErrors());
             }
             //删除文件引用记录
             if ($drop_file) {
-                $result = FileUsedRecord::dropRecord($drop_file, $purpose, $old_key);
-                if (!$result || (is_object($result) && $result->getErrors())) {
-                    throw new \Exception('删除官方素材引用文件记录失败' . (is_object($result) ? $result->getStringErrors() : ''));
+                $drop_result = FileCommon::reduceSum($drop_file);
+                if (!$drop_result) {
+                    throw new \Exception('原文件引用记录删除失败');
                 }
             }
             //添加文件引用记录
             if ($create_file) {
-                $file_result = FileUsedRecord::createRecord(\Yii::$app->user->id, $create_file, $purpose, $model->primaryKey);
-                if (!$file_result || (is_object($file_result) && $file_result->getErrors())) {
-                    throw new \Exception('创建官方素材引用文件记录失败' . (is_object($file_result) ? $file_result->getStringErrors() : ''));
+                $create_result = FileCommon::increaseSum($create_file);
+                if (!$create_result) {
+                    throw new \Exception('新文件引用记录添加失败');
                 }
             }
             $transaction->commit();

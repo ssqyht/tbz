@@ -25,6 +25,7 @@ class FileCommon extends \yii\db\ActiveRecord
 {
     use TimestampTrait;
     use ModelFieldsTrait;
+
     /**
      * @inheritdoc
      */
@@ -40,7 +41,7 @@ class FileCommon extends \yii\db\ActiveRecord
     {
         return [
             [['width', 'height', 'sum'], 'default', 'value' => 0],
-            [['width', 'height', 'size', 'sum'], 'filter', 'filter'=> 'intval'],
+            [['width', 'height', 'size', 'sum'], 'filter', 'filter' => 'intval'],
             [['etag', 'path', 'size', 'type'], 'required'],
             [['size', 'width', 'height', 'sum', 'created_at'], 'integer'],
             [['etag'], 'string', 'max' => 32, 'min' => 32],
@@ -96,17 +97,29 @@ class FileCommon extends \yii\db\ActiveRecord
     }
 
     /**
-     * 批量更新
+     * 减少引用次数
      * @param $params
      * @return bool|int
-     * @author thanatos <thanatos915@163.com>
      */
-    public static function updateSum($params)
+    public static function reduceSum($params)
     {
-        if (empty($params) || !is_array($params)) {
+        if (empty($params) || !is_array($params) || !is_numeric($params)) {
             return false;
         }
         return static::updateAllCounters(['sum' => -1], ['file_id' => $params]);
+    }
+
+    /**
+     * 增加文件引用次数
+     * @param $params
+     * @return bool|int
+     */
+    public static function increaseSum($params)
+    {
+        if (empty($params) || !is_array($params) || !is_numeric($params)) {
+            return false;
+        }
+        return static::updateAllCounters(['sum' => 1], ['file_id' => $params]);
     }
 
     const EXT_DOC = 1;

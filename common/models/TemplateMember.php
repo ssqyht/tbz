@@ -2,10 +2,12 @@
 
 namespace common\models;
 
+use common\components\traits\ModelErrorTrait;
 use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelFieldsTrait;
 use yii\helpers\Url;
+
 /**
  * This is the model class for table "{{%template_member}}".
  * @SWG\Definition(type="object", @SWG\Xml(name="TemplateMember"))
@@ -30,7 +32,7 @@ class TemplateMember extends \yii\db\ActiveRecord
 {
     use TimestampTrait;
     use ModelFieldsTrait;
-
+    use ModelErrorTrait;
     /** @var string 用户模板正常状态 */
     const STATUS_NORMAL = '10';
 
@@ -88,7 +90,7 @@ class TemplateMember extends \yii\db\ActiveRecord
 
     public function frontendFields()
     {
-        return ['template_id', 'user_id', 'open_id','folder_id', 'title', 'classify_id', 'thumbnail_url','thumbnail_id','status','is_diy','edit_from','amount_print'];
+        return ['template_id', 'user_id', 'open_id', 'folder_id', 'title', 'classify_id', 'thumbnail_url', 'thumbnail_id', 'status', 'is_diy', 'edit_from', 'amount_print'];
     }
 
     /**
@@ -107,7 +109,7 @@ class TemplateMember extends \yii\db\ActiveRecord
     public static function active()
     {
         if (Yii::$app->request->isFrontend()) {
-            return static::find()->where(['status'=>static::STATUS_NORMAL,'user_id'=>\Yii::$app->user->id]);
+            return static::find()->where(['status' => static::STATUS_NORMAL, 'user_id' => \Yii::$app->user->id]);
         } else {
             return static::find();
         }
@@ -147,21 +149,25 @@ class TemplateMember extends \yii\db\ActiveRecord
             $data['thumbnailUrl'] = function () {
                 return Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url;
             };
-       /* if ($this->isRelationPopulated('myFavorite')) {
-            $data['isFavorite'] = function () {
-                if ($this->myFavorite){
-                    //有收藏，is_favorite值为1
-                    return 1;
-                }
-                //无收藏is_favorite值为0
-                return 0;
+        if ($this->isRelationPopulated('shares')) {
+            $data['share_authority'] = function () {
+                return $this->shares->authority;
             };
-        }*/
+            $data['sharing_person'] = function () {
+                return $this->shares->sharing_person;
+            };
+            $data['shared_person'] = function () {
+                return $this->shares->shared_person;
+            };
+        }
         return $data;
     }
 
-
-    public function getMyFavorite(){
-        return $this->hasOne(MyFavoriteMember::class, ['template_id' => 'template_id']);
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getShares()
+    {
+        return $this->hasOne(ShareTemplate::class, ['template_id' => 'template_id']);
     }
 }

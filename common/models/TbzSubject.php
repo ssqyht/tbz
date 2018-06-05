@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use common\components\traits\ModelErrorTrait;
 use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelFieldsTrait;
@@ -33,6 +34,7 @@ class TbzSubject extends \yii\db\ActiveRecord
 
     use TimestampTrait;
     use ModelFieldsTrait;
+    use ModelErrorTrait;
     /** @var int 模板专题上线 */
     const STATUS_ONLINE = 20;
 

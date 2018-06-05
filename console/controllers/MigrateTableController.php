@@ -6,6 +6,7 @@
 namespace console\controllers;
 
 use common\models\Classify;
+use common\models\FileCommon;
 use common\models\FileUsedRecord;
 use common\models\forms\FileUpload;
 use common\models\Member;
@@ -157,7 +158,7 @@ class MigrateTableController extends Controller
                     }
                     // 添加文件使用日志
                     if ($member->headimg_id) {
-                        $usedModel = new FileUsedRecord(['scenario' => FileUsedRecord::SCENARIO_CREATE]);
+                        /*$usedModel = new FileUsedRecord(['scenario' => FileUsedRecord::SCENARIO_CREATE]);
                         $usedModel->load([
                             'user_id' => $member->id,
                             'file_id' => $member->headimg_id,
@@ -165,6 +166,11 @@ class MigrateTableController extends Controller
                             'purpose_id' => $member->id,
                         ], '');
                         if (!$usedModel->save()) {
+                            throw new Exception('save file_used_record error');
+                        }*/
+                        //增加文件引用记录
+                        $file_result = FileCommon::increaseSum($member->headimg_id);
+                        if (!$file_result) {
                             throw new Exception('save file_used_record error');
                         }
                     }
@@ -322,16 +328,19 @@ class MigrateTableController extends Controller
         $data = [];
         foreach ($models as $key => $model) {
             if ($model->thumbnail_id) {
-                $data[] = [
+               /* $data[] = [
                     'user_id' => 1,
                     'file_id' => $model->thumbnail_id,
                     'purpose' => FileUsedRecord::PURPOSE_CLASSIFY,
                     'purpose_id' => $model->classify_id,
                     'created_at' => time(),
-                ];
+                ];*/
+               $data[] = $model->thumbnail_id;
             }
         }
-        FileUsedRecord::getDb()->createCommand()->batchInsert(FileUsedRecord::tableName(), ['user_id', 'file_id', 'purpose', 'purpose_id', 'created_at'], $data)->execute();
+       /* FileUsedRecord::getDb()->createCommand()->batchInsert(FileUsedRecord::tableName(), ['user_id', 'file_id', 'purpose', 'purpose_id', 'created_at'], $data)->execute();*/
+        //增加文件引用记录
+        FileCommon::increaseSum($data);
         $this->stdout('迁移成功' . "\n", Console::FG_GREEN);
 
     }

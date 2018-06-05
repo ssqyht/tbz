@@ -44,6 +44,7 @@ class CacheDependencyController extends Controller
             ['template_topic','模板专题页缓存',time()],
             ['material_official','官方素材缓存',time()],
             ['material_classify','官方素材分类缓存',time()],
+            ['template_share','个人模板分享缓存',time()],
         ])->execute();
 
         $db->createCommand()->batchInsert(CacheGroup::tableName(), ['table_name', 'cache_name'], [
@@ -76,6 +77,7 @@ class CacheDependencyController extends Controller
             ['tu_template_topic','template_topic'],
             ['tu_material_official','material_official'],
             ['tu_material_classify','material_classify'],
+            ['tu_share_template','template_share'],
         ])->execute();
 
         $this->stdout('Success' . "\n", Console::FG_GREEN);

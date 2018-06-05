@@ -9,6 +9,7 @@
 namespace common\models\forms;
 
 use common\components\traits\ModelErrorTrait;
+use common\models\FileCommon;
 use common\models\FolderMaterialMember;
 use common\models\FolderTemplateTeam;
 use common\models\TemplateMember;
@@ -161,8 +162,9 @@ class TemplateOperationForm extends \yii\base\Model
      */
     public function transferTeam()
     {
-        if (!$this->team_id) {
-            $this->addError('', '个人转团队，team_id不能为空');
+        $team = \Yii::$app->user->identity->team;
+        if (!$team) {
+            $this->addError('', '个人转团队，团队唯一标识不能为空不能为空');
             return false;
         }
         //查询将要复制的模板
@@ -172,12 +174,13 @@ class TemplateOperationForm extends \yii\base\Model
             ->andWhere(['status' => TemplateMember::STATUS_NORMAL])
             ->all();
         $data = [];
+        $file_data = [];
         foreach ($template_data as $key => $value) {
             $data[] = [
                 'classify_id' => $value->classify_id,
                 'open_id' => $value->open_id,
                 'user_id' => \Yii::$app->user->id,
-                'team_id' => $this->team_id,
+                'team_id' => $team->id,
                 'folder_id' => $this->folder ? $this->folder : 0,
                 'cooperation_id' => $value->cooperation_id,
                 'title' => $value->title,
@@ -190,11 +193,31 @@ class TemplateOperationForm extends \yii\base\Model
                 'created_at' => time(),
                 'updated_at' => time(),
             ];
+            $file_data[] = $value->thumbnail_id;
         }
-        $result = \Yii::$app->db->createCommand()->batchInsert(TemplateTeam::tableName(), ['classify_id', 'open_id', 'user_id', 'team_id', 'folder_id', 'cooperation_id', 'title', 'thumbnail_url', 'thumbnail_id', 'status', 'is_diy', 'edit_from', 'amount_print', 'created_at', 'updated_at'], $data)->execute();//执行批量添加
-        //更新缓存
-        \Yii::$app->dataCache->updateCache(TemplateTeam::class);
-        return $result;
+        $transaction = \Yii::$app->getDb()->beginTransaction();
+        try {
+            $template_result = \Yii::$app->db->createCommand()->batchInsert(TemplateTeam::tableName(), ['classify_id', 'open_id', 'user_id', 'team_id', 'folder_id', 'cooperation_id', 'title', 'thumbnail_url', 'thumbnail_id', 'status', 'is_diy', 'edit_from', 'amount_print', 'created_at', 'updated_at'], $data)->execute();//执行批量添加
+            if (!$template_result) {
+                throw new \Exception('无操作执行');
+            }
+            //更新缓存
+            \Yii::$app->dataCache->updateCache(TemplateTeam::class);
+            if (count($file_data) != $template_result) {
+                throw new \Exception('系统内部错误');
+            }
+            $create_result = FileCommon::increaseSum($file_data);
+            if (!$create_result) {
+                throw new \Exception('文件引用记录添加失败');
+            }
+            $transaction->commit();
+            return true;
+        } catch
+        (\Throwable $e) {
+            $transaction->rollBack();
+            $this->addError('', $e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -204,13 +227,38 @@ class TemplateOperationForm extends \yii\base\Model
     public function batchProcessing($key, $value)
     {
         if ($this->table) {
-            $this->_condition = array_merge($this->_condition,['template_id' => $this->ids]);
-            $result = \Yii::$app->db->createCommand()->update(($this->table)::tableName(), [$key => $value], $this->_condition)
-                ->execute();
-            if ($result) {
+            $transaction = \Yii::$app->getDb()->beginTransaction();
+            try {
+                $this->_condition = array_merge($this->_condition, ['template_id' => $this->ids]);
+                $result = \Yii::$app->db->createCommand()->update(($this->table)::tableName(), [$key => $value], $this->_condition)
+                    ->execute();
+                if (!$result) {
+                    throw new \Exception('无操作执行');
+                }
                 //更新缓存
                 \Yii::$app->dataCache->updateCache($this->table);
+                if ($this->type == static::RECYCLE_BIN || $this->type == static::REDUCTION) {
+                    $file_data = ($this->table)::find()->where(['id' => $this->ids])->all();
+                    $file = [];
+                    foreach ($file_data as $key => $value) {
+                        $file[] = $value->file_id;
+                    }
+                    if (!$file || count($file) != $result) {
+                        throw new \Exception('系统内部错误');
+                    }
+                    //素材到回收站的同时，同时删除对应的文件引用记录,还原时，增加文件引用记录
+                    $file_result = $this->type == static::RECYCLE_BIN ? FileCommon::reduceSum($file) : FileCommon::increaseSum($file);
+                    if (!$file_result) {
+                        throw new \Exception('文件引用记录操作失败');
+                    }
+                }
+                $transaction->commit();
                 return true;
+            } catch
+            (\Throwable $e) {
+                $transaction->rollBack();
+                $this->addError('', $e->getMessage());
+                return false;
             }
         }
         $this->addError('', '操作失败');
@@ -226,7 +274,7 @@ class TemplateOperationForm extends \yii\base\Model
             $user = \Yii::$app->user->identity;
             if ($user->team) {
                 //团队
-                $this->_condition = ['team_id' => $this->team_id];
+                $this->_condition = ['team_id' => $user->team->id];
                 $tableModel = TemplateTeam::class;
                 $this->_folderModel = FolderTemplateTeam::class;
             } else {
