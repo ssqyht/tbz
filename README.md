@@ -67,6 +67,5 @@ docker-compose up
 
 ####模板迁移命令
 ```php
-./yii migrate-table/template -s http://docker.for.mac.hos
-t.internal -p 50
+./yii migrate-table/template -s http://docker.for.mac.host.internal -p 50
 ```

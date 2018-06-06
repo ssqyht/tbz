@@ -44,7 +44,7 @@ class MigrateTableController extends Controller
 {
 
     public $test;
-    public $process = 20;
+    public $process = 30;
     public $server = 'http://localhost';
     public $pageSize = 5000;
 
@@ -574,7 +574,7 @@ class MigrateTableController extends Controller
         $models = OfficialTemplate::find()->where([
             'status' => OfficialTemplate::STATUS_ONLINE,
             'coop_id' => 0,
-        ])->limit(1)->all();
+        ])->all();
         $data = [];
         $sum = 0;
         foreach ($models as $key => $model) {
