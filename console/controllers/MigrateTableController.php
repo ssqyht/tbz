@@ -635,6 +635,71 @@ class MigrateTableController extends Controller
         return ExitCode::OK;
     }
 
+    /**
+     * 转移素材
+     * @throws \yii\db\Exception
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function actionMaterial()
+    {
+        $query = (new Query())->from('com_template_material')->where(['!=', 'type', '15'])->andWhere(['status' => 1]);
+        $dataProvider = new SqlDataProvider([
+            'db' => Yii::$app->dbMigrateDdy,
+            'sql' => $query->createCommand()->getRawSql(),
+            'totalCount' => $query->count('*', Yii::$app->dbMigrateDdy),
+            'pagination' => [
+                'pageSize' => $this->getPageSize()
+            ]
+        ]);
+
+        $successNum = 0;
+        $errors = [];
+        $currentPage = 0;
+        while (true) {
+            $currentPage++;
+            $dataProvider->pagination->setPage($currentPage - 1);
+            $models = $dataProvider->getModels();
+            $data = [];
+            foreach ($models as $key => $model) {
+                $thumbnail = '';
+                $thumbnail_id = 0;
+
+                // SVG
+                if ($model['mimeType'] == 'eel') {
+                    // SVG缩略图
+                    $thumbnailFile = FileUpload::upload(preg_replace('/.*\/?uploads?\/?(.+)/', 'uploads/$1', $model['thumbnail']), FileUpload::DIR_MATERIAL);
+                    $thumbnail = $thumbnailFile->path;
+                    $thumbnail_id = $thumbnailFile;
+                }
+                // 原文件
+                $pathFIle = FileUpload::upload(preg_replace('/.*\/?uploads?\/?(.+)/', 'uploads/$1', $model['filePath']), FileUpload::DIR_MATERIAL);
+                $data[] = [
+                    'user_id' => 1,
+                    'cid' => $model['type'],
+                    'name' => '',
+                    'tags' => '',
+                    'thumbnail' => $thumbnail,
+                    'thumbnail_id' => $thumbnail_id,
+                    'file_path' => $pathFIle,
+                    'file_id' => $pathFIle->file_id,
+                    'file_type' => $pathFIle->type,
+                    'width' => $model['width'],
+                    'height' => $model['height'],
+                    'status' => MaterialOfficial::STATUS_NORMAL,
+                    'created_at' => time(),
+                    'updated_at' => time()
+                ];
+                // 添加文件使用记录
+                FileCommon::increaseSum([$thumbnail_id]);
+            }
+
+            MaterialOfficial::find()->createCommand()->batchInsert(MaterialOfficial::tableName(), [
+                'user_id', 'cid', 'name', 'tags', 'thumbnail', 'thumbnail_id', 'file_path', 'file_id', 'file_type', 'width', 'height', 'status', 'created_at', 'updated_at'
+            ], $data)->execute();
+        }
+
+    }
+
     public function getPageSize()
     {
         return $this->test ? 80 : $this->pageSize;
