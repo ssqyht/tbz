@@ -621,6 +621,7 @@ class MigrateTableController extends Controller
                 while (($result = \pcntl_waitpid(0, $status, WUNTRACED)) > 0) {
                     $process--;
                     $this->stdout('当前进程数:' . $process . "\n", Console::FG_GREEN);
+                    break;
                 }
             }
         }
