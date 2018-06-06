@@ -374,7 +374,7 @@ class MigrateTableController extends Controller
         $successNum = 0;
         $data = [];
         foreach ($list as $key => $model) {
-            $successNum ++;
+            $successNum++;
             $data[] = [
                 'name' => $model['name'],
                 'type' => Tag::TYPE_INDUSTRY,
@@ -394,7 +394,7 @@ class MigrateTableController extends Controller
 
         $data = [];
         foreach ($list as $key => $model) {
-            $successNum ++;
+            $successNum++;
             $data[] = [
                 'name' => $model['name'],
                 'type' => Tag::TYPE_STYLE,
@@ -414,7 +414,7 @@ class MigrateTableController extends Controller
 
         $data = [];
         foreach ($list as $key => $model) {
-            $successNum ++;
+            $successNum++;
             $data[] = [
                 'name' => $model['name'],
                 'type' => Tag::TYPE_FUNCTION,
@@ -535,7 +535,7 @@ class MigrateTableController extends Controller
                 $data = [
                     'user_id' => 1,
                     'cid' => 15,
-                    'name' => (string) $index,
+                    'name' => (string)$index,
                     'tags' => '',
                     'file_path' => $path->path,
                     'file_id' => $path->file_id,
@@ -649,7 +649,7 @@ class MigrateTableController extends Controller
             ->where(['!=', 'type', '15'])
             ->andWhere(['status' => 1]);
         $count = $query->count('*', Yii::$app->dbMigrateDdy);
-        $this->stdout('解析完成，需要处理'. $count . '个元素' . "\n", Console::FG_YELLOW);
+        $this->stdout('解析完成，需要处理' . $count . '个元素' . "\n", Console::FG_YELLOW);
         $dataProvider = new SqlDataProvider([
             'db' => Yii::$app->dbMigrateDdy,
             'sql' => $query->createCommand()->getRawSql(),
@@ -665,7 +665,7 @@ class MigrateTableController extends Controller
             $currentPage++;
             $dataProvider->pagination->setPage($currentPage - 1);
             $dataProvider->prepare(true);
-            if ($currentPage >= $dataProvider->pagination->pageCount){
+            if ($currentPage >= $dataProvider->pagination->pageCount) {
                 break;
             }
             $models = $dataProvider->getModels();
@@ -684,7 +684,7 @@ class MigrateTableController extends Controller
                         $thumbnail_id = $pathFIle->file_id;
                     } else {
                         // 生成250的缩略图
-                        $object = Yii::$app->oss->getObject(UPLOAD_BASE_DIR . '/'. $pathFIle->path, [
+                        $object = Yii::$app->oss->getObject(UPLOAD_BASE_DIR . '/' . $pathFIle->path, [
                             OssClient::OSS_PROCESS => 'image/resize,w_250',
                         ]);
                         $thumbnailFIle = FileUpload::uploadLocal($object, FileUpload::DIR_MATERIAL);
@@ -722,10 +722,10 @@ class MigrateTableController extends Controller
                     // 添加文件使用记录
                     FileCommon::increaseSum([$thumbnail_id, $pathFIle->file_id]);
                     $successNum++;
-                    $this->stdout("\tid ". $model['id'] .' 处理完成' . "\n", Console::FG_YELLOW);
+                    $this->stdout("\tid " . $model['id'] . ' 处理完成' . "\n", Console::FG_YELLOW);
                 } catch (\Throwable $e) {
                     $errors[] = $model['id'];
-                    $this->stdout('素材:' . $model['id'] . '处理失败：' . $e->getMessage(). "\n", Console::FG_RED);
+                    $this->stdout('素材:' . $model['id'] . '处理失败：' . $e->getMessage() . "\n", Console::FG_RED);
                     Yii::error('素材:' . $model['id'] . '：' . $e->getMessage(), 'MigrateMaterial');
                 }
 
@@ -734,11 +734,11 @@ class MigrateTableController extends Controller
             MaterialOfficial::find()->createCommand()->batchInsert(MaterialOfficial::tableName(), [
                 'user_id', 'cid', 'name', 'tags', 'thumbnail', 'thumbnail_id', 'file_path', 'file_id', 'file_type', 'width', 'height', 'status', 'created_at', 'updated_at'
             ], $data)->execute();
-            $this->stdout("\t". count($data) .'个插入成功' . "\n", Console::FG_YELLOW);
+            $this->stdout("\t" . count($data) . '个插入成功' . "\n", Console::FG_YELLOW);
         }
-        $this->stdout('执行成功:'. $successNum . '个' . "\n", Console::FG_GREEN);
+        $this->stdout('执行成功:' . $successNum . '个' . "\n", Console::FG_GREEN);
         if ($errors) {
-            $this->stdout('执行失败:'. implode(',', $errors) . "\n", Console::FG_RED);
+            $this->stdout('执行失败:' . implode(',', $errors) . "\n", Console::FG_RED);
         }
 
     }
@@ -869,8 +869,9 @@ class MigrateTableController extends Controller
 
     /**
      * @param ActiveQuery $query
-     * @return mixed
+     * @return bool
      * @throws Exception
+     * @throws \yii\db\Exception
      * @author thanatos <thanatos915@163.com>
      */
     private function processMigrate($query)
@@ -914,8 +915,20 @@ class MigrateTableController extends Controller
 
             $client = new Client(['transport' => CurlTransport::class]);
             /** @var Response $response */
-            $response = $client->createRequest()->setMethod('POST')->setUrl($this->server . ':8001/api/get-v5-json')
-                ->setData(['list' => $data])->send();
+
+            $times = 0;
+            while (true) {
+                $times++;
+                try {
+                    $response = $client->createRequest()->setMethod('POST')->setUrl($this->server . ':8001/api/get-v5-json')
+                        ->setData(['list' => $data])->send();
+                    break;
+                } catch (\Exception $exception) {
+                    if ($times >= 3) {
+                        throw new Exception($exception->getMessage());
+                    }
+                }
+            }
             if ($response->isOk) {
                 $result = $response->data;
                 foreach ($result['success'] as $key => $item) {
