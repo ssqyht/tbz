@@ -618,7 +618,7 @@ class MigrateTableController extends Controller
                 }
             } else {
                 $this->stdout('当前进程已满' . "\n", Console::FG_GREEN);
-                while (($result = pcntl_waitpid(0, $status, WUNTRACED)) > 0) {
+                while (($result = \pcntl_waitpid(0, $status, WUNTRACED)) > 0) {
                     $process--;
                     $this->stdout('当前进程数:' . $process . "\n", Console::FG_GREEN);
                 }
@@ -626,7 +626,7 @@ class MigrateTableController extends Controller
         }
         end:
         // 全部执行结束
-        while (pcntl_waitpid(0, $status) != -1) {
+        while (\pcntl_waitpid(0, $status) != -1) {
             sleep(0.5);
         }
         $end = time();
@@ -771,9 +771,9 @@ class MigrateTableController extends Controller
         if (empty($query->count())) {
             return false;
         }
-        $pid = pcntl_fork();
+        $pid = \pcntl_fork();
         if ($pid == 0) {
-            $pid = posix_getpid();
+            $pid = \posix_getpid();
             Yii::$app->db->pdo = null;
             $this->stdout('进程:' . $pid . ' 开始执行' . "\n", Console::FG_GREEN);
             $templateIds = ArrayHelper::getColumn($query->asArray()->limit($this->getPageSize())->all(), 'template_id');
