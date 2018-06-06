@@ -773,7 +773,7 @@ class MigrateTableController extends Controller
      * @throws Exception
      * @author thanatos <thanatos915@163.com>
      */
-    private function prepareContend($model)
+    private function prepareContent($model)
     {
         // 替换字体
         $content = preg_replace_callback('/font_\w\d+/', function ($matches) {
@@ -815,6 +815,9 @@ class MigrateTableController extends Controller
                     'created_at' => time(),
                     'updated_at' => time(),
                 ];
+                if (!FileCommon::increaseSum($pageThumbnailId)) {
+                    throw new Exception('Increase Page Thumbnail failed. '. $pageThumbnailId);
+                }
 
                 if ($pageThumbnailId) {
                     $fileIds[] = $pageThumbnailId;
@@ -830,13 +833,10 @@ class MigrateTableController extends Controller
                 if (!$result = FileUpload::upload(trim($elementThumb, '/'), FileUpload::DIR_MATERIAL)) {
                     throw new Exception('Upload Element Thumbnail failed');
                 }
+
                 unset($element['options']['url']);
                 $element['options']['source'] = $result->file_id;
                 $fileIds[] = $result->file_id;
-                // 删除临时文件
-                if (preg_match('/updata/', $elementThumb)) {
-                    Yii::$app->oss->deleteObject($elementThumb);
-                }
             }
         }
         // 添加页面缩略图
@@ -977,7 +977,7 @@ class MigrateTableController extends Controller
                         }
 
                         // 处理页面内容
-                        $templateModel->content = $this->prepareContend($templateModel);
+                        $templateModel->content = $this->prepareContent($templateModel);
                         if (!$templateModel->save()) {
                             throw new Exception('Save Template Content failed');
                         }
