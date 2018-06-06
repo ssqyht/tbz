@@ -642,60 +642,100 @@ class MigrateTableController extends Controller
      */
     public function actionMaterial()
     {
-        $query = (new Query())->from('com_template_material')->where(['!=', 'type', '15'])->andWhere(['status' => 1]);
+        $query = (new Query())->from('com_template_material')
+            ->where(['!=', 'type', '15'])
+            ->andWhere(['status' => 1]);
+        $count = $query->count('*', Yii::$app->dbMigrateDdy);
+        $this->stdout('解析完成，需要处理'. $count . '个元素' . "\n", Console::FG_YELLOW);
         $dataProvider = new SqlDataProvider([
             'db' => Yii::$app->dbMigrateDdy,
             'sql' => $query->createCommand()->getRawSql(),
-            'totalCount' => $query->count('*', Yii::$app->dbMigrateDdy),
+            'totalCount' => $count,
             'pagination' => [
                 'pageSize' => $this->getPageSize()
             ]
         ]);
-
         $successNum = 0;
         $errors = [];
         $currentPage = 0;
         while (true) {
             $currentPage++;
             $dataProvider->pagination->setPage($currentPage - 1);
+            $dataProvider->prepare(true);
+            if ($currentPage >= $dataProvider->pagination->pageCount){
+                break;
+            }
             $models = $dataProvider->getModels();
             $data = [];
+            sleep(0.3);
             foreach ($models as $key => $model) {
                 $thumbnail = '';
                 $thumbnail_id = 0;
+                try {
+                    $tmpPath = preg_replace('/.*\/?(uploads)?\/?(.+)/', '$0', $model['filePath']);
+                    // 原文件
+                    $pathFIle = FileUpload::upload('uploads/' . trim($tmpPath, '/'), FileUpload::DIR_MATERIAL);
+                    // SVG
+                    if ($model['mimeType'] == 'eel') {
+                        $thumbnail = $pathFIle->path;
+                        $thumbnail_id = $pathFIle->file_id;
+                    } else {
+                        // 生成250的缩略图
+                        $object = Yii::$app->oss->getObject(UPLOAD_BASE_DIR . '/'. $pathFIle->path, [
+                            OssClient::OSS_PROCESS => 'image/resize,w_250',
+                        ]);
+                        $thumbnailFIle = FileUpload::uploadLocal($object, FileUpload::DIR_MATERIAL);
+                        $thumbnail = $thumbnailFIle->path;
+                        $thumbnail_id = $thumbnailFIle->file_id;
+                    }
 
-                // SVG
-                if ($model['mimeType'] == 'eel') {
-                    // SVG缩略图
-                    $thumbnailFile = FileUpload::upload(preg_replace('/.*\/?uploads?\/?(.+)/', 'uploads/$1', $model['thumbnail']), FileUpload::DIR_MATERIAL);
-                    $thumbnail = $thumbnailFile->path;
-                    $thumbnail_id = $thumbnailFile;
+                    // 分类
+                    $tags = [];
+                    $tags[] = $model['type'];
+                    $classifies = explode(',', $model['classify']);
+                    if ($classifies) {
+                        /** @var MaterialClassify $classifyModels */
+                        $classifyModels = MaterialClassify::find()->where(['pid' => $model['type'], 'name' => $classifies])->all();
+                        foreach ($classifyModels as $classifyModel) {
+                            $tags[] = $classifyModel->cid;
+                        }
+                    }
+                    $data[] = [
+                        'user_id' => 1,
+                        'cid' => implode(',', $tags),
+                        'name' => '',
+                        'tags' => $model['tags'],
+                        'thumbnail' => $thumbnail,
+                        'thumbnail_id' => $thumbnail_id,
+                        'file_path' => $pathFIle->path,
+                        'file_id' => $pathFIle->file_id,
+                        'file_type' => $pathFIle->type,
+                        'width' => $model['width'],
+                        'height' => $model['height'],
+                        'status' => MaterialOfficial::STATUS_NORMAL,
+                        'created_at' => time(),
+                        'updated_at' => time()
+                    ];
+                    // 添加文件使用记录
+                    FileCommon::increaseSum([$thumbnail_id, $pathFIle->file_id]);
+                    $successNum++;
+                    $this->stdout("\tid ". $model['id'] .' 处理完成' . "\n", Console::FG_YELLOW);
+                } catch (\Throwable $e) {
+                    $errors[] = $model['id'];
+                    $this->stdout('素材:' . $model['id'] . '处理失败：' . $e->getMessage(). "\n", Console::FG_RED);
+                    Yii::error('素材:' . $model['id'] . '：' . $e->getMessage(), 'MigrateMaterial');
                 }
-                // 原文件
-                $pathFIle = FileUpload::upload(preg_replace('/.*\/?uploads?\/?(.+)/', 'uploads/$1', $model['filePath']), FileUpload::DIR_MATERIAL);
-                $data[] = [
-                    'user_id' => 1,
-                    'cid' => $model['type'],
-                    'name' => '',
-                    'tags' => '',
-                    'thumbnail' => $thumbnail,
-                    'thumbnail_id' => $thumbnail_id,
-                    'file_path' => $pathFIle,
-                    'file_id' => $pathFIle->file_id,
-                    'file_type' => $pathFIle->type,
-                    'width' => $model['width'],
-                    'height' => $model['height'],
-                    'status' => MaterialOfficial::STATUS_NORMAL,
-                    'created_at' => time(),
-                    'updated_at' => time()
-                ];
-                // 添加文件使用记录
-                FileCommon::increaseSum([$thumbnail_id]);
+
             }
 
             MaterialOfficial::find()->createCommand()->batchInsert(MaterialOfficial::tableName(), [
                 'user_id', 'cid', 'name', 'tags', 'thumbnail', 'thumbnail_id', 'file_path', 'file_id', 'file_type', 'width', 'height', 'status', 'created_at', 'updated_at'
             ], $data)->execute();
+            $this->stdout("\t". count($data) .'个插入成功' . "\n", Console::FG_YELLOW);
+        }
+        $this->stdout('执行成功:'. $successNum . '个' . "\n", Console::FG_GREEN);
+        if ($errors) {
+            $this->stdout('执行失败:'. implode(',', $errors) . "\n", Console::FG_RED);
         }
 
     }

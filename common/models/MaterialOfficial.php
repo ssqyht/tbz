@@ -57,9 +57,10 @@ class MaterialOfficial extends \yii\db\ActiveRecord
     {
         return [
             [['user_id', 'cid', 'file_type'], 'required'],
-            [['user_id', 'cid', 'thumbnail_id', 'file_id', 'width', 'height', 'created_at', 'updated_at', 'file_type'], 'filter', 'filter' => 'intval'],
-            [['user_id', 'cid', 'thumbnail_id', 'file_id', 'width', 'height', 'created_at', 'updated_at', 'file_type'], 'integer'],
+            [['user_id', 'thumbnail_id', 'file_id', 'width', 'height', 'created_at', 'updated_at', 'file_type'], 'filter', 'filter' => 'intval'],
+            [['user_id', 'thumbnail_id', 'file_id', 'width', 'height', 'created_at', 'updated_at', 'file_type'], 'integer'],
             [['name'], 'string', 'max' => 50],
+            [['cid'], 'string', 'max' => 255],
             [['tags', 'thumbnail', 'file_path'], 'string', 'max' => 255],
         ];
     }
