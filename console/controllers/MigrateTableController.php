@@ -371,9 +371,10 @@ class MigrateTableController extends Controller
             ->where(['coopId' => 0]);
 
         $list = $query->all($db);
-
+        $successNum = 0;
         $data = [];
         foreach ($list as $key => $model) {
+            $successNum ++;
             $data[] = [
                 'name' => $model['name'],
                 'type' => Tag::TYPE_INDUSTRY,
@@ -393,6 +394,7 @@ class MigrateTableController extends Controller
 
         $data = [];
         foreach ($list as $key => $model) {
+            $successNum ++;
             $data[] = [
                 'name' => $model['name'],
                 'type' => Tag::TYPE_STYLE,
@@ -412,6 +414,7 @@ class MigrateTableController extends Controller
 
         $data = [];
         foreach ($list as $key => $model) {
+            $successNum ++;
             $data[] = [
                 'name' => $model['name'],
                 'type' => Tag::TYPE_FUNCTION,
@@ -423,7 +426,7 @@ class MigrateTableController extends Controller
 
         Tag::getDb()->createCommand()->batchInsert(Tag::tableName(), ['name', 'type', 'sort', 'created_at', 'updated_at'], $data)->execute();
 
-        $this->stdout('迁移成功' . "\n", Console::FG_GREEN);
+        $this->stdout('迁移成功' . $successNum . '个' . "\n", Console::FG_GREEN);
 
     }
 
