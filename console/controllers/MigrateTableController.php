@@ -837,6 +837,13 @@ class MigrateTableController extends Controller
                 unset($element['options']['url']);
                 $element['options']['source'] = $result->file_id;
                 $fileIds[] = $result->file_id;
+                // 删除临时文件
+
+                /* TODO 统一删除
+                if (preg_match('/updata/', $elementThumb)) {
+                    Yii::$app->oss->deleteObject($elementThumb);
+                }
+                */
             }
         }
         // 添加页面缩略图
