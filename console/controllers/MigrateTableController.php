@@ -872,7 +872,7 @@ class MigrateTableController extends Controller
                                 $tag_id = $newStyles[$tmpStyleIds[$style]['name']]['tag_id'];
                                 if ($tag_id) {
                                     $styleData[$sKey] = [
-                                        'template_id' => $model->id,
+                                        'template_id' => $templateModel->template_id,
                                         'tag_id' => $tag_id,
                                         'created_at' => time()
                                     ];
@@ -893,7 +893,7 @@ class MigrateTableController extends Controller
                                 $tag_id = $newIndustries[$tmpIndustries[$industry]['name']]['tag_id'];
                                 if ($tag_id) {
                                     $industryData[$sKey] = [
-                                        'template_id' => $model->id,
+                                        'template_id' => $templateModel->template_id,
                                         'tag_id' => $tag_id,
                                         'created_at' => time()
                                     ];
@@ -913,7 +913,7 @@ class MigrateTableController extends Controller
                             foreach ($newFunctions as $sKey => $function) {
                                 $tag_id = $newFunctions[$tmpFunctions[$function]['name']]['tag_id'];
                                 $functionData[$sKey] = [
-                                    'template_id' => $model->id,
+                                    'template_id' => $templateModel->template_id,
                                     'tag_id' => $tag_id,
                                     'created_at' => time()
                                 ];
