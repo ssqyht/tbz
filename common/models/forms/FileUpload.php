@@ -274,8 +274,6 @@ class FileUpload extends Model
         $tmp = ArrayHelper::map(FileCommon::$extension, 'mime', 'type');
         // 处理上传的文件
         if ($tmp[$this->mimeType] == FileCommon::EXT_SVG) {
-            // 取出文件替换后上传
-            $oldContent = Yii::$app->oss->getObject($this->filename);
             // 替换Svg标签
             $content = static::repairSvgTag($this->fileData->content);
             if (!Yii::$app->oss->putObject($fullFile, $content)) {

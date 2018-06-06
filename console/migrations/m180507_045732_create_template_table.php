@@ -31,6 +31,7 @@ class m180507_045732_create_template_table extends Migration
             'status' => $this->tinyInteger(1)->notNull()->unsigned()->defaultValue(5)->comment('状态'),
             'created_at' => $this->integer(11)->notNull()->unsigned()->comment('创建时间'),
             'updated_at' => $this->integer(11)->notNull()->unsigned()->comment('修改时间'),
+            'thumbnail_updated_at' => $this->integer(11)->notNull()->unsigned()->comment('缩略图修改时间'),
             'price' => $this->smallInteger(1)->notNull()->defaultValue(0)->unsigned()->comment('模板价格'),
             'amount_edit' => $this->integer(11)->unsigned()->notNull()->defaultValue(0)->comment('编辑量'),
             'virtual_edit' => $this->integer(11)->unsigned()->notNull()->defaultValue(0)->comment('虚拟编辑量'),
@@ -40,7 +41,7 @@ class m180507_045732_create_template_table extends Migration
             'virtual_favorite' => $this->integer(11)->unsigned()->notNull()->defaultValue(0)->comment('虚拟收藏量'),
             'amount_buy' => $this->integer(11)->notNull()->unsigned()->defaultValue(0)->comment('购买量'),
             'sort' => $this->smallInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('排序'),
-            'is_recommend' => $this->tinyInteger(1)->notNull()->unsigned()->defaultValue(0)->comment('是否推荐到热门场景'),
+            'recommend_at' => $this->integer(11)->notNull()->unsigned()->defaultValue(0)->comment('推荐到热门场景时间'),
             'content' => 'longtext not null default "" COMMENT "模板数据"',
         ]);
         $this->addCommentOnTable($this->official, '官方模板信息表');

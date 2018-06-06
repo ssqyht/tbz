@@ -34,9 +34,6 @@ use yii\helpers\Url;
  * @property int $sort 排序 @SWG\Property(property="sort", type="integer", description=" 排序")
  * @property int $is_recommend 是否推荐到热门场景 @SWG\Property(property="isRecommend", type="integer", description=" 是否推荐到热门场景")
  * @property string $content 模板数据 @SWG\Property(property="content", type="string", description=" 模板数据")
- * @property MyFavoriteMember|MyFavoriteTeam $myFavorite
- * @property Classify $classify
- * @property Category $category
  */
 class TemplateOfficial extends \yii\db\ActiveRecord
 {
@@ -53,9 +50,6 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     /** @var string 删除状态 */
     const STATUS_DELETE = '3';
 
-    /** @var int 推荐到热门场景 */
-    const IS_RECOMMEND = 1;
-
     /**
      * @inheritdoc
      */
@@ -64,22 +58,6 @@ class TemplateOfficial extends \yii\db\ActiveRecord
         return '{{%template_official}}';
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rules1()
-    {
-        return [
-            [['content', 'title'], 'trim'],
-            [['user_id', 'cooperation_id'], 'required'],
-            [['user_id', 'cooperation_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort'], 'integer'],
-            [['content'], 'string'],
-            [['title'], 'string', 'max' => 50],
-            [['product'], 'string', 'max' => 30],
-            [['thumbnail_url'], 'string', 'max' => 255],
-            [['status'], 'integer'],
-        ];
-    }
     public function rules()
     {
         return [
@@ -88,7 +66,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
             ['status', 'default', 'value' => static::STATUS_EDITING],
             [['cooperation_id', 'price', 'virtual_edit', 'virtual_view', 'virtual_favorite'], 'default', 'value' => 0],
             [['sort', 'status', 'category_id', 'classify_id'], 'filter', 'filter' => 'intval'],
-            [['user_id', 'cooperation_id', 'category_id', 'classify_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort', 'status'], 'integer'],
+            [['user_id', 'cooperation_id', 'category_id', 'classify_id', 'thumbnail_id', 'created_at', 'updated_at', 'price', 'amount_edit', 'virtual_edit', 'amount_view', 'virtual_view', 'amount_favorite', 'virtual_favorite', 'amount_buy', 'sort', 'status', 'recommend_at', 'thumbnail_updated_at'], 'integer'],
             [['content'], 'string'],
             [['title'], 'string', 'max' => 50],
             [['thumbnail_url'], 'string', 'max' => 255],

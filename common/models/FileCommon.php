@@ -46,7 +46,7 @@ class FileCommon extends \yii\db\ActiveRecord
             [['size', 'width', 'height', 'sum', 'created_at'], 'integer'],
             [['etag'], 'string', 'max' => 32, 'min' => 32],
             [['path'], 'string', 'max' => 255],
-            [['type'], 'integer', 'min' => 1, 'max' => static::EXT_SVG],
+            [['type'], 'integer', 'min' => 1],
         ];
     }
 
@@ -103,7 +103,7 @@ class FileCommon extends \yii\db\ActiveRecord
      */
     public static function reduceSum($params)
     {
-        if (empty($params) || !is_array($params) || !is_numeric($params)) {
+        if (empty($params) && !is_array($params) && !is_numeric($params)) {
             return false;
         }
         return static::updateAllCounters(['sum' => -1], ['file_id' => $params]);
@@ -116,7 +116,7 @@ class FileCommon extends \yii\db\ActiveRecord
      */
     public static function increaseSum($params)
     {
-        if (empty($params) || !is_array($params) || !is_numeric($params)) {
+        if (empty($params) && !is_array($params) && !is_numeric($params)) {
             return false;
         }
         return static::updateAllCounters(['sum' => 1], ['file_id' => $params]);
@@ -145,6 +145,7 @@ class FileCommon extends \yii\db\ActiveRecord
     const EXT_TIF = 21;
     const EXT_TIFF = 22;
     const EXT_SVG = 23;
+    const EXT_CSS = 24;
 
     static $extension = [
         ['ext' => 'doc', 'mime' => 'application/msword', 'type' => self::EXT_DOC],
@@ -152,6 +153,7 @@ class FileCommon extends \yii\db\ActiveRecord
         ['ext' => 'xls', 'mime' => 'application/vnd.ms-office', 'type' => self::EXT_XLS],
         ['ext' => 'xlsx', 'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'type' => self::EXT_XLSX],
         ['ext' => 'txt', 'mime' => 'text/plain', 'type' => self::EXT_TXT],
+        ['ext' => 'css', 'mime' => 'text/css', 'type' => self::EXT_CSS],
         ['ext' => 'jpg', 'mime' => 'image/jpeg', 'type' => self::EXT_JPG],
         ['ext' => 'jpeg', 'mime' => 'image/jpeg', 'type' => self::EXT_JPEG],
         ['ext' => 'bmp', 'mime' => 'image/x-ms-bmp', 'type' => self::EXT_BMP],
