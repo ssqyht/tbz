@@ -44,7 +44,7 @@ class MigrateTableController extends Controller
 {
 
     public $test;
-    public $process = 30;
+    public $process = 10;
     public $server = 'http://localhost';
     public $pageSize = 5000;
 
@@ -53,12 +53,12 @@ class MigrateTableController extends Controller
 
     public function options($actionID)
     {
-        return ['test', 'server', 'pageSize'];
+        return ['test', 'server', 'pageSize', 'process'];
     }
 
     public function optionAliases()
     {
-        return ['t' => 'test', 's' => 'server', 'p' => 'pageSize'];
+        return ['t' => 'test', 's' => 'server', 'p' => 'pageSize', 'process' => 'process'];
     }
 
     /**
