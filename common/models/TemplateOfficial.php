@@ -199,6 +199,15 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     }
 
     /**
+     * 替换页面Content内容
+     * @author thanatos <thanatos915@163.com>
+     */
+    public function replaceContend()
+    {
+        // 替换
+    }
+
+    /**
      * 关联收藏表
      * @return \yii\db\ActiveQuery
      */

@@ -672,7 +672,7 @@ class MigrateTableController extends Controller
             return $this->getFonts()[$key]['font_id'];
         }, $model->content);
         // 替换表格
-        $content = preg_replace_callback('/"index":(\d+)/', function ($matches) {
+        $content = preg_replace_callback('/"source":(\d+)/', function ($matches) {
             return $this->getTables()[$matches[1]]['id'];
         }, $content);
         $content = Json::decode($content);
