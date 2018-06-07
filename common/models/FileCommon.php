@@ -103,7 +103,7 @@ class FileCommon extends \yii\db\ActiveRecord
      */
     public static function reduceSum($params)
     {
-        if (empty($params) || !is_array($params) || !is_numeric($params)) {
+        if (empty($params) || (!is_array($params) && !is_numeric($params))) {
             return false;
         }
         return static::updateAllCounters(['sum' => -1], ['file_id' => $params]);
@@ -116,7 +116,7 @@ class FileCommon extends \yii\db\ActiveRecord
      */
     public static function increaseSum($params)
     {
-        if (empty($params) || !is_array($params) || !is_numeric($params)) {
+        if (empty($params) || (!is_array($params) && !is_numeric($params))) {
             return false;
         }
         return static::updateAllCounters(['sum' => 1], ['file_id' => $params]);

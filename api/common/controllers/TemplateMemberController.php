@@ -24,7 +24,7 @@ class TemplateMemberController extends BaseController
      *     schemes={"http"},
      *     tags={"用户模板相关接口"},
      *     summary="根据条件查询用户模板信息(团队和个人)",
-     *     description="此接口为前后台根据查询条件查询团队或个人模板信息，成功返回相应的模板信息，无查询条件时默认返回默认文件下的正常模板信息，有分页，（此接口可用于展示模板信息页和回收站页，根据状态查询）",
+     *     description="此接口为前后台根据查询条件查询团队或个人模板信息，成功返回相应的模板信息，无查询条件时默认返回默认文件下的正常模板信息，有分页，（此接口可用于展示模板信息页和回收站页，根据状态查询)",
      *     @SWG\Parameter(
      *         name="Client",
      *         in="header",

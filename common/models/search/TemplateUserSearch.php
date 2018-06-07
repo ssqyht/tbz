@@ -21,6 +21,8 @@ class TemplateUserSearch extends Model
     const DEFAULT_FOLDER = 0;
     /** @var int 模板正常状态 */
     const NORMAL_STATUS = 10;
+    /** @var int 回收站状态 */
+    const RECYCLE_STATUS = 7;
 
     public $status;
     public $classify_id;
@@ -30,13 +32,13 @@ class TemplateUserSearch extends Model
 
     private $_cacheKey;
     private $_query;
-    private $_tableModel;
     private $_condition;
 
     public function rules()
     {
         return [
             [['status', 'team_id', 'classify_id', 'folder', 'sort'], 'integer'],
+            ['status', 'in', 'range' => [static::NORMAL_STATUS, static::RECYCLE_STATUS]]
         ];
     }
 
@@ -74,29 +76,33 @@ class TemplateUserSearch extends Model
     }
 
     /**
-     * @return ActiveDataProvider
+     * @return bool|mixed|null
      */
     public function searchFrontend()
     {
-
+        /** @var  $query \yii\db\ActiveQuery */
         $query = $this->query;
-        //按默认文件夹查询，个人查询时，如果按文件夹查询，只查个人模板，如果按默认文件夹查询，则两个都查，且分享过来的文件夹不受文件夹限制
-        if ($query instanceof TemplateMember) {
-            if (!$this->folder) {
-                $query->andWhere(['or', ['and', $this->_condition, [TemplateMember::tableName() . '.folder_id' => static::DEFAULT_FOLDER]], [ShareTemplate::tableName() . '.shared_person' => \Yii::$app->user->id]]);
+        //如果为回收站查询，则不按文件夹进行查询
+        if ($this->status != static::RECYCLE_STATUS) {
+            //按默认文件夹查询，个人查询时，如果按文件夹查询，只查个人模板，如果按默认文件夹查询，则两个都查，且分享过来的文件夹不受文件夹限制
+            if ($query->modelClass == TemplateMember::class) {
+                if (!$this->folder) {
+                    $query->andWhere(['or', ['and', $this->_condition, [TemplateMember::tableName() . '.folder_id' => static::DEFAULT_FOLDER]], [ShareTemplate::tableName() . '.shared_person' => \Yii::$app->user->id]]);
+                } else {
+                    $query->andWhere($this->_condition);
+                    $query->andWhere([TemplateMember::tableName() . '.folder_id' => $this->folder]);
+                }
             } else {
                 $query->andWhere($this->_condition);
-                $query->andWhere([TemplateMember::tableName() . '.folder_id' => $this->folder]);
+                $query->andWhere(['folder_id' => $this->folder ?: static::DEFAULT_FOLDER]);
             }
         } else {
-            $query->andWhere($this->_condition);
-            $query->andWhere(['folder_id' => $this->folder ?: static::DEFAULT_FOLDER]);
+            if ($query->modelClass == TemplateMember::class) {
+                $query->andWhere(['or', $this->_condition, [ShareTemplate::tableName() . '.shared_person' => \Yii::$app->user->id]]);
+            } else {
+                $query->andWhere($this->_condition);
+            }
         }
-        //按默认文件夹查询
-        /*  if (!$this->folder) {
-              $this->query->andWhere([TemplateMember::tableName().'.folder_id' => static::DEFAULT_FOLDER]);
-          }*/
-        return $query->all();
         $provider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [
@@ -167,10 +173,10 @@ class TemplateUserSearch extends Model
                 $table_name = TemplateTeam::tableName();
                 $this->_condition = ['team_id' => $user->team->id];
             } else {
-                $query = TemplateMember::sort();
                 $table_name = TemplateMember::tableName();
+                $query = TemplateMember::sort();
                 $this->_condition = [$table_name . '.user_id' => \Yii::$app->user->id];
-                $query->leftJoin(ShareTemplate::tableName(), ShareTemplate::tableName() . '.template_id = ' . $table_name . '.template_id');
+                $query->joinWith('shares');
             }
             //按小分类查询
             if ($this->classify_id) {

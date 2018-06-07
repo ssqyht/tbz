@@ -25,6 +25,8 @@ class MaterialSearch extends Model
     const DEFAULT_FOLDER = 0;
     /** @var int 正式素材 */
     const NORMAL_MODE = 20;
+    /** @var int 回收站状态 */
+    const RECYCLE_STATUS = 7;
 
     public $status;
     public $folder;
@@ -84,8 +86,10 @@ class MaterialSearch extends Model
     {
         //查询当前用户的素材
         $this->query->andWhere($this->_condition);
-        //按默认文件夹查询
-        $this->query->andWhere(['folder_id' => $this->folder ?: static::DEFAULT_FOLDER]);
+        //当是回收站查询时，不按文件夹查询
+        if ($this->status != static::RECYCLE_STATUS){
+            $this->query->andWhere(['folder_id' => $this->folder ?: static::DEFAULT_FOLDER]);
+        }
         $provider = new ActiveDataProvider([
             'query' => $this->query,
             'pagination' => [

@@ -42,7 +42,6 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        var_dump(FileCommon::updateSum([1, 2]));
         echo 'You must visit a module  "/v1"';
         exit;
     }

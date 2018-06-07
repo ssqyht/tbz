@@ -78,6 +78,7 @@ class CacheDependencyController extends Controller
             ['tu_material_official','material_official'],
             ['tu_material_classify','material_classify'],
             ['tu_share_template','template_share'],
+            ['tu_share_template','template_user_search'],
         ])->execute();
 
         $this->stdout('Success' . "\n", Console::FG_GREEN);

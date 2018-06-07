@@ -6,6 +6,7 @@
 namespace api\common\controllers;
 
 use common\extension\Code;
+use common\models\Member;
 use Yii;
 use common\components\vendor\RestController;
 use yii\web\ForbiddenHttpException;

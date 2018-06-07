@@ -87,7 +87,6 @@ class TemplateMember extends \yii\db\ActiveRecord
             'amount_print' => '印刷次数',
         ];
     }
-
     public function frontendFields()
     {
         return ['template_id', 'user_id', 'open_id', 'folder_id', 'title', 'classify_id', 'thumbnail_url', 'thumbnail_id', 'status', 'is_diy', 'edit_from', 'amount_print'];
@@ -103,13 +102,13 @@ class TemplateMember extends \yii\db\ActiveRecord
     }
 
     /**
-     * 查找线上模板
+     * 查找线上模板(因为分享的模板的user_id可能不是当前用户，所以，不对用户进行限制)
      * @return \yii\db\ActiveQuery
      */
     public static function active()
     {
         if (Yii::$app->request->isFrontend()) {
-            return static::find()->where(['status' => static::STATUS_NORMAL, 'user_id' => \Yii::$app->user->id]);
+            return static::find()->where(['status' => static::STATUS_NORMAL]);
         } else {
             return static::find();
         }
@@ -150,13 +149,13 @@ class TemplateMember extends \yii\db\ActiveRecord
                 return Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url;
             };
         if ($this->isRelationPopulated('shares')) {
-            $data['share_authority'] = function () {
+            $data['shareAuthority'] = function () {
                 return $this->shares->authority;
             };
-            $data['sharing_person'] = function () {
+            $data['sharingPerson'] = function () {
                 return $this->shares->sharing_person;
             };
-            $data['shared_person'] = function () {
+            $data['sharedPerson'] = function () {
                 return $this->shares->shared_person;
             };
         }
