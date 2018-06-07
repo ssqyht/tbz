@@ -100,4 +100,23 @@ class FolderMaterialMember extends \yii\db\ActiveRecord
         }
         parent::afterSave($insert, $changedAttributes);
     }
+    /**
+     * @return mixed
+     */
+    public function expandFields()
+    {
+        if ($this->isRelationPopulated('materials')) {
+            //当前素材文件夹的素材数量
+            $data['materialNum'] = function () {
+                return count($this->materials);
+            };
+        }
+        return $data;
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMaterials(){
+        return $this->hasMany(MaterialMember::class,['folder_id'=>'id']);
+    }
 }

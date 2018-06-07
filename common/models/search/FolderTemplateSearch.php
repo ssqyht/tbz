@@ -16,6 +16,8 @@ use common\models\CacheDependency;
 
 class FolderTemplateSearch extends Model
 {
+    /** @var int 模板正常状态 */
+    const NORMAL_STATUS = 10;
     public $status;
 
     private $_cacheKey;
@@ -48,7 +50,7 @@ class FolderTemplateSearch extends Model
     public function search($params)
     {
         $this->load($params, '');
-        if (!$this->validate()){
+        if (!$this->validate()) {
             return false;
         }
         switch ($this->scenario) {
@@ -61,6 +63,7 @@ class FolderTemplateSearch extends Model
                 return null;
         }
     }
+
     /**
      * @return mixed|null 前台获取文件夹信息
      */
@@ -69,8 +72,14 @@ class FolderTemplateSearch extends Model
         if (!$this->tableModel) {
             return false;
         }
+        /** @var $folder \yii\db\ActiveQuery */
         $folder = ($this->tableModel)::online()
-            ->andWhere($this->_condition);
+            ->andWhere($this->_condition)
+            ->with(['templates' => function ($query) {
+                /** @var $query \yii\db\ActiveQuery */
+                return $query->where($this->_condition)->andWhere(['status' => static::NORMAL_STATUS]);
+            }]);
+        return $folder->all();
         // 查询数据 使用缓存
         try {
             $result = \Yii::$app->dataCache->cache(function () use ($folder) {
@@ -83,6 +92,7 @@ class FolderTemplateSearch extends Model
         }
         return $result;
     }
+
     /**
      * 后台查询
      * @return array|bool
@@ -126,6 +136,7 @@ class FolderTemplateSearch extends Model
         }
         return $this->_cacheKey;
     }
+
     /**
      * 删除查询缓存
      * @author thanatos <thanatos915@163.com>
@@ -134,6 +145,7 @@ class FolderTemplateSearch extends Model
     {
         \Yii::$app->cache->delete($this->cacheKey);
     }
+
     /**
      * 获取模型
      * @return bool|string
@@ -142,12 +154,12 @@ class FolderTemplateSearch extends Model
     {
         if ($this->_tableModel === null) {
             $user = \Yii::$app->user->identity;
-            if (!$user->team){
+            if (!$user->team) {
                 $this->_tableModel = FolderTemplateMember::class;
-                $this->_condition = ['user_id'=>\Yii::$app->user->id];
-            }else{
+                $this->_condition = ['user_id' => \Yii::$app->user->id];
+            } else {
                 $this->_tableModel = FolderTemplateTeam::class;
-                $this->_condition = ['team_id'=>$user->team->id];
+                $this->_condition = ['team_id' => $user->team->id];
             }
         }
         return $this->_tableModel;

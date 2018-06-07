@@ -99,4 +99,23 @@ class FolderTemplateTeam extends \yii\db\ActiveRecord
         }
         parent::afterSave($insert, $changedAttributes);
     }
+    /**
+     * @return mixed
+     */
+    public function expandFields()
+    {
+        if ($this->isRelationPopulated('templates')) {
+            //当前模板文件夹的模板数量
+            $data['templateNum'] = function () {
+                return count($this->templates);
+            };
+        }
+        return $data;
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTemplates(){
+        return $this->hasMany(TemplateTeam::class,['folder_id'=>'id']);
+    }
 }
