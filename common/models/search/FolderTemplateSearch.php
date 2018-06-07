@@ -144,10 +144,10 @@ class FolderTemplateSearch extends Model
             $user = \Yii::$app->user->identity;
             if (!$user->team){
                 $this->_tableModel = FolderTemplateMember::class;
-                $this->_condition = ['team_id'=>$user->team->id];
+                $this->_condition = ['user_id'=>\Yii::$app->user->id];
             }else{
                 $this->_tableModel = FolderTemplateTeam::class;
-                $this->_condition = ['user_id'=>\Yii::$app->user->id];
+                $this->_condition = ['team_id'=>$user->team->id];
             }
         }
         return $this->_tableModel;
