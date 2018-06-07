@@ -577,7 +577,7 @@ class MigrateTableController extends Controller
         $models = OfficialTemplate::find()->where([
             'status' => OfficialTemplate::STATUS_ONLINE,
             'coop_id' => 0,
-        ])->limit(10)->all();
+        ])->all();
         $data = [];
         $sum = 0;
         foreach ($models as $key => $model) {
