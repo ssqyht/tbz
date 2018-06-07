@@ -920,15 +920,21 @@ class MigrateTableController extends Controller
             $category = ArrayHelper::index($classifies, 'name');
             $productNames = ArrayHelper::index($names, 'product');
 
-            $client = new Client(['transport' => CurlTransport::class]);
+            $client = new Client([
+                'transport' => CurlTransport::class
+            ]);
             /** @var Response $response */
 
             $times = 0;
             while (true) {
                 $times++;
                 try {
-                    $response = $client->createRequest()->setMethod('POST')->setUrl($this->server . ':8001/api/get-v5-json')
-                        ->setData(['list' => $data])->send();
+                    $response = $client->createRequest()
+                        ->setMethod('POST')
+                        ->addHeaders(['content-type' => 'application/json'])
+                        ->setUrl($this->server . ':8001/api/get-v5-json')
+                        ->setContent(Json::encode($data))
+                        ->send();
                     break;
                 } catch (\Exception $exception) {
                     if ($times >= 3) {
