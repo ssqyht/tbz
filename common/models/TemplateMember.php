@@ -159,6 +159,11 @@ class TemplateMember extends \yii\db\ActiveRecord
                 return $this->shares->shared_person;
             };
         }
+        if ($this->isRelationPopulated('classify')) {
+            $data['classifyName'] = function () {
+                return $this->classify->name;
+            };
+        }
         return $data;
     }
 
@@ -168,5 +173,11 @@ class TemplateMember extends \yii\db\ActiveRecord
     public function getShares()
     {
         return $this->hasOne(ShareTemplate::class, ['template_id' => 'template_id']);
+    }
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClassify(){
+        return $this->hasOne(Classify::class, ['classify_id' => 'classify_id']);
     }
 }

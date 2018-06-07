@@ -176,7 +176,7 @@ class TemplateUserSearch extends Model
                 $table_name = TemplateMember::tableName();
                 $query = TemplateMember::sort();
                 $this->_condition = [$table_name . '.user_id' => \Yii::$app->user->id];
-                $query->joinWith('shares');
+                $query->joinWith('shares')->with('classify');
             }
             //按小分类查询
             if ($this->classify_id) {

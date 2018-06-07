@@ -11,6 +11,7 @@ namespace common\models\search;
 use common\components\vendor\Model;
 use common\models\FolderTemplateMember;
 use common\models\FolderTemplateTeam;
+use common\models\TemplateMember;
 use yii\data\ActiveDataProvider;
 use common\models\CacheDependency;
 
@@ -72,14 +73,12 @@ class FolderTemplateSearch extends Model
         if (!$this->tableModel) {
             return false;
         }
-        /** @var $folder \yii\db\ActiveQuery */
         $folder = ($this->tableModel)::online()
-            ->andWhere($this->_condition)
+            ->andWhere(['or',$this->_condition,['id'=>0]])
             ->with(['templates' => function ($query) {
                 /** @var $query \yii\db\ActiveQuery */
                 return $query->where($this->_condition)->andWhere(['status' => static::NORMAL_STATUS]);
             }]);
-        return $folder->all();
         // 查询数据 使用缓存
         try {
             $result = \Yii::$app->dataCache->cache(function () use ($folder) {

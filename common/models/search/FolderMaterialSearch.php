@@ -5,6 +5,7 @@
  * Date: 2018/5/22
  * Time: 10:42
  */
+
 namespace common\models\search;
 
 use common\components\vendor\Model;
@@ -15,6 +16,8 @@ use common\models\CacheDependency;
 
 class FolderMaterialSearch extends Model
 {
+    /** @var int 模板正常状态 */
+    const NORMAL_STATUS = 10;
     public $status;
     public $method;
 
@@ -26,7 +29,7 @@ class FolderMaterialSearch extends Model
     public function rules()
     {
         return [
-            [['status','team_id'], 'integer'],
+            [['status', 'team_id'], 'integer'],
         ];
     }
 
@@ -72,7 +75,11 @@ class FolderMaterialSearch extends Model
             return false;
         }
         $folder = ($this->tableModel)::online()
-            ->andWhere($this->_condition);
+            ->andWhere(['or',$this->_condition,['id'=>0]])
+            ->with(['templates' => function ($query) {
+                /** @var $query \yii\db\ActiveQuery */
+                return $query->where($this->_condition)->andWhere(['status' => static::NORMAL_STATUS]);
+            }]);
         // 查询数据 使用缓存
         try {
             $result = \Yii::$app->dataCache->cache(function () use ($folder) {
@@ -129,6 +136,7 @@ class FolderMaterialSearch extends Model
         }
         return $this->_cacheKey;
     }
+
     /**
      * 删除查询缓存
      * @author thanatos <thanatos915@163.com>
@@ -146,12 +154,12 @@ class FolderMaterialSearch extends Model
     {
         if ($this->_tableModel === null) {
             $user = \Yii::$app->user->identity;
-            if ($user->team){
+            if ($user->team) {
                 $this->_tableModel = FolderMaterialTeam::class;
-                $this->_condition = ['team_id'=>$user->team->id];
-            }else{
+                $this->_condition = ['team_id' => $user->team->id];
+            } else {
                 $this->_tableModel = FolderMaterialMember::class;
-                $this->_condition = ['user_id'=>\Yii::$app->user->id];
+                $this->_condition = ['user_id' => \Yii::$app->user->id];
             }
         }
         return $this->_tableModel;
