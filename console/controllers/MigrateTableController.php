@@ -894,7 +894,7 @@ class MigrateTableController extends Controller
         }, $model->content);
         // 替换表格
         $content = preg_replace_callback('/"source":(\d+)/', function ($matches) {
-            return '"source:"'. $this->getTables()[$matches[1]]['id'];
+            return '"source":'. $this->getTables()[$matches[1]]['id'];
         }, $content);
         $content = Json::decode($content);
         $pagesThumb = [];
