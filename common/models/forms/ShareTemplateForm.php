@@ -11,8 +11,10 @@ namespace common\models\forms;
 
 use common\components\traits\ModelErrorTrait;
 use common\models\FileCommon;
+use common\models\Member;
 use common\models\ShareTemplate;
 use common\models\TemplateMember;
+use Monolog\Handler\IFTTTHandler;
 
 class ShareTemplateForm extends \yii\base\Model
 {
@@ -49,6 +51,11 @@ class ShareTemplateForm extends \yii\base\Model
         $template_data = TemplateMember::findOne(['template_id' => $this->template_id, 'user_id' => $this->sharing_person, 'status' => TemplateMember::STATUS_NORMAL]);
         if (!$template_data) {
             $this->addError('template_id', '分享的模板不存在');
+            return false;
+        }
+        $shared_person = Member::findOne(['id'=>$this->shared_person,'status'=>Member::STATUS_NORMAL]);
+        if (!$shared_person){
+            $this->addError('shared_person','被分享人不存在');
             return false;
         }
         $model = new ShareTemplate();

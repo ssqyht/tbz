@@ -28,7 +28,6 @@ class TemplateUserSearch extends Model
     public $classify_id;
     public $folder;
     public $sort;
-    public $team_id;
 
     private $_cacheKey;
     private $_query;
@@ -37,7 +36,7 @@ class TemplateUserSearch extends Model
     public function rules()
     {
         return [
-            [['status', 'team_id', 'classify_id', 'folder', 'sort'], 'integer'],
+            [['status', 'classify_id', 'folder', 'sort'], 'integer'],
             ['status', 'in', 'range' => [static::NORMAL_STATUS, static::RECYCLE_STATUS]]
         ];
     }
@@ -48,9 +47,9 @@ class TemplateUserSearch extends Model
     public function scenarios()
     {
         return [
-            static::SCENARIO_DEFAULT => ['status', 'classify_id', 'team_id', 'folder', 'sort'],
+            static::SCENARIO_DEFAULT => ['status', 'classify_id', 'folder', 'sort'],
             static::SCENARIO_BACKEND => ['status', 'classify_id', 'sort'],
-            static::SCENARIO_FRONTEND => ['status', 'classify_id', 'folder', 'sort', 'team_id']
+            static::SCENARIO_FRONTEND => ['status', 'classify_id', 'folder', 'sort']
         ];
     }
 
@@ -84,7 +83,7 @@ class TemplateUserSearch extends Model
         $query = $this->query;
         //如果为回收站查询，则不按文件夹进行查询
         if ($this->status != static::RECYCLE_STATUS) {
-            //按默认文件夹查询，个人查询时，如果按文件夹查询，只查个人模板，如果按默认文件夹查询，则两个都查，且分享过来的文件夹不受文件夹限制
+            //按默认文件夹查询，个人查询时，如果按文件夹查询，只查个人模板，如果按默认文件夹查询，则两个都查，且分享过来的模板不受文件夹限制
             if ($query->modelClass == TemplateMember::class) {
                 if (!$this->folder) {
                     $query->andWhere(['or', ['and', $this->_condition, [TemplateMember::tableName() . '.folder_id' => static::DEFAULT_FOLDER]], [ShareTemplate::tableName() . '.shared_person' => \Yii::$app->user->id]]);

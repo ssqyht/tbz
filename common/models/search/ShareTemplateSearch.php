@@ -76,7 +76,6 @@ class ShareTemplateSearch extends Model
     public function searchFrontend()
     {
         $this->query->where([ShareTemplate::tableName().'.shared_person' => \Yii::$app->user->id]);
-        return $this->_query;
         $provider = new ActiveDataProvider([
             'query' => $this->query,
             'pagination' => [
@@ -133,7 +132,7 @@ class ShareTemplateSearch extends Model
     public function getQuery()
     {
         if ($this->_query === null) {
-            $query = TemplateMember::find()
+            $query = TemplateMember::active()
                 ->select(TemplateMember::tableName().'.*,'.ShareTemplate::tableName().'.*')
                 ->joinwith('shares');
             if ($this->classify_id) {

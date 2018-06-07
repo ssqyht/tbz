@@ -103,6 +103,13 @@ class MaterialClassifyController extends BaseController
      *          description="分类名",
      *          required=true,
      *     ),
+     *     @SWG\Parameter(
+     *          in="formData",
+     *          name="pid",
+     *          type="integer",
+     *          description="大分类的唯一标识",
+     *          required=true,
+     *     ),
      *     @SWG\Response(
      *          response=200,
      *          description="请求成功",
@@ -129,6 +136,10 @@ class MaterialClassifyController extends BaseController
     public function actionCreate()
     {
         $model = new MaterialClassify();
+        $pid_validate =  MaterialClassify::findOne(['cid'=>\Yii::$app->request->post('pid'),'status'=>MaterialClassify::STATUS_NORMAL]);
+        if (!$pid_validate){
+            throw new BadRequestHttpException('pid不存在', Code::SERVER_UNAUTHORIZED);
+        }
         if ($model->load(\Yii::$app->request->post(), '') && ($model->save())) {
             return $model;
         }
@@ -195,14 +206,17 @@ class MaterialClassifyController extends BaseController
      */
     public function actionUpdate($id)
     {
-        $model = MaterialClassify::findOne(['cid'=>$id]);
+        $model = MaterialClassify::findOne(['cid'=>$id,'status'=>MaterialClassify::STATUS_NORMAL]);
         if (!$model){
             throw new BadRequestHttpException('要编辑的信息不存在', Code::SERVER_UNAUTHORIZED);
         }
-        if (!$name = \Yii::$app->request->post('name')){
-            throw new BadRequestHttpException('分类名不能为空', Code::SERVER_UNAUTHORIZED);
+        $data = \Yii::$app->request->post();
+        if ($data['name']){
+            $model->name = $data['name'];
         }
-        $model->name = $name;
+        if ($data['pid'] && (MaterialClassify::findOne(['cid'=>$data['pid'],'status'=>MaterialClassify::STATUS_NORMAL]))){
+            $model->pid;
+        }
         if ($model->save()) {
             return $model;
         }
@@ -254,7 +268,7 @@ class MaterialClassifyController extends BaseController
      */
     public function actionDelete($id)
     {
-        $model = MaterialClassify::findOne(['cid'=>$id]);
+        $model = MaterialClassify::findOne(['cid'=>$id,'status'=>MaterialClassify::STATUS_NORMAL]);
         if (!$model){
             throw new BadRequestHttpException('要删除的信息不存在', Code::SERVER_UNAUTHORIZED);
         }

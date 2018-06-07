@@ -71,23 +71,4 @@ class ShareTemplate extends \yii\db\ActiveRecord
             'id','template_id','shared_person','sharing_person','authority'
         ];
     }
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTemplates(){
-        return $this->hasOne(TemplateMember::class,['template_id'=>'template_id']);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function expandFields()
-    {
-        if ($this->isRelationPopulated('templates')) {
-            $data['templates'] = function () {
-                return $this->templates;
-            };
-        }
-        return $data;
-    }
 }
