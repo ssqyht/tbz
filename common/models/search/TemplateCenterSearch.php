@@ -42,7 +42,7 @@ class TemplateCenterSearch extends Model
             ->andWhere(['is_recommend' => Classify::IS_RECOMMEND])
             ->with(['templates' => function($query){
                 /** @var $query ActiveQuery */
-                $query->andWhere(['is_recommend' => TemplateOfficial::IS_RECOMMEND]);
+                $query->andWhere(['>', 'recommend_at', '0']);
             }]);
         // 查询数据 使用缓存
         try {

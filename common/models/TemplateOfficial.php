@@ -32,7 +32,7 @@ use yii\helpers\Url;
  * @property int $virtual_favorite 虚拟收藏量 @SWG\Property(property="virtualFavorite", type="integer", description=" 虚拟收藏量")
  * @property int $amount_buy 购买量 @SWG\Property(property="amountBuy", type="integer", description=" 购买量")
  * @property int $sort 排序 @SWG\Property(property="sort", type="integer", description=" 排序")
- * @property int $is_recommend 是否推荐到热门场景 @SWG\Property(property="isRecommend", type="integer", description=" 是否推荐到热门场景")
+ * @property int recommend_at 是否推荐到热门场景 @SWG\Property(property="recommendAt", type="integer", description=" 是否推荐到热门场景")
  * @property string $content 模板数据 @SWG\Property(property="content", type="string", description=" 模板数据")
  */
 class TemplateOfficial extends \yii\db\ActiveRecord
@@ -117,11 +117,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
                 return $this->thumbnail_url ? Url::to('@oss') . DIRECTORY_SEPARATOR . $this->thumbnail_url : '';
             },
         ];
-        if (Yii::$app->request->isFrontend()) {
-            $data['content'] = function () {
-                return $this->content;
-            };
-        }
+
         if ($this->isRelationPopulated('myFavorite')) {
             $data['isFavorite'] = function () {
                 if ($this->myFavorite) {
@@ -142,7 +138,9 @@ class TemplateOfficial extends \yii\db\ActiveRecord
 
     public function extraFields()
     {
-        return ['classify', 'category'];
+        return ['classify', 'category', 'content' => function(){
+            return $this->content;
+        }];
     }
 
     public function deleteFields()

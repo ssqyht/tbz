@@ -15,6 +15,7 @@ use common\models\Member;
 use common\models\MemberOauth;
 use common\models\MigrateTemplate;
 use common\models\Tag;
+use common\models\TagRelationClassify;
 use common\models\TemplateMember;
 use common\models\TemplateOfficial;
 use common\models\TemplateOfficialPages;
@@ -221,6 +222,7 @@ class MigrateTableController extends Controller
 
         // 清空表
         Classify::getDb()->createCommand()->delete(Classify::tableName())->execute();
+        TagRelationClassify::getDb()->createCommand()->delete(TagRelationClassify::tableName())->execute();
 
         $db = Yii::$app->dbMigrateDdy;
         $query = (new Query())
@@ -269,7 +271,7 @@ class MigrateTableController extends Controller
                         $thumbnail = $result->path ?: '';
                     }
 
-                    $data[] = [
+                    $data = [
                         'category_id' => $category,
                         'pid' => $parent->classify_id,
                         'name' => $model['name'],
@@ -287,9 +289,64 @@ class MigrateTableController extends Controller
                         'created_at' => time(),
                         'updated_at' => time(),
                     ];
+                    $classifyModel = new Classify();
+                    $classifyModel->load($data, '');
+                    $classifyModel->save();
+                    // 插入风格
+                    $styles = (new Query())
+                        ->from('com_template_style')
+                        ->where(['id' => explode(',', $model['defaultStyle'])])->all($db);
+                    // 查询新表的数据
+                    /** @var Tag[] $newStyles */
+                    $newStyles =  Tag::find()
+                        ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($styles, 'name')]);
+                    $styleData = [];
+                    foreach ($newStyles as $style) {
+                        $styleData[] = [
+                            'tag_id' => $style->tag_id,
+                            'classify_id' => $classifyModel->primaryKey,
+                            'created_at' => time(),
+                            'updated_at' => time(),
+                        ];
+                    }
+                    // 插入行业
+                    $industries = (new Query())
+                        ->from('com_template_industry')
+                        ->where(['id' => explode(',', $model['defaultIndustry'])])->all($db);
+                    // 查询新表的数据
+                    /** @var Tag[] $newIndustries */
+                    $newIndustries =  Tag::find()
+                        ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($industries, 'name')]);
+                    foreach ($newIndustries as $industry) {
+                        $styleData[] = [
+                            'tag_id' => $industry->tag_id,
+                            'classify_id' => $classifyModel->primaryKey,
+                            'created_at' => time(),
+                            'updated_at' => time(),
+                        ];
+                    }
+                    // 插入风格
+                    $functions = (new Query())
+                        ->from('com_template_function')
+                        ->where(['id' => explode(',', $model['defaultFunction'])])->all($db);
+                    // 查询新表的数据
+                    /** @var Tag[] $newFunctions */
+                    $newFunctions =  Tag::find()
+                        ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($functions, 'name')]);
+                    foreach ($newFunctions as $function) {
+                        $styleData[] = [
+                            'tag_id' => $function->tag_id,
+                            'classify_id' => $classifyModel->primaryKey,
+                            'created_at' => time(),
+                            'updated_at' => time(),
+                        ];
+                    }
+                    TagRelationClassify::find()->createCommand()->batchInsert(TagRelationClassify::tableName(), [
+                        'tag_id', 'classify_id', 'created_at', 'updated_at'
+                    ], $styleData)->execute();
                 }
             }
-            Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status', 'created_at', 'updated_at'], $data)->execute();
+
 
         }
 
@@ -312,7 +369,7 @@ class MigrateTableController extends Controller
                     $thumbnail = $result->path ?: '';
                 }
 
-                $data[] = [
+                $data = [
                     'category_id' => $category,
                     'pid' => 0,
                     'name' => $model['name'],
@@ -330,6 +387,62 @@ class MigrateTableController extends Controller
                     'created_at' => time(),
                     'updated_at' => time(),
                 ];
+                $classifyModel = new Classify();
+                $classifyModel->load($data, '');
+                $classifyModel->save();
+                // 插入风格
+                $styles = (new Query())
+                    ->from('com_template_style')
+                    ->where(['id' => explode(',', $model['defaultStyle'])])->all($db);
+                // 查询新表的数据
+                /** @var Tag[] $newStyles */
+                $newStyles =  Tag::find()
+                    ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($styles, 'name')]);
+                $styleData = [];
+                foreach ($newStyles as $style) {
+                    $styleData[] = [
+                        'tag_id' => $style->tag_id,
+                        'classify_id' => $classifyModel->primaryKey,
+                        'created_at' => time(),
+                        'updated_at' => time(),
+                    ];
+                }
+                // 插入行业
+                $industries = (new Query())
+                    ->from('com_template_industry')
+                    ->where(['id' => explode(',', $model['defaultIndustry'])])->all($db);
+                // 查询新表的数据
+                /** @var Tag[] $newIndustries */
+                $newIndustries =  Tag::find()
+                    ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($industries, 'name')]);
+                foreach ($newIndustries as $industry) {
+                    $styleData[] = [
+                        'tag_id' => $industry->tag_id,
+                        'classify_id' => $classifyModel->primaryKey,
+                        'created_at' => time(),
+                        'updated_at' => time(),
+                    ];
+                }
+                // 插入风格
+                $functions = (new Query())
+                    ->from('com_template_function')
+                    ->where(['id' => explode(',', $model['defaultFunction'])])->all($db);
+                // 查询新表的数据
+                /** @var Tag[] $newFunctions */
+                $newFunctions =  Tag::find()
+                    ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($functions, 'name')]);
+                foreach ($newFunctions as $function) {
+                    $styleData[] = [
+                        'tag_id' => $function->tag_id,
+                        'classify_id' => $classifyModel->primaryKey,
+                        'created_at' => time(),
+                        'updated_at' => time(),
+                    ];
+                }
+                TagRelationClassify::find()->createCommand()->batchInsert(TagRelationClassify::tableName(), [
+                    'tag_id', 'classify_id', 'created_at', 'updated_at'
+                ], $styleData)->execute();
+
             }
         }
 
@@ -534,7 +647,7 @@ class MigrateTableController extends Controller
                 $thumbnail = FileUpload::upload('uploads' . $item['filePath'], FileUpload::DIR_MATERIAL);
                 $data = [
                     'user_id' => 1,
-                    'cid' => 15,
+                    'cid' => '15',
                     'name' => (string)$index,
                     'tags' => '',
                     'file_path' => $path->path,
@@ -782,7 +895,7 @@ class MigrateTableController extends Controller
         }, $model->content);
         // 替换表格
         $content = preg_replace_callback('/"source":(\d+)/', function ($matches) {
-            return $this->getTables()[$matches[1]]['id'];
+            return "source:". $this->getTables()[$matches[1]]['id'];
         }, $content);
         $content = Json::decode($content);
         $pagesThumb = [];
@@ -975,7 +1088,7 @@ class MigrateTableController extends Controller
                             'virtual_favorite' => $model->num_fav_virtual,
                             'amount_buy' => $model->num_buy ?: 0,
                             'sort' => $model->sort,
-                            'is_recommend' => $model->recommend_at,
+                            'recommend_at' => $model->recommend_at,
                             'content' => Json::encode($item),
                             'thumbnail_updated_at' => time()
                         ];

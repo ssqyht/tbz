@@ -64,7 +64,7 @@ class Classify extends \yii\db\ActiveRecord
             [['category_id', 'pid', 'is_hot', 'is_new', 'is_open', 'status', 'is_recommend'], 'filter', 'filter' => 'intval'],
             [['category_id', 'name', 'default_edit', 'created_at', 'updated_at'], 'required'],
             ['status', 'default', 'value' => 10],
-            [['default_price', 'thumbnail_id', 'sort', 'status','created_at', 'updated_at', 'category_id', 'pid', 'is_host', 'is_new', 'is_recommend', 'status'], 'integer'],
+            [['default_price', 'thumbnail_id', 'sort', 'status','created_at', 'updated_at', 'category_id', 'pid', 'is_hot', 'is_new', 'is_recommend', 'status'], 'integer'],
             [['default_edit'], 'string'],
             [['name',], 'string', 'max' => 15],
             [['order_link', 'thumbnail'], 'string', 'max' => 255],
