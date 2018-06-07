@@ -941,14 +941,24 @@ class MigrateTableController extends Controller
                 unset($element['id']);
                 // 处理元素资源路径
                 $elementThumb = $element['options']['url'];
-
-                if (!$result = FileUpload::upload(trim($elementThumb, '/'), FileUpload::DIR_MATERIAL)) {
-                    throw new Exception('Upload Element Thumbnail failed');
+                if ( $elementThumb ) {
+                    if (!$result = FileUpload::upload(trim($elementThumb, '/'), FileUpload::DIR_MATERIAL)) {
+                        throw new Exception('Upload Element Thumbnail failed');
+                    }
+                    unset($element['options']['url']);
+                    $element['options']['source'] = $result->file_id;
+                    $fileIds[] = $result->file_id;
                 }
 
-                unset($element['options']['url']);
-                $element['options']['source'] = $result->file_id;
-                $fileIds[] = $result->file_id;
+                $e4svg = $element['options']['e4svg'];
+                if ($e4svg) {
+                    if (!$result = FileUpload::upload(trim($e4svg, '/'), FileUpload::DIR_MATERIAL)) {
+                        throw new Exception('Upload Element Thumbnail failed');
+                    }
+                    $element['options']['e4svg'] = $result->file_id;
+                    $fileIds[] = $result->file_id;
+                }
+
                 // 删除临时文件
 
                 /* TODO 统一删除
