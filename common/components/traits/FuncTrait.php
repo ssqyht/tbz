@@ -31,23 +31,36 @@ trait FuncTrait
     public static function getSourceOrigin($url, $head = true)
     {
         $validator = new UrlValidator();
-        if (!$validator->validate($url)) {
-            return false;
+        if ($validator->validate($url)) {
+            $client = new Client(['transport' => CurlTransport::class]);
+            $method = $head ? 'HEAD' : 'GET';
+            if (preg_match("/\.svg$/", $url))
+                $method = 'GET';
+            $response = $client->createRequest()->setMethod($method)->setUrl($url)->send();
+            // 文件类型
+            $type = $response->headers->get('content-type');
+            // 文件大小
+            $length = $response->headers->get('content-length');
+            // 文件内容
+            $content = $response->content;
+            if (!$response->isOk || empty($type) || empty($length)) {
+                return false;
+            }
+        } else {
+            // TODO 开发服务器测试
+            if (YII_ENV_DEV) {
+                Yii::$app->oss->getObject($url);
+            }
+            if (!$result = Yii::$app->oss->getObjectMeta($url)) {
+                return false;
+            }
+            if ($head) {
+                $content = Yii::$app->oss->getObject($url);
+            }
+            $type = $result->content_type;
+            $length = $result->content_length;
         }
-        $client = new Client(['transport' => CurlTransport::class]);
-        $method = $head ? 'HEAD' : 'GET';
-        if (preg_match("/\.svg$/", $url))
-            $method = 'GET';
-        $response = $client->createRequest()->setMethod($method)->setUrl($url)->send();
-        // 文件类型
-        $type = $response->headers->get('content-type');
-        // 文件大小
-        $length = $response->headers->get('content-length');
-        // 文件内容
-        $content = $response->content;
-        if (!$response->isOk || empty($type) || empty($length)) {
-            return false;
-        }
+
         $model = new OriginFIle();
         $model->type = $type;
         $model->length = $length;

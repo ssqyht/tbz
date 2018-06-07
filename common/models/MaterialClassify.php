@@ -11,6 +11,7 @@ use common\components\traits\ModelErrorTrait;
  * @SWG\Definition(type="object", @SWG\Xml(name="MaterialClassify"))
  *
  * @property int $cid @SWG\Property(property="cid", type="integer", description="")
+ * @property int $pid 父分类标识 @SWG\Property(property="pid", type="integer", description=" 父分类标识")
  * @property string $name 分类名称 @SWG\Property(property="name", type="string", description=" 分类名称")
  * @property int $status 素材分类状态 @SWG\Property(property="status", type="integer", description=" 素材分类状态")
  * @property int $created_at 创建时间 @SWG\Property(property="createdAt", type="integer", description=" 创建时间")
@@ -45,8 +46,10 @@ class MaterialClassify extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            ['pid', 'default', 'value' => 0],
+            ['pid', 'filter', 'filter' => 'intval'],
             [['name'], 'required'],
-            [['status', 'created_at', 'updated_at'], 'integer'],
+            [['status', 'created_at', 'updated_at', 'pid'], 'integer'],
             [['name'], 'string', 'max' => 30],
         ];
     }
@@ -58,6 +61,7 @@ class MaterialClassify extends \yii\db\ActiveRecord
     {
         return [
             'cid' => 'Cid',
+            'pid' => '父分类标识',
             'name' => '分类名称',
             'status' => '素材分类状态',
             'created_at' => '创建时间',

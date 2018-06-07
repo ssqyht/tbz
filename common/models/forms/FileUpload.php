@@ -29,6 +29,8 @@ class FileUpload extends Model
     const SCENARIO_FRONTEND = 'frontend';
     /** @var string 系统上传文件 */
     const SCENARIO_INTERNAL = 'internal';
+    /** @var string 系统上传本地文件 */
+    const SCENARIO_INTERNAL_LOCAl = 'internal_local';
     /** @var string 系统上传文件替换掉之前的文件，并删除闲现有文件 */
     const SCENARIO_INTERNAL_REPLACE = 'internal_replace';
 
@@ -61,13 +63,15 @@ class FileUpload extends Model
     public $file_url;
     public $dir;
     public $replace;
+    public $content;
+
 
     private $_fileData;
 
     public function rules()
     {
         return [
-            [['filename', 'etag', 'mimeType', 'size', 'method', 'format', 'file_url', 'dir', 'replace'], 'required'],
+            [['filename', 'etag', 'mimeType', 'size', 'method', 'format', 'file_url', 'dir', 'replace', 'content'], 'required'],
             [['user_id', 'width', 'height', 'folder_id'], 'default', 'value' => 0],
             [['user_id', 'width', 'height', 'folder_id'], 'filter', 'filter' => 'intval'],
             [['filename', 'etag', 'mimeType', 'method', 'format', 'file_url', 'dir', 'replace'], 'string'],
@@ -89,6 +93,7 @@ class FileUpload extends Model
             ['replace', PathValidator::class],
             // 验证文件是否存在
             ['filename', 'validateFilename'],
+            [['content'], 'string']
         ];
     }
 
@@ -123,6 +128,7 @@ class FileUpload extends Model
         $data = [
             static::SCENARIO_FRONTEND => ['filename', 'etag', 'user_id', 'mimeType', 'size', 'method', 'format', 'folder_id', 'width', 'height'],
             static::SCENARIO_INTERNAL => ['file_url', 'dir'],
+            static::SCENARIO_INTERNAL_LOCAl => ['content', 'dir'],
             static::SCENARIO_INTERNAL_REPLACE => ['file_url', 'dir', 'replace'],
         ];
         return ArrayHelper::merge($scenarios, $data);
@@ -152,6 +158,25 @@ class FileUpload extends Model
     }
 
     /**
+     * 上传本地文件
+     * @param string $content 文件内容
+     * @param string $dir 存放位置
+     * @return bool|FileCommon|null
+     * @author thanatos <thanatos915@163.com>
+     */
+    public static function uploadLocal($content, $dir)
+    {
+        $model = new static(['scenario' => static::SCENARIO_INTERNAL_LOCAl]);
+        if ($result = $model->submit(['content' => $content, 'dir' => $dir])) {
+            return $result;
+        } else {
+            var_dump($model->getErrors());exit;
+            $model->addErrors($model->getErrors());
+            return false;
+        }
+    }
+
+    /**
      * 上传文件
      * @param $params
      * @return bool|FileCommon|null
@@ -171,6 +196,7 @@ class FileUpload extends Model
                 break;
             case static::SCENARIO_INTERNAL_REPLACE:
             case static::SCENARIO_INTERNAL:
+            case static::SCENARIO_INTERNAL_LOCAl:
                 return $this->uploadInternal();
                 break;
         }
@@ -188,20 +214,30 @@ class FileUpload extends Model
         $oldPath = $this->file_url;
         $fullFilename = UPLOAD_BASE_DIR . DIRECTORY_SEPARATOR . $filename;
         $width = $height = 0;
-        if ($this->fileData->extType == FileCommon::EXT_SVG) {
-            // SVG 替换后上传
-            $content = static::repairSvgTag($this->fileData->content);
-            $result = Yii::$app->oss->putObject($fullFilename, $content);
-            list('height' => $height, 'width' => $width) = $this->fileData->getSvgSize();
-        } else {
-            // 其他文件直接上传
-            $result = Yii::$app->oss->putObjectOrigin($fullFilename, $oldPath);
-            // 设置图片的宽高信息
-            if ($this->scenario == static::SCENARIO_FRONTEND) {
-                $width = $this->width;
-                $height = $this->height;
+        // 上传本地文件
+        if ($this->scenario == static::SCENARIO_INTERNAL_LOCAl) {
+            $result = Yii::$app->oss->putObject($fullFilename, $this->content);
+            $width = $this->fileData->width;
+            $height = $this->fileData->height;
+        }
+        // 上传远程图片
+        else {
+            if ($this->fileData->extType == FileCommon::EXT_SVG) {
+                // SVG 替换后上传
+                $content = static::repairSvgTag($this->fileData->content);
+                $result = Yii::$app->oss->putObject($fullFilename, $content);
+                $width = $this->fileData->width;
+                $height = $this->fileData->height;
             } else {
-                list('height' => $height, 'width' => $width) = Yii::$app->oss->getObjectSize($fullFilename);
+                // 其他文件直接上传
+                $result = Yii::$app->oss->putObjectOrigin($fullFilename, $oldPath);
+                // 设置图片的宽高信息
+                if ($this->scenario == static::SCENARIO_FRONTEND) {
+                    $width = $this->width;
+                    $height = $this->height;
+                } else {
+                    list('height' => $height, 'width' => $width) = Yii::$app->oss->getObjectSize($fullFilename);
+                }
             }
         }
 
@@ -274,8 +310,6 @@ class FileUpload extends Model
         $tmp = ArrayHelper::map(FileCommon::$extension, 'mime', 'type');
         // 处理上传的文件
         if ($tmp[$this->mimeType] == FileCommon::EXT_SVG) {
-            // 取出文件替换后上传
-            $oldContent = Yii::$app->oss->getObject($this->filename);
             // 替换Svg标签
             $content = static::repairSvgTag($this->fileData->content);
             if (!Yii::$app->oss->putObject($fullFile, $content)) {
@@ -356,7 +390,14 @@ class FileUpload extends Model
     public function getFileData()
     {
         if ($this->_fileData === null) {
-            $this->_fileData = FuncTrait::getSourceOrigin($this->file_url);
+            if ($this->scenario == static::SCENARIO_INTERNAL_LOCAl) {
+                $model = new OriginFIle();
+                $model->content = $this->content;
+                $model->length = strlen($this->content);
+                $this->fileData = $model;
+            } else {
+                $this->_fileData = FuncTrait::getSourceOrigin($this->file_url);
+            }
         }
         return $this->_fileData;
     }

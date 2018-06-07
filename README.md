@@ -59,3 +59,13 @@ docker-compose up
 ```bash
 ./yii cache flush-schema
 ```
+
+数据迁移
+-------
+####迁移顺序
+`product` -> `tags` -> `queue-template` -> `template`
+
+####模板迁移命令
+```php
+./yii migrate-table/template -s http://docker.for.mac.host.internal -p 50
+```

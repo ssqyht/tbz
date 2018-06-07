@@ -12,6 +12,16 @@ return [
             'username' => 'tubangzhudev',
             'password' => 'jpEHu2JEXessDyUv',
             'charset' => 'utf8',
-        ]
+        ],
+        'log' => [
+            'targets' => [
+                [
+                    'class' => 'yii\log\FileTarget',
+                    'levels' => ['error'],
+                    'logVars' => [],
+                ],
+            ],
+        ],
+
     ]
 ];
