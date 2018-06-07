@@ -446,7 +446,6 @@ class MigrateTableController extends Controller
             }
         }
 
-        Classify::getDb()->createCommand()->batchInsert(Classify::tableName(), ['category_id', 'pid', 'name', 'default_price', 'is_hot', 'is_new', 'default_edit', 'order_link', 'thumbnail', 'thumbnail_id', 'sort', 'is_open', 'is_recommend', 'status', 'created_at', 'updated_at'], $data)->execute();
         // 更新文件引用
         /** @var Classify[] $models */
         $models = Classify::find()->all();
@@ -895,7 +894,7 @@ class MigrateTableController extends Controller
         }, $model->content);
         // 替换表格
         $content = preg_replace_callback('/"source":(\d+)/', function ($matches) {
-            return "source:". $this->getTables()[$matches[1]]['id'];
+            return '"source:"'. $this->getTables()[$matches[1]]['id'];
         }, $content);
         $content = Json::decode($content);
         $pagesThumb = [];
@@ -984,7 +983,7 @@ class MigrateTableController extends Controller
         if ($this->_tables === null) {
             $this->_tables = ArrayHelper::index(MaterialOfficial::find()->asArray()->where(['cid' => 15])->select(['id', 'name'])->all(), 'name');
         }
-        return $this->_fonts;
+        return $this->_tables;
     }
 
     /**
