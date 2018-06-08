@@ -8,5 +8,4 @@
 namespace api\modules\v1\controllers;
 class ShareTemplateController extends \api\common\controllers\ShareTemplateController
 {
-
 }
