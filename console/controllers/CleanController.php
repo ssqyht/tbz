@@ -36,12 +36,11 @@ class CleanController extends Controller
     {
         $prefix = UPLOAD_BASE_DIR.'/';
         $start = time();
-        $this->stdout('开始清除文件', Console::FG_YELLOW);
+        $this->stdout('开始清除文件' . "\n", Console::FG_YELLOW);
         $this->cleanDir($prefix);
         $end = time();
-        var_dump($this->_count);exit;
-        $this->stdout('清除完成', Console::FG_GREEN);
-        $this->stdout('总耗时 '. $end - $start, Console::FG_GREEN);
+        $this->stdout('清除完成'. $this->_count . '个' . "\n", Console::FG_GREEN);
+        $this->stdout('总耗时 '. $end - $start . "\n", Console::FG_GREEN);
     }
 
     private function cleanDir($dir)
@@ -74,11 +73,15 @@ class CleanController extends Controller
             // 删除当前文件
             foreach ($listObject as $k => $object) {
                 if ($object->getSize() !== 0) {
+                    var_dump(FileCommon::findByEtag(trim($object->getETag(), '"')));exit;
                     if (!FileCommon::findByEtag(trim($object->getETag(), '"'))) {
                         Yii::$app->oss->deleteObject(trim($object->getKey()));
+                        $this->_count ++;
                     }
                 }
             }
+            if ($this->_count > 0)
+                $this->stdout('成功删除'. $this->_count . '个文件' . "\n", Console::FG_GREEN);
             // 处理文件删除
             if ($nextMarker === '') {
                 break;
