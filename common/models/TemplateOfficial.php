@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\components\traits\ModelFieldsTrait;
+use common\components\traits\TemplateTrait;
 use Yii;
 use common\components\traits\TimestampTrait;
 use common\components\traits\ModelErrorTrait;
@@ -40,6 +41,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     use ModelErrorTrait;
     use TimestampTrait;
     use ModelFieldsTrait;
+    use TemplateTrait;
 
     /** @var int 上线 */
     const STATUS_ONLINE = 20;
@@ -139,7 +141,7 @@ class TemplateOfficial extends \yii\db\ActiveRecord
     public function extraFields()
     {
         return ['classify', 'category', 'content' => function(){
-            return $this->content;
+            return $this->prepareContent();
         }];
     }
 

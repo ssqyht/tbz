@@ -299,7 +299,7 @@ class MigrateTableController extends Controller
                     // 查询新表的数据
                     /** @var Tag[] $newStyles */
                     $newStyles =  Tag::find()
-                        ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($styles, 'name')]);
+                        ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($styles, 'name')])->all();
                     $styleData = [];
                     foreach ($newStyles as $style) {
                         $styleData[] = [
@@ -316,7 +316,7 @@ class MigrateTableController extends Controller
                     // 查询新表的数据
                     /** @var Tag[] $newIndustries */
                     $newIndustries =  Tag::find()
-                        ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($industries, 'name')]);
+                        ->where(['type' => Tag::TYPE_INDUSTRY, 'name' => ArrayHelper::getColumn($industries, 'name')])->all();
                     foreach ($newIndustries as $industry) {
                         $styleData[] = [
                             'tag_id' => $industry->tag_id,
@@ -332,7 +332,7 @@ class MigrateTableController extends Controller
                     // 查询新表的数据
                     /** @var Tag[] $newFunctions */
                     $newFunctions =  Tag::find()
-                        ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($functions, 'name')]);
+                        ->where(['type' => Tag::TYPE_FUNCTION, 'name' => ArrayHelper::getColumn($functions, 'name')])->all();
                     foreach ($newFunctions as $function) {
                         $styleData[] = [
                             'tag_id' => $function->tag_id,
@@ -397,7 +397,7 @@ class MigrateTableController extends Controller
                 // 查询新表的数据
                 /** @var Tag[] $newStyles */
                 $newStyles =  Tag::find()
-                    ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($styles, 'name')]);
+                    ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($styles, 'name')])->all();
                 $styleData = [];
                 foreach ($newStyles as $style) {
                     $styleData[] = [
@@ -414,7 +414,7 @@ class MigrateTableController extends Controller
                 // 查询新表的数据
                 /** @var Tag[] $newIndustries */
                 $newIndustries =  Tag::find()
-                    ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($industries, 'name')]);
+                    ->where(['type' => Tag::TYPE_INDUSTRY, 'name' => ArrayHelper::getColumn($industries, 'name')])->all();
                 foreach ($newIndustries as $industry) {
                     $styleData[] = [
                         'tag_id' => $industry->tag_id,
@@ -430,7 +430,7 @@ class MigrateTableController extends Controller
                 // 查询新表的数据
                 /** @var Tag[] $newFunctions */
                 $newFunctions =  Tag::find()
-                    ->where(['type' => Tag::TYPE_STYLE, 'name' => ArrayHelper::getColumn($functions, 'name')]);
+                    ->where(['type' => Tag::TYPE_FUNCTION, 'name' => ArrayHelper::getColumn($functions, 'name')])->all();
                 foreach ($newFunctions as $function) {
                     $styleData[] = [
                         'tag_id' => $function->tag_id,
@@ -745,6 +745,7 @@ class MigrateTableController extends Controller
         while (\pcntl_waitpid(0, $status) != -1) {
             sleep(0.5);
         }
+
         $end = time();
         $this->stdout('总耗时:' . ($end - $start) . "\n", Console::FG_GREEN);
         return ExitCode::OK;
@@ -790,6 +791,9 @@ class MigrateTableController extends Controller
                     $tmpPath = preg_replace('/.*\/?(uploads)?\/?(.+)/', '$0', $model['filePath']);
                     // 原文件
                     $pathFIle = FileUpload::upload('uploads/' . trim($tmpPath, '/'), FileUpload::DIR_MATERIAL);
+                    if (empty($pathFIle)) {
+                        throw new Exception('Uploads Path File Failed ' . 'uploads/' . trim($tmpPath, '/'));
+                    }
                     // SVG
                     if ($model['mimeType'] == 'eel') {
                         $thumbnail = $pathFIle->path;
@@ -800,6 +804,9 @@ class MigrateTableController extends Controller
                             OssClient::OSS_PROCESS => 'image/resize,w_250',
                         ]);
                         $thumbnailFIle = FileUpload::uploadLocal($object, FileUpload::DIR_MATERIAL);
+                        if (empty($thumbnailFIle)) {
+                            throw new Exception('Uploads File Thumbnail Failed ' . $pathFIle->path);
+                        }
                         $thumbnail = $thumbnailFIle->path;
                         $thumbnail_id = $thumbnailFIle->file_id;
                     }
@@ -940,20 +947,20 @@ class MigrateTableController extends Controller
             foreach ($page['elements'] as $eKey => &$element) {
                 unset($element['id']);
                 // 处理元素资源路径
-                $elementThumb = $element['options']['url'];
+                $elementThumb = preg_match('/\/?(.+\.\w+)/', $element['options']['url'], $matches)[1];
                 if ( $elementThumb ) {
                     if (!$result = FileUpload::upload(trim($elementThumb, '/'), FileUpload::DIR_MATERIAL)) {
-                        throw new Exception('Upload Element Thumbnail failed');
+                        throw new Exception('Upload Element Thumbnail failed' . $elementThumb);
                     }
                     unset($element['options']['url']);
                     $element['options']['source'] = $result->file_id;
                     $fileIds[] = $result->file_id;
                 }
 
-                $e4svg = $element['options']['e4svg'];
+                $e4svg = preg_match('/\/?(.+\.\w+)/', $element['options']['e4svg'], $matches)[1];
                 if ($e4svg) {
                     if (!$result = FileUpload::upload(trim($e4svg, '/'), FileUpload::DIR_MATERIAL)) {
-                        throw new Exception('Upload Element Thumbnail failed');
+                        throw new Exception('Upload Element Thumbnail failed' . $e4svg);
                     }
                     $element['options']['e4svg'] = $result->file_id;
                     $fileIds[] = $result->file_id;
