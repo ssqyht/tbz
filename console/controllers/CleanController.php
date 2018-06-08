@@ -34,7 +34,7 @@ class CleanController extends Controller
      */
     public function actionCleanFile()
     {
-        $prefix = UPLOAD_BASE_DIR.'/';
+        $prefix = 'updata/';
         $start = time();
         $this->stdout('开始清除文件' . "\n", Console::FG_YELLOW);
         $this->cleanDir($prefix);
