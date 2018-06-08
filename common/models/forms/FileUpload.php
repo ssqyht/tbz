@@ -170,7 +170,6 @@ class FileUpload extends Model
         if ($result = $model->submit(['content' => $content, 'dir' => $dir])) {
             return $result;
         } else {
-            var_dump($model->getErrors());exit;
             $model->addErrors($model->getErrors());
             return false;
         }

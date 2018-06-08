@@ -791,6 +791,9 @@ class MigrateTableController extends Controller
                     $tmpPath = preg_replace('/.*\/?(uploads)?\/?(.+)/', '$0', $model['filePath']);
                     // 原文件
                     $pathFIle = FileUpload::upload('uploads/' . trim($tmpPath, '/'), FileUpload::DIR_MATERIAL);
+                    if (empty($pathFIle)) {
+                        throw new Exception('Uploads Path File Failed ' . 'uploads/' . trim($tmpPath, '/'));
+                    }
                     // SVG
                     if ($model['mimeType'] == 'eel') {
                         $thumbnail = $pathFIle->path;
@@ -801,6 +804,9 @@ class MigrateTableController extends Controller
                             OssClient::OSS_PROCESS => 'image/resize,w_250',
                         ]);
                         $thumbnailFIle = FileUpload::uploadLocal($object, FileUpload::DIR_MATERIAL);
+                        if (empty($thumbnailFIle)) {
+                            throw new Exception('Uploads File Thumbnail Failed ' . $pathFIle->path);
+                        }
                         $thumbnail = $thumbnailFIle->path;
                         $thumbnail_id = $thumbnailFIle->file_id;
                     }
