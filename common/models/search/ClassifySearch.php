@@ -67,7 +67,8 @@ class ClassifySearch extends Model
     {
         if ($this->classify) {
             $classifyModel = Classify::findById($this->classify);
-            $tags = $this->searchTag($classifyModel);
+            if ($classifyModel)
+                $tags = $this->searchTag($classifyModel);
         }
         $category = $this->category ?: $classifyModel->category_id;
         $classify = Classify::online()->andWhere(['category_id' => $category])->all();
