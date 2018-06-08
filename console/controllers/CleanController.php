@@ -73,7 +73,6 @@ class CleanController extends Controller
             // 删除当前文件
             foreach ($listObject as $k => $object) {
                 if ($object->getSize() !== 0) {
-                    var_dump(FileCommon::findByEtag(trim($object->getETag(), '"')));exit;
                     if (!FileCommon::findByEtag(trim($object->getETag(), '"'))) {
                         Yii::$app->oss->deleteObject(trim($object->getKey()));
                         $this->_count ++;
