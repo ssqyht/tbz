@@ -66,15 +66,14 @@ class TemplateOfficialController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return \common\models\Category[]|null
-     * @throws NotFoundHttpException
+     * @return mixed|null|string
      */
     public function actionClassifySearch()
     {
         $model = new TemplateCenterSearch();
         $result = $model->search();
         if (!$result) {
-            throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+            return '';
         }
         return $result;
     }
@@ -155,8 +154,7 @@ class TemplateOfficialController extends RestController
      *          ref="$/responses/Error",
      *     ),
      * )
-     * @return null|\yii\data\ActiveDataProvider
-     * @throws NotFoundHttpException
+     * @return null|string|\yii\data\ActiveDataProvider
      */
     public function actionIndex()
     {
@@ -168,7 +166,7 @@ class TemplateOfficialController extends RestController
         if ($result) {
             return $result;
         }
-        throw new NotFoundHttpException('', Code::SOURCE_NOT_FOUND);
+        return '';
     }
 
     /**
@@ -217,16 +215,14 @@ class TemplateOfficialController extends RestController
      *     ),
      * )
      *
-     * @param integer $id
-     * @return array|TemplateOfficial|null|\yii\db\ActiveRecord
-     * @throws NotFoundHttpException
-     * @author thanatos <thanatos915@163.com>
+     * @param $id
+     * @return TemplateOfficial|null|string|\yii\db\ActiveRecord
      */
     public function actionView($id)
     {
         $model = TemplateOfficial::findById($id);
         if (empty($model)) {
-            throw new NotFoundHttpException('资源不存在', Code::SOURCE_NOT_FOUND);
+            return '';
         }
         return $model;
     }
