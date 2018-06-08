@@ -31,6 +31,6 @@ class m180605_072642_create_template_official_pages_table extends Migration
      */
     public function safeDown()
     {
-        $this->dropTable('template_official_pages');
+        $this->dropTable($this->tableName);
     }
 }
